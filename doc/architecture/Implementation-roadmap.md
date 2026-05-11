@@ -136,7 +136,6 @@ Projeto dividido em **2 blocos complementares e integrados**, desenvolvidos sequ
 - Link budget com diretividade validado
 - Padrões de radiação simulados
 
-**Duração**: ~16-19 dias  
 **Saída**: MVP Sandbox completo, pronto para integração geográfica
 
 **Gate de Saída (Bloco 1 → Bloco 2)**:
@@ -157,7 +156,6 @@ Projeto dividido em **2 blocos complementares e integrados**, desenvolvidos sequ
 - Relatórios com parâmetros + gráficos
 - Deploy em container LAN
 
-**Duração**: ~11-14 dias  
 **Entrada**: Todos objetos validados do Bloco 1  
 **Saída**: Plataforma completa em produção
 
@@ -177,7 +175,6 @@ Heatmap + Relatórios → Produção
 ---
 
 ## SPRINT 0.5: DOCUMENTAÇÃO TÉCNICA
-**Duração**: 2 dias  
 **Responsável**: Arquiteto + Especialista Técnico  
 **Status**: BLOQUEADOR para Sprints posteriores  
 **Bloco**: BLOCO 1
@@ -490,7 +487,6 @@ grep -c "Test #" tests/validation_matrix.md  # Esperado: ≥ 15
 ---
 
 ## SPRINT 0: INFRAESTRUTURA
-**Duração**: 1-2 dias  
 **Responsável**: DevOps Engineer  
 **Bloqueador anterior**: Sprint 0.5 ✓ PASSA  
 **Bloco**: BLOCO 1
@@ -660,7 +656,6 @@ streamlit run src/lora_antenna/app.py --logger.level=debug
 ---
 
 ## SPRINT 1: NÚCLEO MATEMÁTICO
-**Duração**: 3-4 dias  
 **Responsável**: Engenheiro de Física/Matemática  
 **Bloqueador anterior**: Sprint 0 ✓ PASSA  
 **Bloco**: BLOCO 1
@@ -841,7 +836,6 @@ git checkout tests/test_formulas.py
 ---
 
 ## SPRINT 2-3: CLASSES ANTENNA
-**Duração**: 5-6 dias  
 **Responsável**: Python Developer + Domain Expert  
 **Bloqueador anterior**: Sprint 1 ✓ PASSA  
 **Bloco**: BLOCO 1
@@ -1318,7 +1312,6 @@ git reset --hard <commit-anterior>
 ---
 
 ## SPRINT 4: UI STANDALONE
-**Duração**: 3-4 dias  
 **Responsável**: Frontend Developer + UX Designer  
 **Bloqueador anterior**: Sprint 2-3 ✓ PASSA  
 **Bloco**: BLOCO 1
@@ -1437,7 +1430,6 @@ assert data['antenna_type'] == 'Monopole'
 ---
 
 ## SPRINT 5-6: LINK BUDGET + DIRETIVIDADE
-**Duração**: 5-6 dias  
 **Responsável**: RF Engineer + Backend Developer  
 **Bloqueador anterior**: Sprint 4 ✓ PASSA  
 **Bloco**: BLOCO 1
@@ -1770,7 +1762,6 @@ timeout 10 uv run streamlit run src/lora_antenna/app.py &
 ---
 
 ## SPRINT 7: VISUALIZAÇÕES
-**Duração**: 5-6 dias  
 **Responsável**: Frontend Developer (Plotly Expert)  
 **Bloqueador anterior**: Sprint 5-6 ✓ PASSA  
 **Bloco**: BLOCO 1
@@ -1929,7 +1920,6 @@ Bloco 2 adiciona contexto geográfico, mapa e relatórios.
 ---
 
 ## SPRINT 8: GIS/COBERTURA
-**Duração**: 6-7 dias  
 **Responsável**: GIS Engineer + Backend Developer  
 **Bloqueador anterior**: Sprint 7 ✓ PASSA  
 **Bloco**: BLOCO 2
@@ -1945,7 +1935,6 @@ Bloco 2 adiciona contexto geográfico, mapa e relatórios.
 ---
 
 ## SPRINT 9: RELATÓRIOS
-**Duração**: 3-4 dias  
 **Responsável**: Backend Developer  
 **Bloqueador anterior**: Sprint 8 ✓ PASSA  
 **Bloco**: BLOCO 2
@@ -1961,7 +1950,6 @@ Bloco 2 adiciona contexto geográfico, mapa e relatórios.
 ---
 
 ## SPRINT 10: DEPLOY + QA
-**Duração**: 2-3 dias  
 **Responsável**: DevOps + QA  
 **Bloqueador anterior**: Sprint 9 ✓ PASSA  
 **Bloco**: BLOCO 2
