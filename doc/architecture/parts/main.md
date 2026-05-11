@@ -87,7 +87,7 @@ Heatmap + Relatórios → Produção
 **Status**: BLOQUEADOR para Sprints posteriores  
 **Bloco**: BLOCO 1
 
-![[SPRINT-0_5.md]]
+![[sprint/SPRINT-0_5]]
 
 > [SUMARIO](#sumário)
 
@@ -97,7 +97,7 @@ Heatmap + Relatórios → Produção
 **Bloqueador anterior**: Sprint 0 ✓ PASSA  
 **Bloco**: BLOCO 1
 
-<!-- ![[SPRINT-1.md]] -->
+<!-- ![[sprint/SPRINT-1.md]] -->
 
 > [SUMARIO](#sumário)
 
@@ -107,7 +107,7 @@ Heatmap + Relatórios → Produção
 **Bloqueador anterior**: Sprint 1 ✓ PASSA  
 **Bloco**: BLOCO 1
 
-![[SPRINT-2_3.md]]
+![[sprint/SPRINT-2_3.md]]
 
 > [SUMARIO](#sumário)
 
@@ -117,7 +117,7 @@ Heatmap + Relatórios → Produção
 **Bloqueador anterior**: Sprint 2-3 ✓ PASSA  
 **Bloco**: BLOCO 1
 
-![[SPRINT-4.md]]
+![[sprint/SPRINT-4.md]]
 
 > [SUMARIO](#sumário)
 
@@ -127,7 +127,7 @@ Heatmap + Relatórios → Produção
 **Bloqueador anterior**: Sprint 4 ✓ PASSA  
 **Bloco**: BLOCO 1
 
-![[SPRINT-5_6.md]]
+![[sprint/SPRINT-5_6.md]]
 
 > [SUMARIO](#sumário)
 
@@ -137,7 +137,7 @@ Heatmap + Relatórios → Produção
 **Bloqueador anterior**: Sprint 5-6 ✓ PASSA  
 **Bloco**: BLOCO 1
 
-![[SPRINT-7.md]]
+![[sprint/SPRINT-7.md]]
 
 > [SUMARIO](#sumário)
 
@@ -177,7 +177,7 @@ Bloco 2 adiciona contexto geográfico, mapa e relatórios.
 **Bloqueador anterior**: Sprint 7 ✓ PASSA  
 **Bloco**: BLOCO 2
 
-![[SPRINT-8.md]]
+![[sprint/SPRINT-8.md]]
 
 > [SUMARIO](#sumário)
 
@@ -187,7 +187,7 @@ Bloco 2 adiciona contexto geográfico, mapa e relatórios.
 **Bloqueador anterior**: Sprint 8 ✓ PASSA  
 **Bloco**: BLOCO 2
 
-![[SPRINT-9.md]]
+![[sprint/SPRINT-9.md]]
 
 > [SUMARIO](#sumário)
 
@@ -197,7 +197,7 @@ Bloco 2 adiciona contexto geográfico, mapa e relatórios.
 **Bloqueador anterior**: Sprint 9 ✓ PASSA  
 **Bloco**: BLOCO 2
 
-![[SPRINT-10.md]]
+![[sprint/SPRINT-10.md]]
 
 > [SUMARIO](#sumário)
 

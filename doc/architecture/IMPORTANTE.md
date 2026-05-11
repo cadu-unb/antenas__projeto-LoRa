@@ -1,0 +1,1 @@
+No Brasil segundo a ANATEL o LoRa pode utilizar SOMENTE as faixa 915 à 928 MHz.

@@ -1,13 +1,10 @@
-<link rel="stylesheet" type="text/css" href="../css/style_.css">
+<link rel="stylesheet" type="text/css" href="../css/style.css">
 
 # Implementation Roadmap — LoRa Antenna Platform MVP
 
-**Status**: Ready for Development  
-**Duration**: 38-45 dias (~8-9 semanas)  
+**Status**: Ready for Development  <!-- **Duration**: 38-45 dias (~8-9 semanas)   -->
 **Target**: Production-ready MVP com gateways LoRa corporativos  
 **Last Updated**: 2026-05-11  
-
-> [SUMARIO](#sumário)
 
 ---
 
