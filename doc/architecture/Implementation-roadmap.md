@@ -1,9 +1,13 @@
+<link rel="stylesheet" type="text/css" href="../css/style_.css">
+
 # Implementation Roadmap — LoRa Antenna Platform MVP
 
 **Status**: Ready for Development  
 **Duration**: 38-45 dias (~8-9 semanas)  
 **Target**: Production-ready MVP com gateways LoRa corporativos  
 **Last Updated**: 2026-05-11  
+
+> [SUMARIO](#sumário)
 
 ---
 
@@ -20,10 +24,163 @@ Roadmap segmentado em 11 sprints (Checkpoint 0.5 até 10), cada um com:
 
 ---
 
+## Sumário
+
+- [Implementation Roadmap — LoRa Antenna Platform MVP](#implementation-roadmap--lora-antenna-platform-mvp)
+  - [Visão Geral](#visão-geral)
+  - [Sumário](#sumário)
+  - [Arquitetura de Blocos](#arquitetura-de-blocos)
+    - [BLOCO 1: SANDBOX DE SIMULAÇÃO (Sprints 0.5-7)](#bloco-1-sandbox-de-simulação-sprints-05-7)
+    - [BLOCO 2: SIMULAÇÃO EM CAMPUS DARCY RIBEIRO (Sprints 8-10)](#bloco-2-simulação-em-campus-darcy-ribeiro-sprints-8-10)
+  - [SPRINT 0.5: DOCUMENTAÇÃO TÉCNICA](#sprint-05-documentação-técnica)
+    - [Objetivos Curto Prazo](#objetivos-curto-prazo)
+    - [Dependências](#dependências)
+    - [Tarefas Principais](#tarefas-principais)
+      - [1.1 `docs/formulas.md` (4 horas)](#11-docsformulasmd-4-horas)
+      - [1.2 `docs/antenna_details.md` (5 horas)](#12-docsantenna_detailsmd-5-horas)
+      - [1.3 `docs/propagation_model.md` (4 horas)](#13-docspropagation_modelmd-4-horas)
+      - [1.4 `docs/assumptions.md` (3 horas)](#14-docsassumptionsmd-3-horas)
+      - [1.5 `docs/limitations.md` (3 horas)](#15-docslimitationsmd-3-horas)
+      - [1.6 `docs/accuracy_matrix.md` (2 horas)](#16-docsaccuracy_matrixmd-2-horas)
+      - [1.7 `docs/references.md` (2 horas)](#17-docsreferencesmd-2-horas)
+      - [1.8 `tests/validation_matrix.md` (2 horas)](#18-testsvalidation_matrixmd-2-horas)
+    - [Critérios de Aceite (DoD)](#critérios-de-aceite-dod)
+    - [Validação Automática](#validação-automática)
+    - [Rollback Plan](#rollback-plan)
+  - [SPRINT 0: INFRAESTRUTURA](#sprint-0-infraestrutura)
+    - [Objetivos Curto Prazo](#objetivos-curto-prazo-1)
+    - [Dependências](#dependências-1)
+    - [Tarefas Principais](#tarefas-principais-1)
+      - [2.1 Inicializar Projeto `uv`](#21-inicializar-projeto-uv)
+      - [2.2 `pyproject.toml` Configurado](#22-pyprojecttoml-configurado)
+      - [2.3 Estrutura Streamlit Minima](#23-estrutura-streamlit-minima)
+      - [2.4 Docker \& Docker Compose](#24-docker--docker-compose)
+    - [Critérios de Aceite (DoD)](#critérios-de-aceite-dod-1)
+    - [Validação Automática](#validação-automática-1)
+    - [Rollback Plan](#rollback-plan-1)
+  - [SPRINT 1: NÚCLEO MATEMÁTICO](#sprint-1-núcleo-matemático)
+    - [Objetivos Curto Prazo](#objetivos-curto-prazo-2)
+    - [Dependências](#dependências-2)
+    - [Tarefas Principais](#tarefas-principais-2)
+      - [3.1 `src/lora_antenna/constants.py`](#31-srclora_antennaconstantspy)
+      - [3.2 `src/lora_antenna/formulas.py`](#32-srclora_antennaformulaspy)
+      - [3.3 `tests/test_formulas.py`](#33-teststest_formulaspy)
+    - [Critérios de Aceite (DoD)](#critérios-de-aceite-dod-2)
+    - [Validação Automática](#validação-automática-2)
+    - [Rollback Plan](#rollback-plan-2)
+  - [SPRINT 2-3: CLASSES ANTENNA](#sprint-2-3-classes-antenna)
+    - [Objetivos Curto Prazo](#objetivos-curto-prazo-3)
+    - [Dependências](#dependências-3)
+    - [Tarefas Principais](#tarefas-principais-3)
+      - [4.1 `src/lora_antenna/antenna/base.py`](#41-srclora_antennaantennabasepy)
+      - [4.2 `src/lora_antenna/antenna/monopole.py`](#42-srclora_antennaantennamonopolepy)
+      - [4.3 `src/lora_antenna/antenna/dipole.py`](#43-srclora_antennaantennadipolepy)
+      - [4.4 `src/lora_antenna/antenna/ground_plane.py`](#44-srclora_antennaantennaground_planepy)
+      - [4.5 `src/lora_antenna/antenna/patch.py`](#45-srclora_antennaantennapatchpy)
+      - [4.6 `src/lora_antenna/antenna/yagi.py`](#46-srclora_antennaantennayagipy)
+      - [4.7 `src/lora_antenna/antenna/reflector.py` (NOVO)](#47-srclora_antennaantennareflectorpy-novo)
+      - [4.8 `src/lora_antenna/antenna/feeds.py` (NOVO)](#48-srclora_antennaantennafeedspy-novo)
+      - [4.9 Testes de Antenas](#49-testes-de-antenas)
+    - [Critérios de Aceite (DoD)](#critérios-de-aceite-dod-3)
+    - [Validação Automática](#validação-automática-3)
+    - [Rollback Plan](#rollback-plan-3)
+  - [SPRINT 4: UI STANDALONE](#sprint-4-ui-standalone)
+    - [Objetivos Curto Prazo](#objetivos-curto-prazo-4)
+    - [Tarefas Principais](#tarefas-principais-4)
+      - [5.1 `src/lora_antenna/ui/pages/antenna.py`](#51-srclora_antennauipagesantennapy)
+    - [Critérios de Aceite (DoD)](#critérios-de-aceite-dod-4)
+    - [Validação Automática](#validação-automática-4)
+  - [SPRINT 5-6: LINK BUDGET + DIRETIVIDADE](#sprint-5-6-link-budget--diretividade)
+    - [Objetivos Curto Prazo](#objetivos-curto-prazo-5)
+    - [Tarefas Principais](#tarefas-principais-5)
+      - [6.1 `src/lora_antenna/propagation/link_budget.py`](#61-srclora_antennapropagationlink_budgetpy)
+      - [6.2 `src/lora_antenna/propagation/link_directivity.py` (NOVO)](#62-srclora_antennapropagationlink_directivitypy-novo)
+      - [6.3 `src/lora_antenna/rf_chain/chain.py` (NOVO)](#63-srclora_antennarf_chainchainpy-novo)
+      - [6.4 UI para Link Budget](#64-ui-para-link-budget)
+    - [Critérios de Aceite (DoD)](#critérios-de-aceite-dod-5)
+    - [Validação Automática](#validação-automática-5)
+  - [SPRINT 7: VISUALIZAÇÕES](#sprint-7-visualizações)
+    - [Objetivos Curto Prazo](#objetivos-curto-prazo-6)
+    - [Tarefas Principais](#tarefas-principais-6)
+      - [7.1 `src/lora_antenna/ui/charts.py` (NOVO)](#71-srclora_antennauichartspy-novo)
+    - [Critérios de Aceite (DoD)](#critérios-de-aceite-dod-6)
+  - [✅ BLOCO 1 COMPLETO — TRANSIÇÃO PARA BLOCO 2](#-bloco-1-completo--transição-para-bloco-2)
+  - [📍 BLOCO 2: SIMULAÇÃO EM CAMPUS DARCY RIBEIRO](#-bloco-2-simulação-em-campus-darcy-ribeiro)
+  - [SPRINT 8: GIS/COBERTURA](#sprint-8-giscobertura)
+    - [Objetivos Curto Prazo](#objetivos-curto-prazo-7)
+  - [SPRINT 9: RELATÓRIOS](#sprint-9-relatórios)
+    - [Objetivos Curto Prazo](#objetivos-curto-prazo-8)
+  - [SPRINT 10: DEPLOY + QA](#sprint-10-deploy--qa)
+    - [Objetivos Curto Prazo](#objetivos-curto-prazo-9)
+  - [Gatekeeping Checklist Master](#gatekeeping-checklist-master)
+  - [Rollback Procedures](#rollback-procedures)
+    - [Quick Rollback (Sem perda de código)](#quick-rollback-sem-perda-de-código)
+    - [Full Rollback (Volta ao estado anterior)](#full-rollback-volta-ao-estado-anterior)
+    - [Database Rollback (Se houver)](#database-rollback-se-houver)
+  - [Métricas de Saúde do Projeto](#métricas-de-saúde-do-projeto)
+  - [Conclusão](#conclusão)
+
+---
+
+## Arquitetura de Blocos
+
+Projeto dividido em **2 blocos complementares e integrados**, desenvolvidos sequencialmente:
+
+### BLOCO 1: SANDBOX DE SIMULAÇÃO (Sprints 0.5-7)
+**Objetivo**: Construir e validar ambiente controlado para modelagem de antenas e enlaces.
+
+- Todos os modelos matemáticos implementados
+- Classes Antenna + RF chain especificadas
+- Testes contra literatura (ARRL, Balanis, Pozar)
+- UI para criar/visualizar antenas
+- Link budget com diretividade validado
+- Padrões de radiação simulados
+
+**Duração**: ~16-19 dias  
+**Saída**: MVP Sandbox completo, pronto para integração geográfica
+
+**Gate de Saída (Bloco 1 → Bloco 2)**:
+- [ ] Todos 5 tipos de antena instanciados + testados
+- [ ] Link budget validado contra ≥3 casos conhecidos
+- [ ] UI sandbox executa sem erros
+- [ ] Visualizações (polar, gain) renderizam corretamente
+- [ ] Coverage heatmap funciona em espaço abstrato
+
+---
+
+### BLOCO 2: SIMULAÇÃO EM CAMPUS DARCY RIBEIRO (Sprints 8-10)
+**Objetivo**: Aplicar objetos Antenna + Link do Sandbox em mapa real (UnB Campus).
+
+- Importação de shapefile campus
+- Grade espacial (5-50m) configurável
+- Heatmap LoRa com cálculo de potência por ponto
+- Relatórios com parâmetros + gráficos
+- Deploy em container LAN
+
+**Duração**: ~11-14 dias  
+**Entrada**: Todos objetos validados do Bloco 1  
+**Saída**: Plataforma completa em produção
+
+**Relação entre blocos**:
+```
+Bloco 1 (Sandbox)
+    ↓ validação ✓
+Objetos Antenna + Link prontos
+    ↓ reuso direto (sem modificação)
+Bloco 2 (Campus)
+    ↓ aplicação geográfica
+Heatmap + Relatórios → Produção
+```
+
+> [SUMARIO](#sumário)
+
+---
+
 ## SPRINT 0.5: DOCUMENTAÇÃO TÉCNICA
 **Duração**: 2 dias  
 **Responsável**: Arquiteto + Especialista Técnico  
-**Status**: BLOQUEADOR para Sprints posteriores
+**Status**: BLOQUEADOR para Sprints posteriores  
+**Bloco**: BLOCO 1
 
 ### Objetivos Curto Prazo
 - Documentar todas as fórmulas com derivações
@@ -328,12 +485,15 @@ grep -c "Test #" tests/validation_matrix.md  # Esperado: ≥ 15
 - Git: `git reset --hard origin/main` (nunca feito, fase documental)
 - Não há dependências de código ainda
 
+> [SUMARIO](#sumário)
+
 ---
 
 ## SPRINT 0: INFRAESTRUTURA
 **Duração**: 1-2 dias  
 **Responsável**: DevOps Engineer  
-**Bloqueador anterior**: Sprint 0.5 ✓ PASSA
+**Bloqueador anterior**: Sprint 0.5 ✓ PASSA  
+**Bloco**: BLOCO 1
 
 ### Objetivos Curto Prazo
 - Python 3.11+ com `uv` configurado
@@ -495,12 +655,15 @@ git checkout pyproject.toml
 streamlit run src/lora_antenna/app.py --logger.level=debug
 ```
 
+> [SUMARIO](#sumário)
+
 ---
 
 ## SPRINT 1: NÚCLEO MATEMÁTICO
 **Duração**: 3-4 dias  
 **Responsável**: Engenheiro de Física/Matemática  
-**Bloqueador anterior**: Sprint 0 ✓ PASSA
+**Bloqueador anterior**: Sprint 0 ✓ PASSA  
+**Bloco**: BLOCO 1
 
 ### Objetivos Curto Prazo
 - Funções matemáticas puras implementadas
@@ -673,12 +836,15 @@ git checkout tests/test_formulas.py
 # Consultar docs/formulas.md e literatura
 ```
 
+> [SUMARIO](#sumário)
+
 ---
 
 ## SPRINT 2-3: CLASSES ANTENNA
 **Duração**: 5-6 dias  
 **Responsável**: Python Developer + Domain Expert  
-**Bloqueador anterior**: Sprint 1 ✓ PASSA
+**Bloqueador anterior**: Sprint 1 ✓ PASSA  
+**Bloco**: BLOCO 1
 
 ### Objetivos Curto Prazo
 - Modelos Pydantic para antenas
@@ -1147,12 +1313,15 @@ git diff src/lora_antenna/antenna/
 git reset --hard <commit-anterior>
 ```
 
+> [SUMARIO](#sumário)
+
 ---
 
 ## SPRINT 4: UI STANDALONE
 **Duração**: 3-4 dias  
 **Responsável**: Frontend Developer + UX Designer  
-**Bloqueador anterior**: Sprint 2-3 ✓ PASSA
+**Bloqueador anterior**: Sprint 2-3 ✓ PASSA  
+**Bloco**: BLOCO 1
 
 ### Objetivos Curto Prazo
 - Interface Streamlit para criar antena
@@ -1263,12 +1432,15 @@ assert data['antenna_type'] == 'Monopole'
 "
 ```
 
+> [SUMARIO](#sumário)
+
 ---
 
 ## SPRINT 5-6: LINK BUDGET + DIRETIVIDADE
 **Duração**: 5-6 dias  
 **Responsável**: RF Engineer + Backend Developer  
-**Bloqueador anterior**: Sprint 4 ✓ PASSA
+**Bloqueador anterior**: Sprint 4 ✓ PASSA  
+**Bloco**: BLOCO 1
 
 ### Objetivos Curto Prazo
 - LinkBudget simples e completo
@@ -1593,12 +1765,15 @@ print(f'✓ Link budget: {pr:.2f} dBm')
 timeout 10 uv run streamlit run src/lora_antenna/app.py &
 ```
 
+> [SUMARIO](#sumário)
+
 ---
 
 ## SPRINT 7: VISUALIZAÇÕES
 **Duração**: 5-6 dias  
 **Responsável**: Frontend Developer (Plotly Expert)  
-**Bloqueador anterior**: Sprint 5-6 ✓ PASSA
+**Bloqueador anterior**: Sprint 5-6 ✓ PASSA  
+**Bloco**: BLOCO 1
 
 ### Objetivos Curto Prazo
 - Gráficos polares para padrões de radiação
@@ -1718,12 +1893,46 @@ def tx_rx_chain_breakdown(tx_chain, rx_chain, antenna_gain_tx, antenna_gain_rx):
 - [ ] TX/RX chain breakdown visual funciona
 - [ ] Disclaimers aparecem nos gráficos ("SIMPLIFIED", etc)
 
+> [SUMARIO](#sumário)
+
+---
+
+## ✅ BLOCO 1 COMPLETO — TRANSIÇÃO PARA BLOCO 2
+
+**Marco Crítico**: Sprint 7 concluído com sucesso  
+**Status**: Sandbox de simulação validado e pronto
+
+**Checklist de Saída Bloco 1**:
+- ✓ 5 tipos de antena operacionais (Monopole, Dipole, GroundPlane, Patch, Yagi + ReflectorAntenna)
+- ✓ Link budget com diretividade implementado
+- ✓ Friis equation validado contra 3+ casos de teste conhecidos
+- ✓ UI sandbox executável sem erros
+- ✓ Visualizações polares + ganho renderizam
+- ✓ Heatmap funciona em espaço abstrato (sem coordenadas reais)
+- ✓ Persistência (Pydantic + JSON) operacional
+- ✓ Testes unitários passam (coverage > 95%)
+
+**Próximo Passo**: Integração geográfica com Campus Darcy Ribeiro  
+**Data Esperada**: Fim do dia 19-22 do cronograma total
+
+> [SUMARIO](#sumário)
+
+---
+
+## 📍 BLOCO 2: SIMULAÇÃO EM CAMPUS DARCY RIBEIRO
+
+Blocos 1 e 2 compartilham objetos Antenna + Link do Sandbox **sem modificação**.  
+Bloco 2 adiciona contexto geográfico, mapa e relatórios.
+
+> [SUMARIO](#sumário)
+
 ---
 
 ## SPRINT 8: GIS/COBERTURA
 **Duração**: 6-7 dias  
 **Responsável**: GIS Engineer + Backend Developer  
-**Bloqueador anterior**: Sprint 7 ✓ PASSA
+**Bloqueador anterior**: Sprint 7 ✓ PASSA  
+**Bloco**: BLOCO 2
 
 ### Objetivos Curto Prazo
 - Grade espacial configurável (5-50m)
@@ -1731,12 +1940,15 @@ def tx_rx_chain_breakdown(tx_chain, rx_chain, antenna_gain_tx, antenna_gain_rx):
 - Cálculo de potência em cada ponto
 - Importação de shapefiles (opcional MVP)
 
+> [SUMARIO](#sumário)
+
 ---
 
 ## SPRINT 9: RELATÓRIOS
 **Duração**: 3-4 dias  
 **Responsável**: Backend Developer  
-**Bloqueador anterior**: Sprint 8 ✓ PASSA
+**Bloqueador anterior**: Sprint 8 ✓ PASSA  
+**Bloco**: BLOCO 2
 
 ### Objetivos Curto Prazo
 - Geração de markdown com parâmetros
@@ -1744,18 +1956,23 @@ def tx_rx_chain_breakdown(tx_chain, rx_chain, antenna_gain_tx, antenna_gain_rx):
 - Inclusão de gráficos em PDF
 - Documentação de limitações no relatório
 
+> [SUMARIO](#sumário)
+
 ---
 
 ## SPRINT 10: DEPLOY + QA
 **Duração**: 2-3 dias  
 **Responsável**: DevOps + QA  
-**Bloqueador anterior**: Sprint 9 ✓ PASSA
+**Bloqueador anterior**: Sprint 9 ✓ PASSA  
+**Bloco**: BLOCO 2
 
 ### Objetivos Curto Prazo
 - Docker build e push
 - Testes E2E
 - README final
 - Deploy em LAN (porta 3953)
+
+> [SUMARIO](#sumário)
 
 ---
 
@@ -1818,6 +2035,8 @@ def tx_rx_chain_breakdown(tx_chain, rx_chain, antenna_gain_tx, antenna_gain_rx):
 - [ ] README completo
 ```
 
+> [SUMARIO](#sumário)
+
 ---
 
 ## Rollback Procedures
@@ -1860,6 +2079,8 @@ sqlite3 gestao.db ".schema"
 cp gestao.db.backup gestao.db
 ```
 
+> [SUMARIO](#sumário)
+
 ---
 
 ## Métricas de Saúde do Projeto
@@ -1880,6 +2101,8 @@ cp gestao.db.backup gestao.db
    - Critérios de aceite: 100%
    - Bugs críticos: 0
    - Warnings em UI: minimizados
+
+> [SUMARIO](#sumário)
 
 ---
 
