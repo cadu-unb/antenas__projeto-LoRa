@@ -87,7 +87,7 @@ Heatmap + Relatórios → Produção
 **Status**: BLOQUEADOR para Sprints posteriores  
 **Bloco**: BLOCO 1
 
-![[SPRINT-0_5]]
+![[sprint/SPRINT-0_5]]
 
 > [SUMARIO](#sumário)
 
