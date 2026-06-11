@@ -5,7 +5,7 @@ from __future__ import annotations
 import math
 from enum import Enum
 
-from lora_antenna.core.constants import C_M_PER_S
+from lora_antenna.core.constants import C_M_PER_S, DEFAULT_RX_SENSITIVITY_DBM
 from lora_antenna.core.validators import (
     validate_lora_br_frequency_hz,
     validate_positive_distance_m,
@@ -66,7 +66,7 @@ def link_margin_db(received_power_dbm: float, rx_sensitivity_dbm: float) -> floa
 
 def classify_link_risk(
     received_power_dbm: float,
-    rx_sensitivity_dbm: float = -110.0,
+    rx_sensitivity_dbm: float = DEFAULT_RX_SENSITIVITY_DBM,
 ) -> LinkRisk:
     """Classify link risk from received power and receiver sensitivity."""
     margin = link_margin_db(received_power_dbm, rx_sensitivity_dbm)
