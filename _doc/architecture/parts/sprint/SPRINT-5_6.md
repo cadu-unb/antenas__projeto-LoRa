@@ -42,16 +42,9 @@ class LinkBudget:
 #### 6.2 `src/lora_antenna/propagation/link_directivity.py` (NOVO)
 ```python
 import math
-from dataclasses import dataclass
 from typing import Tuple
 from lora_antenna.antenna.base import Antenna
-
-@dataclass
-class GeographicPosition:
-    """Posição geográfica (x, y, z em metros)"""
-    x_m: float
-    y_m: float
-    z_m: float = 0
+from lora_antenna.models.geo import GeographicPosition
 
 class LinkWithDirectivity:
     """Link budget com diretividade (azimute/elevação)"""
@@ -237,7 +230,8 @@ class LinkBudgetComplete:
 ```python
 # src/lora_antenna/ui/pages/link.py
 import streamlit as st
-from lora_antenna.propagation.link_budget import LinkBudget, LinkWithDirectivity, GeographicPosition
+from lora_antenna.models.geo import GeographicPosition
+from lora_antenna.propagation.link_budget import LinkBudget, LinkWithDirectivity
 from lora_antenna.rf_chain.chain import LinkBudgetComplete, TxChain, RxChain
 
 st.title("🔗 Link Budget Calculator")

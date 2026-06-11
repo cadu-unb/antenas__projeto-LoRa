@@ -147,11 +147,12 @@ Projeto dividido em **2 blocos complementares e integrados**, desenvolvidos sequ
 ### BLOCO 2: SIMULAÇÃO EM CAMPUS DARCY RIBEIRO (Sprints 8-10)
 **Objetivo**: Aplicar objetos Antenna + Link do Sandbox em mapa real (UnB Campus).
 
-- Importação de shapefile campus
-- Grade espacial (5-50m) configurável
-- Heatmap LoRa com cálculo de potência por ponto
-- Relatórios com parâmetros + gráficos
-- Deploy em container LAN
+- Importação de KML com pontos de interesse P1-P8 e suporte posterior a shapefile campus.
+- Matriz de distâncias geodésicas entre todos os pares de pontos.
+- Execução batch de link budget via camada tradutora `gis/`, reutilizando Bloco 1 sem modificação.
+- Mapa Folium com marcadores, enlaces, margem visual e heatmap.
+- Relatórios com parâmetros, matriz de distâncias, tabelas de link budget, gráficos e limitações.
+- Deploy em container LAN.
 
 **Entrada**: Todos objetos validados do Bloco 1  
 **Saída**: Plataforma completa em produção
@@ -163,9 +164,22 @@ Bloco 1 (Sandbox)
 Objetos Antenna + Link prontos
     ↓ reuso direto (sem modificação)
 Bloco 2 (Campus)
-    ↓ aplicação geográfica
-Heatmap + Relatórios → Produção
+    ↓ tradução geográfica isolada
+KML/Shapefile → DistanceMatrix → LinkBatchRequest
+    ↓ execução com objetos do Bloco 1
+Mapa + Tabelas + Relatórios → Produção
 ```
+
+### Decisão Arquitetural V1: Integração KML/GIS
+
+Esta decisão incorpora o relatório `_doc/_plan/rise_3/integracao_kml_analise_arquitetural.md` como mudança aprovada para o Bloco V1.
+
+- A integração KML é aditiva e pertence exclusivamente à camada `src/lora_antenna/gis/`.
+- O Bloco 1 permanece intocável: `core/`, `antenna/`, `propagation/` e `rf_chain/` não importam `gis/`, Streamlit, Folium, KML ou shapefile.
+- O contrato geográfico neutro deve viver em `src/lora_antenna/models/geo.py`; `GeographicPosition` não deve ser definido dentro de `propagation/link_directivity.py`.
+- `KMLPoint`, `KMLDocument`, `DistanceMatrix`, `LinkBatchRequest` e `LinkBatchResult` são contratos oficiais para ingestão geográfica e simulação batch.
+- `pages/campus_coverage.py` controla upload, sessão e visualização; regras de negócio ficam em `gis/kml_parser.py`, `gis/distance_matrix.py` e `gis/multi_link.py`.
+- A frequência regulatória padrão para LoRa no Brasil é `915e6 Hz`, dentro da faixa `915-928 MHz`.
 
 > [SUMARIO](#sumário)
 
@@ -1478,13 +1492,7 @@ import math
 from dataclasses import dataclass
 from typing import Tuple
 from lora_antenna.antenna.base import Antenna
-
-@dataclass
-class GeographicPosition:
-    """Posição geográfica (x, y, z em metros)"""
-    x_m: float
-    y_m: float
-    z_m: float = 0
+from lora_antenna.models.geo import GeographicPosition
 
 class LinkWithDirectivity:
     """Link budget com diretividade (azimute/elevação)"""
@@ -1670,7 +1678,8 @@ class LinkBudgetComplete:
 ```python
 # src/lora_antenna/ui/pages/link.py
 import streamlit as st
-from lora_antenna.propagation.link_budget import LinkBudget, LinkWithDirectivity, GeographicPosition
+from lora_antenna.models.geo import GeographicPosition
+from lora_antenna.propagation.link_budget import LinkBudget, LinkWithDirectivity
 from lora_antenna.rf_chain.chain import LinkBudgetComplete, TxChain, RxChain
 
 st.title("🔗 Link Budget Calculator")
@@ -1922,10 +1931,29 @@ Bloco 2 adiciona contexto geográfico, mapa e relatórios.
 **Bloco**: BLOCO 2
 
 ### Objetivos Curto Prazo
-- Grade espacial configurável (5-50m)
-- Mapa Folium com heatmap
-- Cálculo de potência em cada ponto
-- Importação de shapefiles (opcional MVP)
+- Upload e parser KML para pontos de interesse P1-P8.
+- Cálculo de matriz de distâncias geodésicas com N*(N-1)/2 pares.
+- Batch link budget usando Antenna, RF chain e fórmulas do Bloco 1 sem alteração interna.
+- Mapa Folium com marcadores, enlaces coloridos por viabilidade e heatmap.
+- Grade espacial configurável (5-50m) como extensão de cobertura.
+- Importação de shapefile permanece opcional para MVP.
+
+### Módulos Sprint 8
+
+- `src/lora_antenna/models/geo.py`: `GeographicPosition` WGS84 + campos cartesianos retrocompatíveis.
+- `src/lora_antenna/gis/kml_parser.py`: `KMLPoint`, `KMLDocument`, parse e validação.
+- `src/lora_antenna/gis/distance_matrix.py`: `DistanceMatrix` e cálculo geodésico.
+- `src/lora_antenna/gis/multi_link.py`: `LinkBatchRequest`, `LinkPair`, `LinkBatchResult` e execução batch.
+- `src/lora_antenna/gis/map_renderer.py`: mapa Folium sem regras RF.
+- `src/lora_antenna/pages/campus_coverage.py`: upload, estado de sessão e apresentação.
+
+### Estados de Upload e Sessão
+
+- `kml_document`: documento validado.
+- `distance_matrix`: matriz recalculada a cada novo upload.
+- `geo_context`: CRS, nome do arquivo, hash, quantidade de pontos e avisos.
+- `link_batch_request`: pares e parâmetros RF usados no último cálculo.
+- `link_results`: resultados apagados ao trocar KML, antena, potência, sensibilidade ou perdas.
 
 > [SUMARIO](#sumário)
 
@@ -2002,11 +2030,15 @@ Bloco 2 adiciona contexto geográfico, mapa e relatórios.
 - [ ] Gráficos polares renderizam
 - [ ] Power vs distance gráfico ok
 - [ ] TX/RX breakdown visual ok
+- [ ] `GeographicPosition` extraído para módulo neutro
+- [ ] Bloco 1 sem dependência de `gis/`
 
 ## Gate 8 → 9 (GIS → Reports)
-- [ ] Heatmap renderiza em 5 min ou menos
-- [ ] Grade configurável 5-50m
-- [ ] Aviso de modelo simplificado aparece
+- [ ] KML P1-P8 carrega e valida labels únicos
+- [ ] Matriz de distâncias gera 28 pares para 8 pontos
+- [ ] Batch link budget executa usando Bloco 1 sem modificação
+- [ ] Heatmap/mapa multiponto renderiza em 5 min ou menos
+- [ ] Aviso de modelo simplificado e faixa ANATEL aparece
 
 ## Gate 9 → 10 (Reports → Deploy)
 - [ ] Markdown export funciona

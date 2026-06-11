@@ -60,11 +60,19 @@ Projeto dividido em **2 blocos complementares e integrados**, desenvolvidos sequ
 ### BLOCO 2: SIMULAÇÃO EM CAMPUS DARCY RIBEIRO (Sprints 8-10)
 **Objetivo**: Aplicar objetos Antenna + Link do Sandbox em mapa real (UnB Campus).
 
-- Importação de shapefile campus
-- Grade espacial (5-50m) configurável
-- Heatmap LoRa com cálculo de potência por ponto
-- Relatórios com parâmetros + gráficos
-- Deploy em container LAN
+- Importação de KML com pontos de interesse P1-P8 e suporte posterior a shapefile campus.
+- Cálculo geodésico de matriz de distâncias entre todos os pares de pontos.
+- Execução batch de link budget usando objetos validados do Bloco 1 sem modificação.
+- Mapa Folium com enlaces multiponto, heatmap e status visual por margem de enlace.
+- Relatórios com parâmetros, matriz de distâncias, link budgets e limitações.
+- Deploy em container LAN.
+
+**Contrato de fronteira Bloco 1/Bloco 2**:
+- `core/`, `antenna/`, `propagation/` e `rf_chain/` não podem importar `gis/`, `pages/` ou formatos de arquivo geográfico.
+- `gis/` pode importar modelos neutros, antenas e motores de propagação para orquestrar simulações, mas não pode alterar fórmulas, classes de antena ou RF chain.
+- `GeographicPosition` deve residir em módulo neutro (`models/geo.py` ou `core/models.py` equivalente), nunca dentro de `propagation/link_directivity.py`.
+- Estados de upload KML, matriz de distâncias e resultados batch vivem na UI (`st.session_state`) ou em persistência explicitamente versionada, nunca em singletons globais.
+- Frequência operacional LoRa Brasil: somente `915-928 MHz`; defaults de simulação usam `915e6 Hz`.
 
 **Saída**: Plataforma completa em produção
 
@@ -75,8 +83,10 @@ Bloco 1 (Sandbox)
 Objetos Antenna + Link prontos
     ↓ reuso direto (sem modificação)
 Bloco 2 (Campus)
-    ↓ aplicação geográfica
-Heatmap + Relatórios → Produção
+    ↓ tradução geográfica em gis/
+KML/Shapefile → DistanceMatrix → LinkBatchRequest
+    ↓ execução com motor matemático do Bloco 1
+Mapa + Tabela + Relatórios → Produção
 ```
 
 > [SUMARIO](#sumário)
@@ -244,11 +254,15 @@ Bloco 2 adiciona contexto geográfico, mapa e relatórios.
 - [ ] Gráficos polares renderizam
 - [ ] Power vs distance gráfico ok
 - [ ] TX/RX breakdown visual ok
+- [ ] Contrato `GeographicPosition` movido para módulo neutro
+- [ ] Bloco 1 sem importações de `gis/` ou formatos KML/shapefile
 
 ## Gate 8 → 9 (GIS → Reports)
-- [ ] Heatmap renderiza em 5 min ou menos
-- [ ] Grade configurável 5-50m
-- [ ] Aviso de modelo simplificado aparece
+- [ ] Upload KML processa P1-P8 com labels únicos
+- [ ] Matriz de distâncias geodésicas possui N*(N-1)/2 pares
+- [ ] Batch link budget executa sem modificar classes do Bloco 1
+- [ ] Heatmap/mapa multiponto renderiza em 5 min ou menos
+- [ ] Aviso de modelo simplificado e faixa ANATEL aparecem
 
 ## Gate 9 → 10 (Reports → Deploy)
 - [ ] Markdown export funciona
