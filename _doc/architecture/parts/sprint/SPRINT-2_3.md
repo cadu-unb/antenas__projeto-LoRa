@@ -412,10 +412,10 @@ def test_monopole_915mhz():
     assert abs(ant.height_m - 0.0819) < 0.0005  # λ/4
 
 def test_monopole_pydantic_export():
-    ant = Monopole(frequency_hz=868e6, name="Test", id="mon-002")
+    ant = Monopole(frequency_hz=~~868e6~~ (Fora da faixa definida pela ANATEL), name="Test", id="mon-002")
     json_str = ant.model_dump_json()
     assert "Monopole" in json_str
-    assert "868" in json_str
+    assert "868" in json_str  # ~~868 MHz~~ (Fora da faixa definida pela ANATEL).
 ```
 
 ### Critérios de Aceite (DoD)

@@ -1,4 +1,4 @@
-<link rel="stylesheet" type="text/css" href="../css/style.css">
+<link rel="stylesheet" type="text/css" href="../css/style_.css">
 
 # Implementation Roadmap — LoRa Antenna Platform MVP
 
@@ -262,16 +262,16 @@ Free Space Path Loss (FSPL):
   Exemplo 915 MHz, 1 km: 91.67 dB
 
 Obstacles (Tabela):
-  FrequĂªncy: 433 MHz, 868 MHz, 915 MHz
+  FrequĂªncy: ~~433 MHz~~ (Fora da faixa definida pela ANATEL), ~~868 MHz~~ (Fora da faixa definida pela ANATEL), 915 MHz
   
   Type: Brick Wall
-    433 MHz: min=3, nominal=6, max=12 dB
-    868 MHz: min=4, nominal=8, max=15 dB
+    ~~433 MHz: min=3, nominal=6, max=12 dB~~ (Fora da faixa definida pela ANATEL).
+    ~~868 MHz: min=4, nominal=8, max=15 dB~~ (Fora da faixa definida pela ANATEL).
     915 MHz: min=4, nominal=8, max=15 dB
   
   Type: Concrete Wall
-    433 MHz: min=6, nominal=12, max=25 dB
-    868 MHz: min=8, nominal=15, max=30 dB
+    ~~433 MHz: min=6, nominal=12, max=25 dB~~ (Fora da faixa definida pela ANATEL).
+    ~~868 MHz: min=8, nominal=15, max=30 dB~~ (Fora da faixa definida pela ANATEL).
     915 MHz: min=8, nominal=15, max=30 dB
   
   [Outros tipos: Vidro, Vegetação densa/esparsa, Edifício concreto, Alvenaria]
@@ -674,8 +674,8 @@ streamlit run src/lora_antenna/app.py --logger.level=debug
 C_M_PER_S = 299_792_458  # Velocidade da luz
 
 # Bandas LoRa
-FREQ_433_MHZ = 433e6
-FREQ_868_MHZ = 868e6
+~~FREQ_433_MHZ = 433e6~~ (Fora da faixa definida pela ANATEL).
+~~FREQ_868_MHZ = 868e6~~ (Fora da faixa definida pela ANATEL).
 FREQ_915_MHZ = 915e6
 
 # Impedância de referência
@@ -758,10 +758,10 @@ class TestFormulas:
         actual = wavelength_m(915e6)
         assert abs(actual - expected) < 0.0005  # ±0.1%
     
-    def test_wavelength_868mhz(self):
-        """Test case: λ @ 868 MHz ≈ 0.3456 m"""
+    def test_wavelength_868mhz(self):  # ~~teste 868 MHz~~ (Fora da faixa definida pela ANATEL).
+        """Test case: λ @ ~~868 MHz~~ (Fora da faixa definida pela ANATEL). ≈ 0.3456 m"""
         expected = 0.3456
-        actual = wavelength_m(868e6)
+        actual = wavelength_m(~~868e6~~ (Fora da faixa definida pela ANATEL).)
         assert abs(actual - expected) < 0.0005
     
     def test_fspl_1km_915mhz(self):
@@ -1251,10 +1251,10 @@ def test_monopole_915mhz():
     assert abs(ant.height_m - 0.0819) < 0.0005  # λ/4
 
 def test_monopole_pydantic_export():
-    ant = Monopole(frequency_hz=868e6, name="Test", id="mon-002")
+    ant = Monopole(frequency_hz=~~868e6~~ (Fora da faixa definida pela ANATEL), name="Test", id="mon-002")
     json_str = ant.model_dump_json()
     assert "Monopole" in json_str
-    assert "868" in json_str
+    assert "868" in json_str  # ~~868 MHz~~ (Fora da faixa definida pela ANATEL).
 ```
 
 ### Critérios de Aceite (DoD)
@@ -1343,7 +1343,7 @@ with st.sidebar:
     
     frequency = st.selectbox(
         "Frequency",
-        {"433 MHz": 433e6, "868 MHz": 868e6, "915 MHz": 915e6, "Custom": None}
+        {~~"433 MHz": 433e6~~ (Fora da faixa definida pela ANATEL), ~~"868 MHz": 868e6~~ (Fora da faixa definida pela ANATEL), "915 MHz": 915e6, "Custom": None}
     )
     
     if frequency is None:

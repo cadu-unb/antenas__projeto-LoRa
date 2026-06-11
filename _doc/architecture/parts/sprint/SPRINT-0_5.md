@@ -86,16 +86,16 @@ Free Space Path Loss (FSPL):
   Exemplo 915 MHz, 1 km: 91.67 dB
 
 Obstacles (Tabela):
-  FrequĂªncy: 433 MHz, 868 MHz, 915 MHz
+  FrequĂªncy: ~~433 MHz~~ (Fora da faixa definida pela ANATEL), ~~868 MHz~~ (Fora da faixa definida pela ANATEL), 915 MHz
   
   Type: Brick Wall
-    433 MHz: min=3, nominal=6, max=12 dB
-    868 MHz: min=4, nominal=8, max=15 dB
+    ~~433 MHz: min=3, nominal=6, max=12 dB~~ (Fora da faixa definida pela ANATEL).
+    ~~868 MHz: min=4, nominal=8, max=15 dB~~ (Fora da faixa definida pela ANATEL).
     915 MHz: min=4, nominal=8, max=15 dB
   
   Type: Concrete Wall
-    433 MHz: min=6, nominal=12, max=25 dB
-    868 MHz: min=8, nominal=15, max=30 dB
+    ~~433 MHz: min=6, nominal=12, max=25 dB~~ (Fora da faixa definida pela ANATEL).
+    ~~868 MHz: min=8, nominal=15, max=30 dB~~ (Fora da faixa definida pela ANATEL).
     915 MHz: min=8, nominal=15, max=30 dB
   
   [Outros tipos: Vidro, Vegetação densa/esparsa, Edifício concreto, Alvenaria]

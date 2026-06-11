@@ -96,7 +96,7 @@ Subtipos:
 #### Para LoRa: Qual é Relevante?
 
 ```
-LoRa típico @ 915 MHz / 868 MHz / 433 MHz
+LoRa típico @ 915 MHz / ~~868 MHz~~ (Fora da faixa definida pela ANATEL) / ~~433 MHz~~ (Fora da faixa definida pela ANATEL).
 ═══════════════════════════════════════════
 
 1️⃣  PARABOLOIDE CIRCULAR (Prime-Focus)

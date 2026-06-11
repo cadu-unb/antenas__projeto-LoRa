@@ -28,7 +28,7 @@ with st.sidebar:
     
     frequency = st.selectbox(
         "Frequency",
-        {"433 MHz": 433e6, "868 MHz": 868e6, "915 MHz": 915e6, "Custom": None}
+        {~~"433 MHz": 433e6~~ (Fora da faixa definida pela ANATEL), ~~"868 MHz": 868e6~~ (Fora da faixa definida pela ANATEL), "915 MHz": 915e6, "Custom": None}
     )
     
     if frequency is None:

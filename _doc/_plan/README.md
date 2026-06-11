@@ -45,7 +45,7 @@ Neste cenário, o usuário poderá analisar uma única antena em detalhes.
 
 ## Funcionalidades
 
-- Seleção de frequência (433, 868, 915 MHz ou personalizada);
+- Seleção de frequência (~~433 MHz~~ (Fora da faixa definida pela ANATEL), ~~868 MHz~~ (Fora da faixa definida pela ANATEL), 915 MHz ou personalizada);
 - Escolha do tipo de antena (Monopole, Dipole, Patch, Yagi, etc.);
 - Cálculo automático das dimensões;
 - Cálculo de comprimento de onda;

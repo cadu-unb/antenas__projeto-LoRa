@@ -148,7 +148,7 @@ dev = [
 Responsavel por constantes fisicas e bandas LoRa:
 
 - `C_M_PER_S = 299_792_458`;
-- frequencias padrao: 433, 868, 915 MHz;
+- frequencias padrao: ~~433 MHz~~ (Fora da faixa definida pela ANATEL), ~~868 MHz~~ (Fora da faixa definida pela ANATEL), 915 MHz;
 - impedancia de referencia `Z0_OHM = 50`;
 - sensibilidades SX1276 por SF/BW.
 
@@ -349,7 +349,7 @@ Pr(dBm) = Pt(dBm) + Gt(dBi) + Gr(dBi) - FSPL(dB) - perdas(dB)
 `propagation/obstacles.py`:
 
 - `ObstacleType` enum;
-- tabela por frequencia 433/868/915 MHz;
+- tabela por frequencia ~~433 MHz~~ (Fora da faixa definida pela ANATEL) / ~~868 MHz~~ (Fora da faixa definida pela ANATEL) / 915 MHz;
 - min/nominal/max por tipo;
 - interpolacao linear entre frequencias;
 - fontes documentadas em `docs/propagation_model.md`.
@@ -479,7 +479,7 @@ Paginas:
 
 Controles:
 
-- frequencia: 433/868/915/custom;
+- frequencia: ~~433 MHz~~ (Fora da faixa definida pela ANATEL) / ~~868 MHz~~ (Fora da faixa definida pela ANATEL) / 915 MHz / custom;
 - tipo de antena;
 - parametros geometricos;
 - feed se refletora;

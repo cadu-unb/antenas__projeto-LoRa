@@ -33,7 +33,7 @@ ANTENAS REFLETORAS (Gênero)
    └─ Gregorian + Parábola         ⚠️  Complexo
 
 
-PARA LORA @ 915/868/433 MHz:
+PARA LORA @ 915 MHz / ~~868 MHz~~ (Fora da faixa definida pela ANATEL) / ~~433 MHz~~ (Fora da faixa definida pela ANATEL):
 ════════════════════════════
 
 Relevante:

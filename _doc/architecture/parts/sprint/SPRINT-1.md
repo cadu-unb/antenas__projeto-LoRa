@@ -15,8 +15,8 @@
 C_M_PER_S = 299_792_458  # Velocidade da luz
 
 # Bandas LoRa
-FREQ_433_MHZ = 433e6
-FREQ_868_MHZ = 868e6
+~~FREQ_433_MHZ = 433e6~~ (Fora da faixa definida pela ANATEL).
+~~FREQ_868_MHZ = 868e6~~ (Fora da faixa definida pela ANATEL).
 FREQ_915_MHZ = 915e6
 
 # Impedância de referência
@@ -99,10 +99,10 @@ class TestFormulas:
         actual = wavelength_m(915e6)
         assert abs(actual - expected) < 0.0005  # ±0.1%
     
-    def test_wavelength_868mhz(self):
-        """Test case: λ @ 868 MHz ≈ 0.3456 m"""
+    def test_wavelength_868mhz(self):  # ~~teste 868 MHz~~ (Fora da faixa definida pela ANATEL).
+        """Test case: λ @ ~~868 MHz~~ (Fora da faixa definida pela ANATEL). ≈ 0.3456 m"""
         expected = 0.3456
-        actual = wavelength_m(868e6)
+        actual = wavelength_m(~~868e6~~ (Fora da faixa definida pela ANATEL).)
         assert abs(actual - expected) < 0.0005
     
     def test_fspl_1km_915mhz(self):

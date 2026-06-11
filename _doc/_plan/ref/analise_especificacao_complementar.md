@@ -231,14 +231,14 @@ A especificação menciona Friis, mas a implementação de FSPL isolada pode lev
 ```
 
 Esses valores variam enormemente com:
-- Frequência (915 MHz vs. 433 MHz)
+- Frequência (915 MHz vs. ~~433 MHz~~ (Fora da faixa definida pela ANATEL).)
 - Material específico (concreto vs. alvenaria vs. vidro)
 - Espessura
 - Ângulo de incidência
 - Tipo de vegetação (folhagem densa vs. esparsa)
 
 Um prédio de concreto em 915 MHz pode ter 15-25 dB de atenuação.  
-O mesmo prédio em 433 MHz pode ter 20-35 dB.
+O mesmo prédio em ~~433 MHz~~ (Fora da faixa definida pela ANATEL) pode ter 20-35 dB.
 
 **Impacto:** Heatmaps de cobertura podem ser significativamente errados.
 
@@ -435,9 +435,9 @@ L = λ_0/(2√εr_eff) - ΔL
 ### Parede de Alvenaria
 | Frequência | Espessura | Atenuação | Fonte |
 |-----------|-----------|-----------|-------|
-| 433 MHz | 0.2 m | 8 dB | ITU-R P.2040 |
+| ~~433 MHz~~ (Fora da faixa definida pela ANATEL). | 0.2 m | 8 dB | ITU-R P.2040 |
 | 915 MHz | 0.2 m | 12 dB | ITU-R P.2040 |
-| 433 MHz | 0.4 m | 15 dB | Lavric et al. |
+| ~~433 MHz~~ (Fora da faixa definida pela ANATEL). | 0.4 m | 15 dB | Lavric et al. |
 | 915 MHz | 0.4 m | 20 dB | Lavric et al. |
 
 ### Função de Implementação

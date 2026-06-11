@@ -734,38 +734,38 @@ class ObstacleAttenuationModel:
     # Tabela de atenuação (dB) por tipo e frequência
     ATTENUATION_TABLE = {
         ObstacleType.BRICK_WALL: {
-            433: {"min": 8, "max": 12, "nominal": 10},
-            868: {"min": 10, "max": 15, "nominal": 12},
+            ~~433: {"min": 8, "max": 12, "nominal": 10},~~ (Fora da faixa definida pela ANATEL).
+            ~~868: {"min": 10, "max": 15, "nominal": 12},~~ (Fora da faixa definida pela ANATEL).
             915: {"min": 11, "max": 16, "nominal": 13},
         },
         ObstacleType.CONCRETE_WALL: {
-            433: {"min": 12, "max": 18, "nominal": 15},
-            868: {"min": 15, "max": 25, "nominal": 20},
+            ~~433: {"min": 12, "max": 18, "nominal": 15},~~ (Fora da faixa definida pela ANATEL).
+            ~~868: {"min": 15, "max": 25, "nominal": 20},~~ (Fora da faixa definida pela ANATEL).
             915: {"min": 16, "max": 26, "nominal": 21},
         },
         ObstacleType.GLASS_WALL: {
-            433: {"min": 2, "max": 4, "nominal": 3},
-            868: {"min": 3, "max": 6, "nominal": 4},
+            ~~433: {"min": 2, "max": 4, "nominal": 3},~~ (Fora da faixa definida pela ANATEL).
+            ~~868: {"min": 3, "max": 6, "nominal": 4},~~ (Fora da faixa definida pela ANATEL).
             915: {"min": 3, "max": 6, "nominal": 5},
         },
         ObstacleType.VEGETATION_DENSE: {
-            433: {"min": 3, "max": 8, "nominal": 5},
-            868: {"min": 6, "max": 12, "nominal": 9},
+            ~~433: {"min": 3, "max": 8, "nominal": 5},~~ (Fora da faixa definida pela ANATEL).
+            ~~868: {"min": 6, "max": 12, "nominal": 9},~~ (Fora da faixa definida pela ANATEL).
             915: {"min": 7, "max": 13, "nominal": 10},
         },
         ObstacleType.VEGETATION_SPARSE: {
-            433: {"min": 1, "max": 3, "nominal": 2},
-            868: {"min": 2, "max": 5, "nominal": 3},
+            ~~433: {"min": 1, "max": 3, "nominal": 2},~~ (Fora da faixa definida pela ANATEL).
+            ~~868: {"min": 2, "max": 5, "nominal": 3},~~ (Fora da faixa definida pela ANATEL).
             915: {"min": 2, "max": 5, "nominal": 3},
         },
         ObstacleType.BUILDING_CONCRETE: {
-            433: {"min": 20, "max": 35, "nominal": 28},
-            868: {"min": 25, "max": 40, "nominal": 32},
+            ~~433: {"min": 20, "max": 35, "nominal": 28},~~ (Fora da faixa definida pela ANATEL).
+            ~~868: {"min": 25, "max": 40, "nominal": 32},~~ (Fora da faixa definida pela ANATEL).
             915: {"min": 26, "max": 42, "nominal": 34},
         },
         ObstacleType.BUILDING_BRICK: {
-            433: {"min": 15, "max": 30, "nominal": 22},
-            868: {"min": 18, "max": 35, "nominal": 26},
+            ~~433: {"min": 15, "max": 30, "nominal": 22},~~ (Fora da faixa definida pela ANATEL).
+            ~~868: {"min": 18, "max": 35, "nominal": 26},~~ (Fora da faixa definida pela ANATEL).
             915: {"min": 20, "max": 37, "nominal": 28},
         },
     }

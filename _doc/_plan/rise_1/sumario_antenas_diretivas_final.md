@@ -163,7 +163,7 @@ CONTRAMEDIDA #1: Tabela de Obstáculos Parametrizada
 Implementado: ✅ (em recomendações estruturadas)
 
 Especificação:
-  ├─ Parede de alvenaria @ 433/868/915 MHz
+  ├─ Parede de alvenaria @ ~~433 MHz~~ (Fora da faixa definida pela ANATEL) / ~~868 MHz~~ (Fora da faixa definida pela ANATEL) / 915 MHz
   ├─ Concreto, vidro, vegetação
   ├─ Valores min/nominal/max por tipo
   └─ Interpolação linear entre frequências
