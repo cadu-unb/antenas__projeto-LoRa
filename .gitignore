@@ -1,5 +1,7 @@
 *.pdf
 filter.py
 
-tree_focada.txt
-caminhos.txt
+# tree_focada.txt
+# caminhos.txt
+
+__pycache__/
