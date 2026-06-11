@@ -1,5 +1,9 @@
 """Campus KML simulation — multi-node RF, SIR, map, channel plan."""
 
+import html as _html
+import urllib.request
+import urllib.error
+
 import streamlit as st
 
 from lora_antenna.antenna.base import Antenna
@@ -18,6 +22,15 @@ CHANNEL_OPTIONS: dict[str, float] = {
 }
 
 LINK_COLORS = {"LOW": "green", "MEDIUM": "orange", "HIGH": "red"}
+
+
+@st.cache_data(ttl=30)
+def _leaflet_cdn_reachable() -> bool:
+    try:
+        urllib.request.urlopen("https://cdn.jsdelivr.net", timeout=1.5)
+        return True
+    except Exception:
+        return False
 
 st.title("Campus KML — Simulação Multiponto")
 
@@ -140,6 +153,13 @@ st.dataframe(rows, use_container_width=True)
 
 # Phase 4 — Map
 st.header("4. Mapa")
+
+if not _leaflet_cdn_reachable():
+    st.warning(
+        "Sem acesso a cdn.jsdelivr.net — o mapa não renderizará. "
+        "Verifique conectividade de internet ou execute fora do modo offline."
+    )
+
 try:
     import folium
     from streamlit_folium import st_folium
@@ -151,7 +171,7 @@ try:
     for point in doc.points:
         folium.Marker(
             location=[point.latitude, point.longitude],
-            tooltip=point.label,
+            tooltip=_html.escape(point.label),
             icon=folium.Icon(color="blue"),
         ).add_to(m)
 
@@ -168,7 +188,7 @@ try:
             color=color,
             fill=True,
             fill_opacity=0.3,
-            tooltip=polygon.label,
+            tooltip=_html.escape(polygon.label),
         ).add_to(m)
 
     point_map = {p.label: p for p in doc.points}
@@ -187,13 +207,17 @@ try:
             color=color,
             weight=2,
             dash_array=dash,
-            tooltip=f"{r.origin_label}→{r.dest_label} | {r.link_margin_db:.1f} dB",
+            tooltip=_html.escape(
+                f"{r.origin_label}→{r.dest_label} | {r.link_margin_db:.1f} dB"
+            ),
         ).add_to(m)
 
     st_folium(m, use_container_width=True, height=500)
 
 except ImportError:
     st.warning("folium ou streamlit-folium não instalados — mapa indisponível.")
+except Exception as exc:
+    st.warning(f"Mapa indisponível: {exc}")
 
 # Phase 5 — Channel optimization
 st.header("5. Otimização de Canais")

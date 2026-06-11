@@ -5,4 +5,7 @@ services:
       - "3953:3953"
     volumes:
       - ./data:/app/data
+      - ./.streamlit:/app/.streamlit:ro
+    environment:
+      - STREAMLIT_BROWSER_GATHER_USAGE_STATS=false
     restart: unless-stopped
