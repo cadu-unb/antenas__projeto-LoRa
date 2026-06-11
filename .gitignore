@@ -1,7 +1,42 @@
-*.pdf
-filter.py
-
-# tree_focada.txt
-# caminhos.txt
-
+# Python bytecode/cache
 __pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Virtual environments and local package builds
+.venv/
+venv/
+env/
+build/
+dist/
+*.egg-info/
+
+# uv local/runtime artifacts
+.uv-cache/
+
+# Local scratch scripts and generated helper listings
+filter.py
+tree_focada.txt
+caminhos.txt
+
+# Generated reports/exports
+*.pdf
+*.txt
+*.log
+*.tmp
+
+# IDE/editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
