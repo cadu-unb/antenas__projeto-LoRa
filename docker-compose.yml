@@ -1,8 +1,0 @@
-services:
-  lora-ui:
-    build: .
-    ports:
-      - "3953:3953"
-    volumes:
-      - ./data:/app/data
-    restart: unless-stopped
