@@ -27,6 +27,7 @@ Use estas convenções:
 1. Confirmar stack do MVP:
    - FastAPI
    - Pydantic v2
+   - Gerenciador de pacotes, UV
    - HTML/CSS/JS puro
    - frontend estático servido pelo FastAPI
 2. Criar ou ajustar pastas:
