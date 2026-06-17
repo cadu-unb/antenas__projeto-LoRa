@@ -7,10 +7,15 @@ from fastapi import APIRouter
 from pydantic import BaseModel, Field
 
 from ..schemas.antenna_spec import AntennaSpec
+from ..solvers.mom_solver import MoMSolver
+from ..solvers.aperture_solver import ApertureSolver
 
 C = 3e8  # m/s
 
 router = APIRouter(prefix="/api/v1/sandbox", tags=["sandbox"])
+
+_mom = MoMSolver()
+_aperture = ApertureSolver()
 
 
 # ── Response model ────────────────────────────────────────────────────────────
@@ -209,7 +214,43 @@ _SOLVERS = {
 
 @router.post("/preview", response_model=PreviewResult)
 def preview(req: SandboxPreviewRequest) -> PreviewResult:
+    if req.solver in ("padrao", "preciso"):
+        return _preview_advanced(req)
     solver = _SOLVERS.get(req.type.lower())
     if solver is None:
         return _FIXTURE
     return solver(req)
+
+
+def _preview_advanced(req: SandboxPreviewRequest) -> PreviewResult:
+    """Modo Padrão/Preciso: MoM para dipolo/monopolo/helicoidal, Abertura para parabólica."""
+    antenna_type = req.type.lower()
+    if antenna_type == "parabolica":
+        sr = _aperture.solve(req)
+        pattern_data = _directional_pattern(sr.extra.get("beamwidth_deg", 10.0))
+    else:
+        sr = _mom.solve(req)
+        lam = C / req.frequency_hz
+        geometry = req.geometry or {}
+        if antenna_type == "helicoidal":
+            n = int(geometry.get("turns", 10))
+            pattern_data = _helix_axial_pattern(n)
+        elif antenna_type == "monopolo":
+            height = geometry.get("height_m", lam / 4)
+            kh = 2 * math.pi / lam * height
+            pattern_data = _dipole_pattern(kh * 2)
+        else:
+            length = geometry.get("length_m", lam / 2)
+            kl = 2 * math.pi / lam * length
+            pattern_data = _dipole_pattern(kl)
+
+    return PreviewResult(
+        gain_dbi=sr.gain_dbi,
+        impedance_ohm=sr.impedance_ohm,
+        swr=sr.swr,
+        efficiency_pct=sr.efficiency_pct,
+        radiation_pattern=sr.radiation_pattern,
+        pattern_data=pattern_data,
+        solver_used=sr.solver_used,
+        warning=sr.warning,
+    )
