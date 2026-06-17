@@ -194,16 +194,16 @@ Solução:
 - Tratar PyNEC e Longley-Rice como plugins futuros.
 - Criar dados falsos controlados para desenvolver UI antes da simulação real.
 
-### 5. `docs/for-dummies` e `docs/for-dummy` estão inconsistentes
+### 5. `docs/for-dummies` e `docs/for-dummies` estão inconsistentes
 
-O histórico do projeto usa `docs/for-dummy/`, mas o `plan_v2.md` usa `docs/for-dummies/`.
+O histórico do projeto usa `docs/for-dummies/`, mas o `plan_v2.md` usa `docs/for-dummies/`.
 
 Isso cria confusão de padrão.
 
 Solução:
 
 - Escolher um nome único.
-- Recomendação: usar `docs/for-dummy/`, porque já foi usado nas skills/documentação do repositório.
+- Recomendação: usar `docs/for-dummies/`, porque já foi usado nas skills/documentação do repositório.
 - Atualizar `plan_v2.md` para não alternar nomes.
 
 ### 6. `.report/` conflita com padrão atual `.reports/`
@@ -294,7 +294,7 @@ Solução:
 Corrigir no plano:
 
 - usar `.reports/`, não `.report/`;
-- usar `docs/for-dummy/` ou `docs/for-dummies/`, mas não ambos;
+- usar `docs/for-dummies/` ou `docs/for-dummies/`, mas não ambos;
 - manter `.codex/skills/` para skills do Codex.
 
 ### Prioridade 2 — Definir MVP menor
@@ -372,7 +372,7 @@ Sugestão de novo recorte:
 ```text
 Fase 0 — Convenções do repositório
 - definir .reports/
-- definir docs/for-dummy/
+- definir docs/for-dummies/
 - definir .codex/skills/
 - definir stack inicial
 

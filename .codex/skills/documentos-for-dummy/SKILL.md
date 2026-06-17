@@ -1,9 +1,9 @@
 ---
-name: documentos-for-dummy
-description: Generate beginner-first documentation for any application, library, script, service, server, pipeline, CLI, API, module, or technical repository. Use when Codex needs to explain how to install, configure, run, test, inspect files, understand folder structure, trace function/module/data flows, document commands, document servers, document scripts, document environment variables, or create docs/for-dummy guides for practical project usage without assuming prior programming or terminal knowledge.
+name: documentos-for-dummies
+description: Generate beginner-first documentation for any application, library, script, service, server, pipeline, CLI, API, module, or technical repository. Use when Codex needs to explain how to install, configure, run, test, inspect files, understand folder structure, trace function/module/data flows, document commands, document servers, document scripts, document environment variables, or create docs/for-dummies guides for practical project usage without assuming prior programming or terminal knowledge.
 ---
 
-# Documentos For Dummy
+# Documentos For dummies
 
 ## Core Goal
 
@@ -24,8 +24,8 @@ Write in Portuguese unless the user asks for another language or the repository 
    - For scripts and CLIs, explain what runs first and what it calls next.
    - For servers and APIs, explain request path, route/controller/service/data flow when identifiable.
    - For pipelines, explain input, processing steps, and output files.
-4. Create `docs/for-dummy/` in the target repository.
-5. Always create `docs/for-dummy/README.md`.
+4. Create `docs/for-dummies/` in the target repository.
+5. Always create `docs/for-dummies/README.md`.
 6. Create extra files only when useful for the project, such as:
    - `como-iniciar-o-projeto.md`
    - `como-rodar-o-servidor.md`
@@ -53,10 +53,10 @@ Write in Portuguese unless the user asks for another language or the repository 
 
 ## Required README Structure
 
-`docs/for-dummy/README.md` must include these sections when applicable:
+`docs/for-dummies/README.md` must include these sections when applicable:
 
 ```markdown
-# Documentação for Dummy
+# Documentação for dummies
 
 ## O que é este projeto?
 

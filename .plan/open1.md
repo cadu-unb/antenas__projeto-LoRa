@@ -250,7 +250,7 @@ projeto-antenas/
 │   │       └── job-monitor.js
 │
 └── docs/
-    ├── for-Dummy/
+    ├── for-dummies/
 
     ├── architecture.md
     ├── antenna-spec-schema.md

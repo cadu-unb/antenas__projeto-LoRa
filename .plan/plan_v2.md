@@ -2,7 +2,7 @@
 > Revisado com base em `.reports/avaliacao-plan-v2.md`.  
 > Objetos centrais: `AntennaSpec`, `NodeSpec`, `LinkScenario`.  
 > Pasta de relatórios: `.reports/sistema-antenas/`.  
-> Docs acessíveis: `docs/for-dummy/`.
+> Docs acessíveis: `docs/for-dummies/`.
 
 ---
 
@@ -37,8 +37,8 @@ Fixar padrões antes de criar qualquer arquivo de código. Decisões tomadas ago
 
 ### Passos sugeridos
 1. Confirmar stack: FastAPI + Pydantic v2 (backend), HTML/CSS/JS puro (frontend), FastAPI serve estático no MVP
-2. Definir convenção de pastas: `.reports/`, `docs/for-dummy/`, `backend/`, `frontend/`, `.plan/`
-3. Criar `docs/for-dummy/README.md` — stub com lista de arquivos planejados
+2. Definir convenção de pastas: `.reports/`, `docs/for-dummies/`, `backend/`, `frontend/`, `.plan/`
+3. Criar `docs/for-dummies/README.md` — stub com lista de arquivos planejados
 4. Criar `docs/calculos/README.md` — stub com métodos planejados
 5. Criar `.reports/sistema-antenas/` — pasta para relatórios de fase
 6. Criar `docs/architecture.md` — diagrama dos três domínios (Sandbox / Library / Link Planner)
@@ -47,7 +47,7 @@ Fixar padrões antes de criar qualquer arquivo de código. Decisões tomadas ago
 
 ### Checkpoint
 - [ ] Pasta `.reports/sistema-antenas/` existe
-- [ ] Pasta `docs/for-dummy/` existe (não `for-dummies`)
+- [ ] Pasta `docs/for-dummies/` existe (não `for-dummies`)
 - [ ] `docs/architecture.md` descreve os três domínios
 - [ ] `backend/app/config.py` define `MAX_RAM_GB` e `MAX_RUNTIME_MIN`
 - [ ] Nenhum arquivo criado fora das convenções definidas
@@ -120,7 +120,7 @@ Definir e implementar o contrato central `AntennaSpec`. CRUD de antenas em JSON.
 4. `frontend/public/library.html` — lista de antenas, botão import JSON, export, delete
 5. `frontend/public/js/api-client.js` — wrapper fetch para todas rotas
 6. Criar exemplos JSON reais em `docs/antenna-spec-schema.md` (mínimo 2 exemplos: dipolo e parabólica)
-7. Escrever `docs/for-dummy/06-como-salvar-antena-json.md`
+7. Escrever `docs/for-dummies/06-como-salvar-antena-json.md`
 8. `tests/test_library.py` — testes: salvar, listar, rejeitar inválido
 
 ### Checkpoint
@@ -155,7 +155,7 @@ Interface de criação de antenas com 4 painéis. Modo Rápido (analítico, < 2 
 5. **Painel 3 — Resultado EM:** ganho (dBi), impedância (Ω), SWR, eficiência (%)
 6. **Painel 4 — Irradiação:** diagrama polar 2D com Canvas
 7. Botão "Salvar na Biblioteca" → `POST /api/v1/antennas` com spec + results
-8. `docs/for-dummy/05-como-criar-antena-no-sandbox.md`
+8. `docs/for-dummies/05-como-criar-antena-no-sandbox.md`
 9. `tests/test_sandbox.py` — testar preview endpoint com inputs válidos e inválidos
 
 ### Checkpoint
@@ -188,7 +188,7 @@ Módulo mínimo de planejamento de enlace. Dois nós, uma antena por nó, distâ
 3. Cálculos: distância geodésica entre coordenadas, azimute, elevação, FSPL, margem de enlace
 4. `link-planner.html` — formulário de dois nós, seleção de antenas da biblioteca, resultado em tabela
 5. Semáforo de viabilidade: verde (margem > 10 dB) / amarelo (0–10 dB) / vermelho (< 0 dB)
-6. `docs/for-dummy/09-como-montar-enlace.md` (versão P2P simples)
+6. `docs/for-dummies/09-como-montar-enlace.md` (versão P2P simples)
 7. `docs/link-planner-schema.md` — campos, tipos, exemplos de `NodeSpec` e `LinkScenario`
 8. `tests/test_link_budget.py` — testar FSPL, distância, margem com valores fixos documentados
 
@@ -217,8 +217,8 @@ Import de KML para posicionar nós no mapa Leaflet. Nível 0 (pontos) obrigatór
 3. `link-planner.html` — integrar Leaflet, renderizar nós e polígonos importados
 4. Associar antenas da biblioteca aos nós importados via interface
 5. Modos de topologia básicos: P2P, cadeia, estrela (malha manual e gateway setorial são extensões)
-6. `docs/for-dummy/08-como-importar-kml.md`
-7. Atualizar `docs/for-dummy/09-como-montar-enlace.md` com fluxo KML
+6. `docs/for-dummies/08-como-importar-kml.md`
+7. Atualizar `docs/for-dummies/09-como-montar-enlace.md` com fluxo KML
 
 > **Nota:** polígonos KML nível 1 são renderizados no mapa como áreas de interesse.
 > Penalidade de obstrução física (com altura, material, modelo de interseção) fica fora desta fase.
@@ -297,9 +297,9 @@ Desacoplar simulações pesadas da request HTTP. Fila async, status polling, can
 3. Salvar logs em `backend/data/simulations/{job_id}/log.jsonl`
 4. Integrar fila no sandbox: botões "Simular (Padrão)" e "Simular (Preciso)" → criam job → retornam `job_id`
 5. `frontend/public/js/job-monitor.js` — polling 2 s, progress bar, resultado ao DONE, erro claro ao FAILED
-6. `docs/for-dummy/10-como-rodar-simulacao.md`
-7. `docs/for-dummy/11-como-entender-resultados.md`
-8. `docs/for-dummy/12-erros-comuns-e-como-resolver.md`
+6. `docs/for-dummies/10-como-rodar-simulacao.md`
+7. `docs/for-dummies/11-como-entender-resultados.md`
+8. `docs/for-dummies/12-erros-comuns-e-como-resolver.md`
 
 ### Checkpoint
 - [ ] Simulação pesada retorna `job_id` imediatamente (não trava UI)
@@ -321,7 +321,7 @@ Escrever `.reports/sistema-antenas/Fase_7.md`
 Completar toda documentação. Refinar UX de erros. Validar fluxo end-to-end. Definir escopo negativo explícito no `README.md` raiz.
 
 ### Passos sugeridos
-1. Completar todos 13 arquivos de `docs/for-dummy/`
+1. Completar todos 13 arquivos de `docs/for-dummies/`
 2. Completar todos 10 arquivos de `docs/calculos/` — cada um com: conceito, parâmetros, limitações, referência técnica
 3. `docs/calculos/10-referencias-tecnicas.md` — referências reais:
    - Burke & Poggio, *NEC: Method of Moments*
@@ -338,7 +338,7 @@ Completar toda documentação. Refinar UX de erros. Validar fluxo end-to-end. De
 7. Testar fluxo end-to-end: criar antena → salvar → montar enlace → simular → exportar
 
 ### Checkpoint
-- [ ] Todos 13 arquivos de `docs/for-dummy/` preenchidos
+- [ ] Todos 13 arquivos de `docs/for-dummies/` preenchidos
 - [ ] Todos 10 arquivos de `docs/calculos/` com conceito + parâmetros + limitações + referência
 - [ ] `docs/calculos/10-referencias-tecnicas.md` contém referências verificáveis
 - [ ] Toda pasta do repo tem `README.md` não-stub
@@ -355,7 +355,7 @@ Escrever `.reports/sistema-antenas/Fase_8.md`
 
 | Risco | Probabilidade | Mitigação |
 |---|---|---|
-| PyNEC difícil de instalar no Windows | Alta | Fallback analítico explícito; documentar instalação em `docs/for-dummy/` |
+| PyNEC difícil de instalar no Windows | Alta | Fallback analítico explícito; documentar instalação em `docs/for-dummies/` |
 | Longley-Rice exige biblioteca externa | Média | Wrapper com stub; usar Okumura-Hata como fallback documentado |
 | KML sem altitude útil | Alta | Nível 0 funciona sem altitude; avisar usuário quando altitude ausente |
 | Simulação pesada trava máquina | Média | `resource_guard.py` com limites desde a Fase 6; nunca rodar em thread principal |

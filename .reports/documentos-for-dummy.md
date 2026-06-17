@@ -1,21 +1,21 @@
-# Relatorio: documentos-for-dummy
+# Relatorio: documentos-for-dummies
 
 ## Arquivos criados
 
-- `docs/for-dummy/README.md`
-- `docs/for-dummy/como-iniciar-o-projeto.md`
-- `docs/for-dummy/como-executar-scripts.md`
-- `docs/for-dummy/como-entender-a-estrutura.md`
-- `docs/for-dummy/como-funcionam-os-fluxos.md`
-- `docs/for-dummy/como-funcionam-as-funcoes.md`
-- `docs/for-dummy/erros-comuns.md`
-- `docs/for-dummy/glossario.md`
-- `.reports/documentos-for-dummy.md`
+- `docs/for-dummies/README.md`
+- `docs/for-dummies/como-iniciar-o-projeto.md`
+- `docs/for-dummies/como-executar-scripts.md`
+- `docs/for-dummies/como-entender-a-estrutura.md`
+- `docs/for-dummies/como-funcionam-os-fluxos.md`
+- `docs/for-dummies/como-funcionam-as-funcoes.md`
+- `docs/for-dummies/erros-comuns.md`
+- `docs/for-dummies/glossario.md`
+- `.reports/documentos-for-dummies.md`
 
 ## Skill criada
 
-- Caminho: `.codex/skills/documentos-for-dummy`
-- Arquivo principal: `.codex/skills/documentos-for-dummy/SKILL.md`
+- Caminho: `.codex/skills/documentos-for-dummies`
+- Arquivo principal: `.codex/skills/documentos-for-dummies/SKILL.md`
 - Validacao: `Skill is valid!`
 
 ## Arquivos analisados

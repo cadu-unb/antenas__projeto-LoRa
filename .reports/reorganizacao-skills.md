@@ -2,7 +2,7 @@
 
 ## Arquivos no lugar errado
 
-- `reports/documentos-for-dummy.md`
+- `reports/documentos-for-dummies.md`
 - `reports/fala-simples-objetiva.md`
 - `reports/reorganizacao-skills.md`
 
@@ -13,8 +13,8 @@ Observação: `.claude/` deve ser preservada. A pasta foi restaurada após a reo
 ## Arquivos movidos ou recriados
 
 - Conteúdo de `.claude/skills/fala-simples-objetiva/SKILL.md` recriado em `.codex/skills/fala-simples-objetiva/SKILL.md`.
-- Conteúdo da skill global `C:\Users\Cadu\.codex\skills\documentos-for-dummy\SKILL.md` recriado em `.codex/skills/documentos-for-dummy/SKILL.md`.
-- `reports/documentos-for-dummy.md` movido para `.reports/documentos-for-dummy.md`.
+- Conteúdo da skill global `C:\Users\Cadu\.codex\skills\documentos-for-dummies\SKILL.md` recriado em `.codex/skills/documentos-for-dummies/SKILL.md`.
+- `reports/documentos-for-dummies.md` movido para `.reports/documentos-for-dummies.md`.
 - `reports/fala-simples-objetiva.md` movido para `.reports/fala-simples-objetiva.md`.
 - `reports/reorganizacao-skills.md` movido para `.reports/reorganizacao-skills.md`.
 - `.claude/skills/fala-simples-objetiva/` restaurada e mantida.
@@ -24,13 +24,13 @@ Observação: `.claude/` deve ser preservada. A pasta foi restaurada após a reo
 ```text
 .codex/
 └── skills/
-    ├── documentos-for-dummy/
+    ├── documentos-for-dummies/
     │   └── SKILL.md
     └── fala-simples-objetiva/
         └── SKILL.md
 
 .reports/
-├── documentos-for-dummy.md
+├── documentos-for-dummies.md
 ├── fala-simples-objetiva.md
 └── reorganizacao-skills.md
 
@@ -45,7 +45,7 @@ Observação: `.claude/` deve ser preservada. A pasta foi restaurada após a reo
 
 ## Arquivos mantidos em `.reports/`
 
-- `.reports/documentos-for-dummy.md`
+- `.reports/documentos-for-dummies.md`
 - `.reports/fala-simples-objetiva.md`
 - `.reports/reorganizacao-skills.md`
 
