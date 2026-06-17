@@ -77,8 +77,57 @@ Use a barra de topologia no topo da página:
 | P2P | Um enlace direto entre dois nós | Transmissor |
 | Cadeia | Série de nós em linha | Início da cadeia |
 | Estrela | Hub central conectado a múltiplos nós | Hub central |
+| Malha | Enlaces livres entre quaisquer nós | Qualquer nó |
+| Multi-Estrela | Múltiplos hubs com folhas próprias | Hub ou folha |
 
 Cadeia e Estrela permitem adicionar nós extras manualmente ou via KML.
+
+## Topologias avançadas (Fase 9)
+
+### Malha (MESH)
+
+Topologia livre — cada enlace é criado manualmente no mapa:
+
+1. Selecione **Malha** na barra de topologia
+2. Adicione nós extras
+3. Clique **Conectar nós**
+4. Clique no nó A (destaque amarelo), depois no nó B → enlace criado
+5. Clique **Calcular enlaces** para ver o budget de cada hop
+
+Resultado inclui:
+- Margem por enlace (hop a hop)
+- **Gargalo**: menor margem — determina viabilidade da rede
+- **Ilhas**: nós sem nenhum enlace (destaque vermelho no mapa)
+
+Ver guia completo: `docs/for-dummies/14-como-criar-malha-manual.md`.
+
+### Multi-Estrela (MULTI_STAR)
+
+Múltiplos hubs interconectados, cada um com folhas próprias:
+
+1. Selecione **Multi-Estrela**
+2. Marque checkboxes **Hub** nos nós que serão gateways centrais
+3. Crie enlace hub↔hub (backbone)
+4. Crie enlaces hub→folha
+5. Calcule
+
+Nó com dois hubs upstream → redundância: ambas as margens são calculadas.
+
+Ver guia completo: `docs/for-dummies/15-como-criar-topologia-multi-estrela.md`.
+
+## Seleção de Torre (Site Selection — Fase 10)
+
+Encontrar o melhor local para instalar a estação base:
+
+1. Configure os nós de campo (sensores)
+2. Clique **📡 Seleção de Torre**
+3. Adicione candidatos a torre no mapa ou via KML
+4. Clique **Calcular Cobertura**
+5. Veja ranking por % de nós cobertos
+
+Ver guias completos:
+- `docs/for-dummies/16-como-usar-site-selection.md`
+- `docs/for-dummies/17-como-interpretar-cobertura.md`
 
 ## Importar nós via KML
 
@@ -109,5 +158,4 @@ Após calcular, clique **Exportar JSON** para baixar o `LinkScenario` completo (
 - Sem modelo de terreno — assume espaço livre (FSPL puro)
 - Sem obstáculos físicos (árvores, prédios, montanhas)
 - Sem efeitos atmosféricos
-- Apenas enlace P2P — sem multi-hop ou topologias avançadas
-- Modelos avançados (Longley-Rice, Okumura-Hata) chegam na Fase 6
+- Modelos avançados disponíveis: Okumura-Hata (150–1500 MHz), Longley-Rice (terreno irregular)

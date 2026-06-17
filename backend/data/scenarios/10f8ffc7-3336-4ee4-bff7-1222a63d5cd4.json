@@ -1,0 +1,74 @@
+{
+  "id": "10f8ffc7-3336-4ee4-bff7-1222a63d5cd4",
+  "name": "Site Selection Teste",
+  "node_a": {
+    "id": "node-a",
+    "name": "Sensor Norte",
+    "lat": -23.5,
+    "lon": -46.6,
+    "height_m": 5.0,
+    "antenna_id": null,
+    "tx_power_dbm": 14.0,
+    "rx_sensitivity_dbm": -137.0,
+    "cable_loss_db": 0.0,
+    "is_hub": false
+  },
+  "node_b": {
+    "id": "node-b",
+    "name": "Sensor Sul",
+    "lat": -23.55,
+    "lon": -46.65,
+    "height_m": 5.0,
+    "antenna_id": null,
+    "tx_power_dbm": 14.0,
+    "rx_sensitivity_dbm": -137.0,
+    "cable_loss_db": 0.0,
+    "is_hub": false
+  },
+  "frequency_hz": 915000000.0,
+  "topology_type": "STAR",
+  "extra_nodes": [],
+  "links": [],
+  "polygons": [],
+  "candidates": [
+    {
+      "id": "cand-far",
+      "name": "Torre Distante",
+      "lat": -22.0,
+      "lon": -45.0,
+      "height_m": 30.0,
+      "is_existing_tower": true,
+      "notes": ""
+    }
+  ],
+  "results": null,
+  "topology_result": null,
+  "site_selection_result": {
+    "candidates": [
+      {
+        "candidate_id": "cand-far",
+        "candidate_name": "Torre Distante",
+        "height_m": 30.0,
+        "coverage_pct": 100.0,
+        "node_results": [
+          {
+            "node_id": "node-a",
+            "node_name": "Sensor Norte",
+            "distance_m": 233957.7,
+            "link_margin_db": 17.95,
+            "feasibility": "verde"
+          },
+          {
+            "node_id": "node-b",
+            "node_name": "Sensor Sul",
+            "distance_m": 241494.7,
+            "link_margin_db": 17.67,
+            "feasibility": "verde"
+          }
+        ],
+        "feasibility": "verde"
+      }
+    ]
+  },
+  "metadata": {}
+}

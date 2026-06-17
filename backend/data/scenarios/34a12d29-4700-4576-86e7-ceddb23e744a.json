@@ -1,0 +1,106 @@
+{
+  "id": "34a12d29-4700-4576-86e7-ceddb23e744a",
+  "name": "Malha teste",
+  "node_a": {
+    "id": "node-a",
+    "name": "Hub 1",
+    "lat": -23.55,
+    "lon": -46.63,
+    "height_m": 30.0,
+    "antenna_id": null,
+    "tx_power_dbm": 20.0,
+    "rx_sensitivity_dbm": -137.0,
+    "cable_loss_db": 0.0,
+    "is_hub": true
+  },
+  "node_b": {
+    "id": "node-b",
+    "name": "Hub 2",
+    "lat": -23.6,
+    "lon": -46.7,
+    "height_m": 30.0,
+    "antenna_id": null,
+    "tx_power_dbm": 20.0,
+    "rx_sensitivity_dbm": -137.0,
+    "cable_loss_db": 0.0,
+    "is_hub": true
+  },
+  "frequency_hz": 915000000.0,
+  "topology_type": "MESH",
+  "extra_nodes": [
+    {
+      "id": "node-c",
+      "name": "Folha C",
+      "lat": -23.57,
+      "lon": -46.65,
+      "height_m": 5.0,
+      "antenna_id": null,
+      "tx_power_dbm": 14.0,
+      "rx_sensitivity_dbm": -137.0,
+      "cable_loss_db": 0.0,
+      "is_hub": false
+    },
+    {
+      "id": "node-d",
+      "name": "Folha D",
+      "lat": -23.53,
+      "lon": -46.68,
+      "height_m": 5.0,
+      "antenna_id": null,
+      "tx_power_dbm": 14.0,
+      "rx_sensitivity_dbm": -137.0,
+      "cable_loss_db": 0.0,
+      "is_hub": false
+    }
+  ],
+  "links": [
+    {
+      "id": "b165a88f-b43e-43c5-af46-e0e786df5754",
+      "node_a_id": "node-a",
+      "node_b_id": "node-b"
+    },
+    {
+      "id": "ce4cc8f1-10a6-4751-b3e1-a74e58551b9e",
+      "node_a_id": "node-a",
+      "node_b_id": "node-c"
+    }
+  ],
+  "polygons": [],
+  "candidates": [],
+  "results": null,
+  "topology_result": {
+    "hops": [
+      {
+        "edge_id": "b165a88f-b43e-43c5-af46-e0e786df5754",
+        "node_a_id": "node-a",
+        "node_b_id": "node-b",
+        "node_a_name": "Hub 1",
+        "node_b_name": "Hub 2",
+        "distance_m": 9044.6,
+        "fspl_db": 110.8,
+        "rx_power_dbm": -90.8,
+        "link_margin_db": 46.2,
+        "feasibility": "verde"
+      },
+      {
+        "edge_id": "ce4cc8f1-10a6-4751-b3e1-a74e58551b9e",
+        "node_a_id": "node-a",
+        "node_b_id": "node-c",
+        "node_a_name": "Hub 1",
+        "node_b_name": "Folha C",
+        "distance_m": 3016.8,
+        "fspl_db": 101.26,
+        "rx_power_dbm": -81.26,
+        "link_margin_db": 55.74,
+        "feasibility": "verde"
+      }
+    ],
+    "islands": [
+      "node-d"
+    ],
+    "bottleneck_margin_db": 46.2,
+    "feasibility": "verde"
+  },
+  "site_selection_result": null,
+  "metadata": {}
+}

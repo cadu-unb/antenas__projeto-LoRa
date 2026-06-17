@@ -98,6 +98,22 @@
     .leaflet-container { background: #2d3748 !important; }
     .leaflet-popup-content-wrapper { background: #1a1d27; color: #e2e8f0; border: 1px solid #4a5568; }
     .leaflet-popup-tip { background: #1a1d27; }
+
+    /* Site selection */
+    #site-section { display: none; background: #1a1d27; border: 1px solid #2d3748; border-radius: 8px; padding: 1.25rem; margin-bottom: 1.5rem; }
+    #site-section.visible { display: block; }
+    #site-results-section { display: none; margin-bottom: 1.5rem; }
+    #site-results-section.visible { display: block; }
+    #site-ranking-table th, #site-ranking-table td { padding: 0.4rem 0.6rem; border-bottom: 1px solid #2d3748; }
+    #site-ranking-table th { color: #718096; text-align: left; }
+    #site-ranking-table tbody tr { cursor: pointer; }
+    #site-ranking-table tbody tr:hover { background: #232637; }
+    #site-detail-table th, #site-detail-table td { padding: 0.35rem 0.5rem; border-bottom: 1px solid #2d3748; }
+    #site-detail-table th { color: #718096; text-align: left; }
+    .site-badge { font-size: 0.75rem; font-weight: 700; padding: 0.2rem 0.6rem; border-radius: 4px; }
+    .site-badge-verde { background: #1c4532; color: #68d391; }
+    .site-badge-amarelo { background: #744210; color: #f6e05e; }
+    .site-badge-vermelho { background: #742a2a; color: #fc8181; }
   </style>
 </head>
 <body>
@@ -230,6 +246,28 @@
       <div class="extra-nodes-list" id="extra-nodes-list"></div>
     </div>
 
+    <!-- Site Selection toggle + section -->
+    <div style="display:flex; align-items:center; gap:0.75rem; margin-bottom:1rem;">
+      <button class="btn-outline btn-small" id="btn-toggle-site">📡 Seleção de Torre</button>
+      <span style="font-size:0.75rem; color:#718096;">Encontre o melhor local para instalar a estação base.</span>
+    </div>
+
+    <div id="site-section">
+      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:0.75rem;">
+        <h2 style="margin:0;">Seleção de Torre</h2>
+        <div style="display:flex; gap:0.5rem; align-items:center;">
+          <button class="btn-secondary btn-small" id="btn-add-candidate-mode">+ Candidato no mapa</button>
+          <button class="btn-primary btn-small" id="btn-calc-site">Calcular Cobertura</button>
+        </div>
+      </div>
+      <div id="candidate-add-hint" style="display:none; font-size:0.8rem; color:#f6ad55; margin-bottom:0.75rem;">
+        Clique no mapa para posicionar o candidato a torre.
+      </div>
+      <div id="candidates-list" style="display:grid; gap:0.5rem; margin-bottom:0.5rem;">
+        <div style="font-size:0.8rem; color:#718096;">Nenhum candidato. Clique em "+ Candidato no mapa" ou importe KML com torres.</div>
+      </div>
+    </div>
+
     <!-- Global params + actions -->
     <div class="global-row">
       <div class="form-row">
@@ -257,6 +295,36 @@
       <div class="results-grid" id="results-grid"></div>
       <div class="actions">
         <button class="btn-outline" id="btn-export">Exportar JSON</button>
+      </div>
+    </div>
+
+    <!-- Site Selection Results -->
+    <div id="site-results-section">
+      <h2>Ranking de Candidatos</h2>
+      <table id="site-ranking-table" style="width:100%; border-collapse:collapse; font-size:0.85rem; margin-bottom:1rem;">
+        <thead>
+          <tr>
+            <th>Candidato</th>
+            <th style="text-align:center;">Altura (m)</th>
+            <th style="text-align:center;">Cobertura</th>
+            <th style="text-align:center;">Status</th>
+          </tr>
+        </thead>
+        <tbody id="site-ranking-tbody"></tbody>
+      </table>
+      <div id="site-detail-section" style="display:none; background:#1a1d27; border:1px solid #2d3748; border-radius:8px; padding:1.25rem; margin-top:1rem;">
+        <h2 style="font-size:0.9rem; margin-bottom:0.75rem;">Detalhe: <span id="site-detail-name"></span></h2>
+        <table id="site-detail-table" style="width:100%; border-collapse:collapse; font-size:0.8rem;">
+          <thead>
+            <tr>
+              <th>Nó de campo</th>
+              <th style="text-align:center;">Dist (km)</th>
+              <th style="text-align:center;">Margem (dB)</th>
+              <th style="text-align:center;">Status</th>
+            </tr>
+          </thead>
+          <tbody id="site-detail-tbody"></tbody>
+        </table>
       </div>
     </div>
 
@@ -429,6 +497,17 @@
           .bindPopup(`<b>${poly.name}</b><br><em>Área de interesse (visual)</em>`)
           .addTo(layerPolys);
       });
+
+      // Candidate markers (site selection mode)
+      if (typeof siteMode !== "undefined" && siteMode && typeof candidates !== "undefined") {
+        candidates.forEach(c => {
+          const candIcon = (typeof ICON_CANDIDATE_EXISTING !== "undefined" && c.is_existing_tower)
+            ? ICON_CANDIDATE_EXISTING : (typeof ICON_CANDIDATE !== "undefined" ? ICON_CANDIDATE : ICON_EXTRA);
+          L.marker([c.lat, c.lon], { icon: candIcon })
+            .bindPopup(`<b>${c.name}</b><br>${c.is_existing_tower ? "Torre existente" : "Candidato"}<br>Alt: ${c.height_m} m<br>Lat: ${c.lat.toFixed(5)}<br>Lon: ${c.lon.toFixed(5)}`)
+            .addTo(layerMarkers);
+        });
+      }
 
       // Fit bounds
       const pts = chain.filter(n => valid(n.lat) && valid(n.lon)).map(n => [n.lat, n.lon]);
@@ -863,9 +942,26 @@
         const result = await resp.json();
         kmlExtraNodes = result.nodes;
         kmlPolygons   = result.polygons;
-        showInfo(`KML importado: ${result.nodes_imported} nó(s), ${result.polygons_imported} polígono(s).`);
+        // Import KML towers as site-selection candidates
+        if (result.candidates && result.candidates.length > 0) {
+          result.candidates.forEach(c => {
+            if (!candidates.find(x => x.id === c.id)) candidates.push(c);
+          });
+          renderCandidates();
+          if (!siteMode) {
+            siteMode = true;
+            document.getElementById("site-section").classList.add("visible");
+            document.getElementById("btn-toggle-site").textContent = "✕ Fechar Seleção de Torre";
+          }
+        }
+        const partsMsg = [
+          `${result.nodes_imported} nó(s)`,
+          result.polygons_imported ? `${result.polygons_imported} polígono(s)` : null,
+          result.candidates_imported ? `${result.candidates_imported} torre(s) candidata(s)` : null,
+        ].filter(Boolean).join(", ");
+        showInfo(`KML importado: ${partsMsg}.`);
         if (currentTopology === "P2P" && result.nodes_imported > 0) {
-          showInfo(`KML importado: ${result.nodes_imported} nó(s), ${result.polygons_imported} polígono(s). Troque a topologia para Cadeia ou Estrela para visualizar os nós importados no cálculo.`);
+          showInfo(`KML importado: ${partsMsg}. Troque a topologia para Cadeia ou Estrela para visualizar os nós importados no cálculo.`);
         }
         renderExtraNodes();
         updateMap();
@@ -909,6 +1005,217 @@
         showError("Erro ao exportar: " + (e.detail ?? "erro desconhecido"));
       }
     });
+
+    // ── Site Selection ─────────────────────────────────────────────────────────
+    let siteMode = false;
+    let candidateClickMode = false;
+    let candidates = [];    // [{id, name, lat, lon, height_m, is_existing_tower, notes}]
+    let siteScenarioId = null;
+    let lastSiteResults = null;
+
+    const ICON_CANDIDATE = L.divIcon({
+      className: "",
+      html: `<div style="width:16px;height:16px;background:#68d391;border:2px solid #fff;border-radius:3px;transform:rotate(45deg)"></div>`,
+      iconAnchor: [8, 8],
+    });
+    const ICON_CANDIDATE_EXISTING = L.divIcon({
+      className: "",
+      html: `<div style="width:16px;height:16px;background:#f6e05e;border:2px solid #fff;border-radius:3px;transform:rotate(45deg)"></div>`,
+      iconAnchor: [8, 8],
+    });
+
+    // Map click: add candidate
+    lmap.on("click", e => {
+      if (!candidateClickMode) return;
+      const idx = candidates.length + 1;
+      candidates.push({
+        id: _uuid(),
+        name: `Candidato ${idx}`,
+        lat: parseFloat(e.latlng.lat.toFixed(6)),
+        lon: parseFloat(e.latlng.lng.toFixed(6)),
+        height_m: 20.0,
+        is_existing_tower: false,
+        notes: "",
+      });
+      renderCandidates();
+      updateMap();
+      // Exit click mode after one placement
+      candidateClickMode = false;
+      const btn = document.getElementById("btn-add-candidate-mode");
+      if (btn) { btn.textContent = "+ Candidato no mapa"; btn.style.background = ""; }
+      const hint = document.getElementById("candidate-add-hint");
+      if (hint) hint.style.display = "none";
+    });
+
+    function renderCandidates() {
+      const list = document.getElementById("candidates-list");
+      if (candidates.length === 0) {
+        list.innerHTML = `<div style="font-size:0.8rem;color:#718096;">Nenhum candidato. Clique em "+ Candidato no mapa" ou importe KML.</div>`;
+        return;
+      }
+      list.innerHTML = candidates.map(c => `
+        <div style="background:#0f1117;border:1px solid #2d3748;border-radius:6px;padding:0.75rem;position:relative;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.4rem;">
+            <span style="font-weight:600;font-size:0.85rem;">${c.name}${c.is_existing_tower ? ' <span style="color:#f6e05e;font-size:0.7rem;">[existente]</span>' : ''}</span>
+            <button onclick="window.removeCandidate('${c.id}')" style="background:transparent;border:none;color:#718096;cursor:pointer;font-size:0.9rem;">✕</button>
+          </div>
+          <div style="font-size:0.75rem;color:#a0aec0;margin-bottom:0.5rem;">
+            Lat: ${c.lat.toFixed(5)} &nbsp; Lon: ${c.lon.toFixed(5)}
+          </div>
+          <div style="display:flex;align-items:center;gap:0.75rem;">
+            <label style="font-size:0.75rem;color:#718096;white-space:nowrap;">Altura: <span id="height-display-${c.id}">${c.height_m}</span> m</label>
+            <input type="range" id="height-${c.id}" min="1" max="120" value="${c.height_m}" step="1"
+              style="flex:1;"
+              oninput="window.updateCandidateHeight('${c.id}', this.value)" />
+          </div>
+        </div>`).join("");
+    }
+
+    window.removeCandidate = candidateId => {
+      candidates = candidates.filter(c => c.id !== candidateId);
+      renderCandidates();
+      updateMap();
+    };
+
+    window.updateCandidateHeight = (candidateId, value) => {
+      const c = candidates.find(x => x.id === candidateId);
+      if (!c) return;
+      c.height_m = parseFloat(value);
+      const display = document.getElementById(`height-display-${candidateId}`);
+      if (display) display.textContent = value;
+      if (siteScenarioId) recalculateSiteWithOverrides();
+    };
+
+    async function calculateSiteSelection() {
+      clearBanners();
+      if (!validate()) return;
+      if (candidates.length === 0) { showError("Adicione ao menos um candidato a torre."); return; }
+      const calcBtn = document.getElementById("btn-calc-site");
+      calcBtn.disabled = true;
+      calcBtn.textContent = "Calculando…";
+      try {
+        const scenario = buildScenario();
+        const created = await api.createScenario(scenario);
+        siteScenarioId = created.id;
+        lastScenarioId = created.id;
+
+        for (const c of candidates) {
+          await fetch(`/api/v1/scenarios/${created.id}/candidates`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ id: c.id, name: c.name, lat: c.lat, lon: c.lon, height_m: c.height_m, is_existing_tower: c.is_existing_tower, notes: c.notes }),
+          });
+        }
+
+        const resp = await fetch(`/api/v1/scenarios/${created.id}/site-selection`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: "{}",
+        });
+        if (!resp.ok) throw new Error((await resp.json()).detail ?? "Erro no servidor");
+        const data = await resp.json();
+        lastSiteResults = data;
+        renderSiteResults(data);
+      } catch (e) {
+        showError("Erro: " + (e.message ?? "erro desconhecido"));
+      } finally {
+        calcBtn.disabled = false;
+        calcBtn.textContent = "Calcular Cobertura";
+      }
+    }
+
+    async function recalculateSiteWithOverrides() {
+      if (!siteScenarioId) return;
+      const overrides = {};
+      candidates.forEach(c => {
+        const input = document.getElementById(`height-${c.id}`);
+        if (input) overrides[c.id] = parseFloat(input.value);
+      });
+      try {
+        const resp = await fetch(`/api/v1/scenarios/${siteScenarioId}/site-selection`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ height_overrides: overrides }),
+        });
+        if (!resp.ok) return;
+        const data = await resp.json();
+        lastSiteResults = data;
+        renderSiteResults(data);
+      } catch {}
+    }
+
+    function renderSiteResults(data) {
+      const section = document.getElementById("site-results-section");
+      const tbody = document.getElementById("site-ranking-tbody");
+      section.classList.add("visible");
+
+      tbody.innerHTML = data.candidates.length === 0
+        ? `<tr><td colspan="4" style="padding:0.75rem;color:#718096;text-align:center;">Nenhum candidato avaliado.</td></tr>`
+        : data.candidates.map((c, idx) => `
+          <tr onclick="window.showSiteDetail('${c.candidate_id}')" style="${idx === 0 ? 'background:#1c2d1c;' : ''}">
+            <td>${idx === 0 ? "⭐ " : ""}${c.candidate_name}${c.candidate_name && data.candidates[0].candidate_id === c.candidate_id ? "" : ""}</td>
+            <td style="text-align:center;">${c.height_m}</td>
+            <td style="text-align:center;">
+              <span class="site-badge site-badge-${c.feasibility}">${c.coverage_pct}%</span>
+            </td>
+            <td style="text-align:center;">
+              <span style="color:${c.feasibility === 'verde' ? '#68d391' : c.feasibility === 'amarelo' ? '#f6e05e' : '#fc8181'}">●</span>
+            </td>
+          </tr>`).join("");
+    }
+
+    window.showSiteDetail = candidateId => {
+      if (!lastSiteResults) return;
+      const c = lastSiteResults.candidates.find(x => x.candidate_id === candidateId);
+      if (!c) return;
+      document.getElementById("site-detail-name").textContent = c.candidate_name;
+      document.getElementById("site-detail-tbody").innerHTML = c.node_results.map(nr => {
+        const col = nr.feasibility === "verde" ? "#68d391" : nr.feasibility === "amarelo" ? "#f6e05e" : "#fc8181";
+        return `<tr>
+          <td>${nr.node_name}</td>
+          <td style="text-align:center;">${(nr.distance_m / 1000).toFixed(2)}</td>
+          <td style="text-align:center;color:${col};font-weight:600;">${nr.link_margin_db > 0 ? "+" : ""}${nr.link_margin_db}</td>
+          <td style="text-align:center;">
+            <span class="site-badge site-badge-${nr.feasibility}">${nr.feasibility}</span>
+          </td>
+        </tr>`;
+      }).join("");
+      document.getElementById("site-detail-section").style.display = "block";
+    };
+
+    // Toggle site section
+    document.getElementById("btn-toggle-site").addEventListener("click", () => {
+      siteMode = !siteMode;
+      const siteSection = document.getElementById("site-section");
+      const btn = document.getElementById("btn-toggle-site");
+      if (siteMode) {
+        siteSection.classList.add("visible");
+        btn.textContent = "✕ Fechar Seleção de Torre";
+      } else {
+        siteSection.classList.remove("visible");
+        btn.textContent = "📡 Seleção de Torre";
+        candidateClickMode = false;
+      }
+      updateMap();
+    });
+
+    document.getElementById("btn-add-candidate-mode").addEventListener("click", () => {
+      candidateClickMode = !candidateClickMode;
+      const btn = document.getElementById("btn-add-candidate-mode");
+      const hint = document.getElementById("candidate-add-hint");
+      if (candidateClickMode) {
+        btn.textContent = "✕ Cancelar";
+        btn.style.background = "#744210";
+        hint.style.display = "block";
+        connectMode = false;
+      } else {
+        btn.textContent = "+ Candidato no mapa";
+        btn.style.background = "";
+        hint.style.display = "none";
+      }
+    });
+
+    document.getElementById("btn-calc-site").addEventListener("click", calculateSiteSelection);
 
     // ── Init ───────────────────────────────────────────────────────────────────
     await loadAntennas();

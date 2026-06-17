@@ -1,0 +1,61 @@
+{
+  "id": "91015bc2-e836-497c-b159-8bc7a95ef0b3",
+  "name": "Site Selection Teste",
+  "node_a": {
+    "id": "node-a",
+    "name": "Sensor Norte",
+    "lat": -23.5,
+    "lon": -46.6,
+    "height_m": 5.0,
+    "antenna_id": null,
+    "tx_power_dbm": 14.0,
+    "rx_sensitivity_dbm": -137.0,
+    "cable_loss_db": 0.0,
+    "is_hub": false
+  },
+  "node_b": {
+    "id": "node-b",
+    "name": "Sensor Sul",
+    "lat": -23.55,
+    "lon": -46.65,
+    "height_m": 5.0,
+    "antenna_id": null,
+    "tx_power_dbm": 14.0,
+    "rx_sensitivity_dbm": -137.0,
+    "cable_loss_db": 0.0,
+    "is_hub": false
+  },
+  "frequency_hz": 915000000.0,
+  "topology_type": "STAR",
+  "extra_nodes": [
+    {
+      "id": "417beb3c-1566-4c38-a503-f88068e25e50",
+      "name": "Sensor Campo",
+      "lat": -23.5,
+      "lon": -46.6,
+      "height_m": 5.0,
+      "antenna_id": null,
+      "tx_power_dbm": 14.0,
+      "rx_sensitivity_dbm": -137.0,
+      "cable_loss_db": 0.0,
+      "is_hub": false
+    }
+  ],
+  "links": [],
+  "polygons": [],
+  "candidates": [
+    {
+      "id": "4e32c7ad-5631-40d9-9608-4b03ea8f7dd3",
+      "name": "Torre Nordeste",
+      "lat": -23.4,
+      "lon": -46.5,
+      "height_m": 45.0,
+      "is_existing_tower": true,
+      "notes": ""
+    }
+  ],
+  "results": null,
+  "topology_result": null,
+  "site_selection_result": null,
+  "metadata": {}
+}

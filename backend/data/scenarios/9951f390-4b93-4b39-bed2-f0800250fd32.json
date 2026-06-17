@@ -1,0 +1,121 @@
+{
+  "id": "9951f390-4b93-4b39-bed2-f0800250fd32",
+  "name": "Malha teste",
+  "node_a": {
+    "id": "node-a",
+    "name": "Hub 1",
+    "lat": -23.55,
+    "lon": -46.63,
+    "height_m": 30.0,
+    "antenna_id": null,
+    "tx_power_dbm": 20.0,
+    "rx_sensitivity_dbm": -137.0,
+    "cable_loss_db": 0.0,
+    "is_hub": true
+  },
+  "node_b": {
+    "id": "node-b",
+    "name": "Hub 2",
+    "lat": -23.6,
+    "lon": -46.7,
+    "height_m": 30.0,
+    "antenna_id": null,
+    "tx_power_dbm": 20.0,
+    "rx_sensitivity_dbm": -137.0,
+    "cable_loss_db": 0.0,
+    "is_hub": true
+  },
+  "frequency_hz": 915000000.0,
+  "topology_type": "MULTI_STAR",
+  "extra_nodes": [
+    {
+      "id": "node-c",
+      "name": "Folha C",
+      "lat": -23.57,
+      "lon": -46.65,
+      "height_m": 5.0,
+      "antenna_id": null,
+      "tx_power_dbm": 14.0,
+      "rx_sensitivity_dbm": -137.0,
+      "cable_loss_db": 0.0,
+      "is_hub": false
+    },
+    {
+      "id": "node-d",
+      "name": "Folha D",
+      "lat": -23.53,
+      "lon": -46.68,
+      "height_m": 5.0,
+      "antenna_id": null,
+      "tx_power_dbm": 14.0,
+      "rx_sensitivity_dbm": -137.0,
+      "cable_loss_db": 0.0,
+      "is_hub": false
+    }
+  ],
+  "links": [
+    {
+      "id": "d5de3e58-0175-4736-98db-59caf0918e23",
+      "node_a_id": "node-a",
+      "node_b_id": "node-b"
+    },
+    {
+      "id": "7726447c-bb04-4833-8267-b8cd1111d946",
+      "node_a_id": "node-a",
+      "node_b_id": "node-c"
+    },
+    {
+      "id": "16239350-a537-4b62-b01a-e71e2de033c5",
+      "node_a_id": "node-b",
+      "node_b_id": "node-d"
+    }
+  ],
+  "polygons": [],
+  "candidates": [],
+  "results": null,
+  "topology_result": {
+    "hops": [
+      {
+        "edge_id": "d5de3e58-0175-4736-98db-59caf0918e23",
+        "node_a_id": "node-a",
+        "node_b_id": "node-b",
+        "node_a_name": "Hub 1",
+        "node_b_name": "Hub 2",
+        "distance_m": 9044.6,
+        "fspl_db": 110.8,
+        "rx_power_dbm": -90.8,
+        "link_margin_db": 46.2,
+        "feasibility": "verde"
+      },
+      {
+        "edge_id": "7726447c-bb04-4833-8267-b8cd1111d946",
+        "node_a_id": "node-a",
+        "node_b_id": "node-c",
+        "node_a_name": "Hub 1",
+        "node_b_name": "Folha C",
+        "distance_m": 3016.8,
+        "fspl_db": 101.26,
+        "rx_power_dbm": -81.26,
+        "link_margin_db": 55.74,
+        "feasibility": "verde"
+      },
+      {
+        "edge_id": "16239350-a537-4b62-b01a-e71e2de033c5",
+        "node_a_id": "node-b",
+        "node_b_id": "node-d",
+        "node_a_name": "Hub 2",
+        "node_b_name": "Folha D",
+        "distance_m": 8046.1,
+        "fspl_db": 109.78,
+        "rx_power_dbm": -89.78,
+        "link_margin_db": 47.22,
+        "feasibility": "verde"
+      }
+    ],
+    "islands": [],
+    "bottleneck_margin_db": 46.2,
+    "feasibility": "verde"
+  },
+  "site_selection_result": null,
+  "metadata": {}
+}

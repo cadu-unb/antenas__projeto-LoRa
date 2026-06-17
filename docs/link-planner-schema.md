@@ -19,22 +19,7 @@ Representa um nó da rede (gateway, sensor, repetidor).
 | `tx_power_dbm` | float | não | `14.0` | Potência de transmissão em dBm |
 | `rx_sensitivity_dbm` | float | não | `-137.0` | Sensibilidade do receptor em dBm |
 | `cable_loss_db` | float | não | `0.0` | Perda de cabo/conector em dB |
-
-### Exemplo NodeSpec
-
-```json
-{
-  "id": "a1b2c3d4-...",
-  "name": "Gateway SP",
-  "lat": -23.5505,
-  "lon": -46.6333,
-  "height_m": 30.0,
-  "antenna_id": "f9e8d7c6-...",
-  "tx_power_dbm": 20.0,
-  "rx_sensitivity_dbm": -137.0,
-  "cable_loss_db": 0.5
-}
-```
+| `is_hub` | bool | não | `false` | Nó hub (ícone diferente, usado em MULTI_STAR) |
 
 ---
 
@@ -57,62 +42,139 @@ Resultado calculado de um enlace P2P.
 | Margem | Semáforo | Significado |
 |---|---|---|
 | > 10 dB | Verde | Enlace robusto |
-| 0 – 10 dB | Amarelo | Enlace marginal — ruído/obstáculos podem derrubar |
-| < 0 dB | Vermelho | Enlace inviável com parâmetros atuais |
+| 0 – 10 dB | Amarelo | Enlace marginal |
+| < 0 dB | Vermelho | Enlace inviável |
+
+---
+
+## LinkEdge
+
+Enlace explícito entre dois nós (usado em MESH/MULTI_STAR).
+
+| Campo | Tipo | Obrigatório | Padrão | Descrição |
+|---|---|---|---|---|
+| `id` | string (UUID) | não | auto | ID do enlace |
+| `node_a_id` | string | **sim** | — | ID do nó A |
+| `node_b_id` | string | **sim** | — | ID do nó B |
+
+---
+
+## HopResult
+
+Resultado de um hop individual em topologia multi-hop.
+
+| Campo | Tipo | Descrição |
+|---|---|---|
+| `edge_id` | string | ID do `LinkEdge` |
+| `node_a_id` / `node_b_id` | string | IDs dos nós |
+| `node_a_name` / `node_b_name` | string | Nomes |
+| `distance_m` | float | Distância do hop |
+| `fspl_db` | float | FSPL do hop |
+| `rx_power_dbm` | float | Potência Rx no destino |
+| `link_margin_db` | float | Margem do hop |
+| `feasibility` | string | `verde` / `amarelo` / `vermelho` |
+
+---
+
+## TopologyResult
+
+Resultado de topologia multi-hop (MESH/MULTI_STAR).
+
+| Campo | Tipo | Descrição |
+|---|---|---|
+| `hops` | `list[HopResult]` | Um resultado por `LinkEdge` |
+| `islands` | `list[str]` | IDs de nós sem nenhum enlace |
+| `bottleneck_margin_db` | float | Menor margem dentre todos os hops |
+| `feasibility` | string | Baseado no gargalo |
+
+---
+
+## CandidateSite
+
+Candidato a posição de torre para Site Selection.
+
+| Campo | Tipo | Obrigatório | Padrão | Descrição |
+|---|---|---|---|---|
+| `id` | string (UUID) | não | auto | Identificador único |
+| `name` | string | **sim** | — | Nome do candidato |
+| `lat` | float | **sim** | — | Latitude |
+| `lon` | float | **sim** | — | Longitude |
+| `height_m` | float | não | `20.0` | Altura da antena sobre o solo (m) |
+| `is_existing_tower` | bool | não | `false` | `true` se importado via KML com "torre"/"tower" no nome |
+| `notes` | string | não | `""` | Observações livres |
+
+---
+
+## NodeCoverageResult
+
+Resultado de cobertura de um nó de campo avaliado por um candidato.
+
+| Campo | Tipo | Descrição |
+|---|---|---|
+| `node_id` | string | ID do nó de campo |
+| `node_name` | string | Nome do nó |
+| `distance_m` | float | Distância candidato→nó |
+| `link_margin_db` | float | Margem de enlace candidato→nó |
+| `feasibility` | string | `verde` / `amarelo` / `vermelho` |
+
+---
+
+## CandidateCoverageResult
+
+Resultado de cobertura de um candidato sobre todos os nós de campo.
+
+| Campo | Tipo | Descrição |
+|---|---|---|
+| `candidate_id` | string | ID do `CandidateSite` |
+| `candidate_name` | string | Nome do candidato |
+| `height_m` | float | Altura efetiva usada no cálculo (pode diferir do stored por `height_overrides`) |
+| `coverage_pct` | float | % de nós com `link_margin_db > 0` |
+| `node_results` | `list[NodeCoverageResult]` | Um resultado por nó de campo |
+| `feasibility` | string | `verde` ≥80% / `amarelo` ≥50% / `vermelho` <50% |
+
+---
+
+## SiteSelectionResult
+
+Resultado completo de site selection — lista ranqueada de candidatos.
+
+| Campo | Tipo | Descrição |
+|---|---|---|
+| `candidates` | `list[CandidateCoverageResult]` | Ordenado desc por `coverage_pct` |
 
 ---
 
 ## LinkScenario
 
-Cenário completo — dois nós + resultado.
+Cenário completo.
 
 | Campo | Tipo | Obrigatório | Padrão | Descrição |
 |---|---|---|---|---|
 | `id` | string (UUID) | não | auto | Identificador único |
 | `name` | string | **sim** | — | Nome do cenário |
-| `node_a` | NodeSpec | **sim** | — | Nó transmissor |
-| `node_b` | NodeSpec | **sim** | — | Nó receptor |
+| `node_a` | NodeSpec | **sim** | — | Nó A |
+| `node_b` | NodeSpec | **sim** | — | Nó B |
 | `frequency_hz` | float | **sim** | — | Frequência de operação em Hz |
-| `results` | LinkResult \| null | não | `null` | Preenchido após `/calculate` |
+| `topology_type` | string | não | `"P2P"` | Ver valores válidos abaixo |
+| `extra_nodes` | `list[NodeSpec]` | não | `[]` | Nós extras (cadeia, estrela, malha) |
+| `links` | `list[LinkEdge]` | não | `[]` | Enlaces explícitos (MESH/MULTI_STAR) |
+| `polygons` | `list[dict]` | não | `[]` | Polígonos KML (apenas visual) |
+| `candidates` | `list[CandidateSite]` | não | `[]` | Candidatos a torre (site selection) |
+| `results` | `LinkResult \| null` | não | `null` | Preenchido após `/calculate` |
+| `topology_result` | `TopologyResult \| null` | não | `null` | Preenchido após `/calculate_links` |
+| `site_selection_result` | `SiteSelectionResult \| null` | não | `null` | Preenchido após `/site-selection` |
 | `metadata` | dict | não | `{}` | Dados livres |
 
-### Exemplo LinkScenario (com resultado)
+### Valores válidos para `topology_type`
 
-```json
-{
-  "id": "cc3d2b1a-...",
-  "name": "Enlace SP–RJ",
-  "node_a": {
-    "name": "São Paulo",
-    "lat": -23.5505,
-    "lon": -46.6333,
-    "height_m": 30.0,
-    "tx_power_dbm": 20.0,
-    "rx_sensitivity_dbm": -137.0,
-    "cable_loss_db": 0.0
-  },
-  "node_b": {
-    "name": "Rio de Janeiro",
-    "lat": -22.9068,
-    "lon": -43.1729,
-    "height_m": 30.0,
-    "tx_power_dbm": 14.0,
-    "rx_sensitivity_dbm": -137.0,
-    "cable_loss_db": 0.0
-  },
-  "frequency_hz": 915000000.0,
-  "results": {
-    "distance_m": 357468.2,
-    "azimuth_deg": 73.14,
-    "elevation_deg": 0.0,
-    "fspl_db": 133.74,
-    "rx_power_dbm": -113.74,
-    "link_margin_db": 23.26,
-    "feasibility": "verde"
-  },
-  "metadata": {}
-}
-```
+| Valor | Nome | Descrição |
+|---|---|---|
+| `P2P` | Ponto a Ponto | Enlace único A↔B |
+| `CHAIN` | Cadeia | A–extra1–extra2–B em série |
+| `STAR` | Estrela | A (hub) conectado a todos os outros |
+| `MESH` | Malha | Enlaces livres — cada enlace em `links[]` |
+| `MULTI_STAR` | Multi-Estrela | Múltiplos hubs com folhas, enlaces em `links[]` |
+| `HIERARCHICAL` | Hierárquico | Reservado — armazenado, sem lógica específica |
 
 ---
 
@@ -120,10 +182,17 @@ Cenário completo — dois nós + resultado.
 
 | Método | Rota | Descrição |
 |---|---|---|
-| `POST` | `/api/v1/scenarios` | Cria cenário (sem calcular) |
-| `GET` | `/api/v1/scenarios` | Lista todos os cenários |
-| `GET` | `/api/v1/scenarios/{id}` | Retorna cenário por ID |
-| `POST` | `/api/v1/scenarios/{id}/calculate` | Calcula link budget e salva results |
+| `POST` | `/api/v1/scenarios` | Cria cenário |
+| `GET` | `/api/v1/scenarios` | Lista todos |
+| `GET` | `/api/v1/scenarios/{id}` | Detalhe |
+| `POST` | `/api/v1/scenarios/{id}/calculate` | Link budget P2P |
+| `POST` | `/api/v1/scenarios/{id}/links` | Adicionar enlace |
+| `DELETE` | `/api/v1/scenarios/{id}/links/{link_id}` | Remover enlace |
+| `POST` | `/api/v1/scenarios/{id}/calculate_links` | Link budget multi-hop |
+| `POST` | `/api/v1/scenarios/{id}/candidates` | Adicionar candidato |
+| `GET` | `/api/v1/scenarios/{id}/candidates` | Listar candidatos |
+| `POST` | `/api/v1/scenarios/{id}/site-selection` | Calcular cobertura |
+| `POST` | `/api/v1/scenarios/{id}/kml` | Importar KML |
 
 ---
 
@@ -148,9 +217,3 @@ d = 2·R·atan2(√a, √(1−a))   (R = 6 371 000 m)
 Rx (dBm) = Tx (dBm) + G_tx (dBi) − L_tx (dB) − FSPL (dB) − L_rx (dB) + G_rx (dBi)
 Margem    = Rx (dBm) − Sensibilidade (dBm)
 ```
-
-### Limitações nesta fase (MVP)
-- Sem efeitos de terreno (Longley-Rice — Fase 6)
-- Sem perdas adicionais de difração, chuva ou vegetação
-- Sem topologias multi-hop (Fase 9)
-- Sem KML e mapa (Fase 5)

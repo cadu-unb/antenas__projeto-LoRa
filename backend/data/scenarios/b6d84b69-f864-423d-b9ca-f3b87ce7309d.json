@@ -1,0 +1,71 @@
+{
+  "id": "b6d84b69-f864-423d-b9ca-f3b87ce7309d",
+  "name": "Cenário KML test",
+  "node_a": {
+    "id": "a3079f73-ef6e-4e91-be31-1700ea6a4878",
+    "name": "A",
+    "lat": -23.5505,
+    "lon": -46.6333,
+    "height_m": 10.0,
+    "antenna_id": null,
+    "tx_power_dbm": 14.0,
+    "rx_sensitivity_dbm": -137.0,
+    "cable_loss_db": 0.0,
+    "is_hub": false
+  },
+  "node_b": {
+    "id": "e815926a-7580-446e-9c19-3efbc6e46ee4",
+    "name": "B",
+    "lat": -22.9068,
+    "lon": -43.1729,
+    "height_m": 10.0,
+    "antenna_id": null,
+    "tx_power_dbm": 14.0,
+    "rx_sensitivity_dbm": -137.0,
+    "cable_loss_db": 0.0,
+    "is_hub": false
+  },
+  "frequency_hz": 915000000.0,
+  "topology_type": "P2P",
+  "extra_nodes": [
+    {
+      "id": "65c4902d-a8aa-4e23-b92d-50442869eae3",
+      "name": "Gateway SP",
+      "lat": -23.5505,
+      "lon": -46.6333,
+      "height_m": 30.0,
+      "antenna_id": null,
+      "tx_power_dbm": 14.0,
+      "rx_sensitivity_dbm": -137.0,
+      "cable_loss_db": 0.0,
+      "is_hub": false
+    },
+    {
+      "id": "f980f3be-7b72-4cba-b671-ec476fd80982",
+      "name": "Sensor RJ",
+      "lat": -22.9068,
+      "lon": -43.1729,
+      "height_m": 5.0,
+      "antenna_id": null,
+      "tx_power_dbm": 14.0,
+      "rx_sensitivity_dbm": -137.0,
+      "cable_loss_db": 0.0,
+      "is_hub": false
+    }
+  ],
+  "links": [],
+  "polygons": [],
+  "candidates": [],
+  "results": {
+    "distance_m": 360748.8,
+    "azimuth_deg": 79.24,
+    "elevation_deg": 0.0,
+    "fspl_db": 142.81,
+    "rx_power_dbm": -128.81,
+    "link_margin_db": 8.19,
+    "feasibility": "amarelo"
+  },
+  "topology_result": null,
+  "site_selection_result": null,
+  "metadata": {}
+}

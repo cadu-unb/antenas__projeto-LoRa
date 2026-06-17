@@ -16,3 +16,4 @@ Documentação técnica dos métodos de cálculo usados no sistema. Cada arquivo
 | `08-link-budget.md` | Link budget: EIRP, FSPL, margem, limiar de recepção | Rápido | 4 |
 | `09-limites-computacionais.md` | MAX_RAM_GB, MAX_RUNTIME_MIN, guardião de recursos | — | 6 |
 | `10-referencias-tecnicas.md` | Referências bibliográficas verificáveis | — | 8 |
+| `11-site-selection-e-cobertura.md` | Método de cobertura por candidato, height override, limitações | — | 10 |

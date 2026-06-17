@@ -19,3 +19,7 @@ Guias acessíveis para usuários do sistema de antenas LoRa. Sem matemática pes
 | `11-como-entender-resultados.md` | Ganho (dBi), SWR, FSPL, margem de enlace | 7 |
 | `12-erros-comuns-e-como-resolver.md` | FAILED_MEMORY_LIMIT, FAILED_TIME_LIMIT, erros de schema | 7 |
 | `13-glossario.md` | Termos técnicos em linguagem simples | 8 |
+| `14-como-criar-malha-manual.md` | Topologia MESH: conectar nós livremente no mapa | 9 |
+| `15-como-criar-topologia-multi-estrela.md` | MULTI_STAR: múltiplos hubs com folhas | 9 |
+| `16-como-usar-site-selection.md` | Site Selection: encontrar posição ideal de torre | 10 |
+| `17-como-interpretar-cobertura.md` | Interpretar ranking de cobertura e margens por nó | 10 |
