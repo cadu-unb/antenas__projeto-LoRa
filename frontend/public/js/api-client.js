@@ -20,4 +20,7 @@ export const api = {
   updateAntenna: (id, spec) => request("PUT", `/antennas/${id}`, spec),
   deleteAntenna: (id) => request("DELETE", `/antennas/${id}`),
   previewAntenna: (req) => request("POST", "/sandbox/preview", req),
+  createScenario: (scenario) => request("POST", "/scenarios", scenario),
+  getScenario: (id) => request("GET", `/scenarios/${id}`),
+  calculateScenario: (id) => request("POST", `/scenarios/${id}/calculate`),
 };
