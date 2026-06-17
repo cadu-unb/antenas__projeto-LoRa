@@ -1,0 +1,4 @@
+interface:
+  display_name: "Code Documentation Style"
+  short_description: "Padrões de comentários e organização visual"
+  default_prompt: "Use $code-documentation-style ao escrever ou editar código."

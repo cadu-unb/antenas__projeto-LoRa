@@ -44,6 +44,7 @@ POST /api/v1/scenarios/{id}/kml
 - Não aplicar penalidade física por polígono nesta fase.
 - Não chamar polígono de obstáculo físico sem altura, material e modelo de perda.
 - Não implementar Ray Tracing.
+- Não implementar modo malha manual nem gateway setorial (são extensões de fases futuras).
 
 ## Checkpoints obrigatórios
 

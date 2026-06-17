@@ -43,7 +43,11 @@ solve(spec) -> SolverResult
     - `docs/calculos/06-okumura-hata.md`
     - `docs/calculos/07-longley-rice-itm.md`
     - `docs/calculos/09-limites-computacionais.md`
-13. Criar `tests/test_solvers.py`.
+13. Criar `backend/app/solvers/ray_tracing_solver.py` como stub arquitetural:
+    - apenas comentário indicando que é gancho para implementação futura;
+    - nenhuma lógica funcional;
+    - não conectar a nenhuma rota.
+14. Criar `tests/test_solvers.py`.
 
 ## Checkpoints obrigatórios
 
@@ -57,6 +61,7 @@ solve(spec) -> SolverResult
 - [ ] PyNEC ausente gera fallback analítico + aviso
 - [ ] Okumura-Hata retorna perda em dB com tolerância ±1 dB
 - [ ] `pytest tests/test_solvers.py` passa
+- [ ] `ray_tracing_solver.py` existe como stub (sem lógica, apenas comentário de implementação futura)
 
 ## Devolutiva obrigatória
 
@@ -79,4 +84,4 @@ O relatório deve conter:
 
 ## Regra final
 
-Ray Tracing continua fora desta fase.
+Ray Tracing continua fora desta fase. Criar apenas o stub `ray_tracing_solver.py` — sem implementação funcional.

@@ -351,6 +351,99 @@ Escrever `.reports/sistema-antenas/Fase_8.md`
 
 ---
 
+## Fase 9 — Topologias Avançadas
+
+### Descrição
+Implementar malha manual e multi-estrela. Malha manual: usuário desenha enlaces livremente. Multi-estrela: múltiplos hubs interconectados, cada um com suas folhas. Suporte a topologia hierárquica (folha → hub local → hub regional → gateway).
+
+### Passos sugeridos
+1. Estender `LinkScenario` com campo `topology_type`: `P2P` / `CHAIN` / `STAR` / `MESH` / `MULTI_STAR` / `HIERARCHICAL`
+2. UI — modo malha manual: arrastar entre dois nós no mapa cria enlace
+3. UI — modo multi-estrela: usuário designa múltiplos nós como hub; cada folha associada a um hub
+4. `api/link_routes.py` — `POST /api/v1/scenarios/{id}/links` — adicionar enlace individual
+5. `api/link_routes.py` — `DELETE /api/v1/scenarios/{id}/links/{link_id}` — remover enlace
+6. Validação: detectar e avisar ilhas (nós sem nenhum enlace)
+7. Link budget por caminho multi-hop: somar perdas ao longo da cadeia de hops
+8. Suporte a redundância: nó com dois hubs upstream (calcular melhor margem)
+9. `docs/for-dummies/14-como-criar-malha-manual.md`
+10. `docs/for-dummies/15-como-criar-topologia-multi-estrela.md`
+11. `tests/test_topology.py` — validar malha, multi-estrela, detecção de ilhas
+
+### Checkpoint
+- [ ] Enlace criado por arrastar entre dois nós no mapa
+- [ ] Enlace removido individualmente sem apagar o cenário
+- [ ] UI detecta e marca nós sem enlace (ilhas)
+- [ ] Multi-estrela: dois hubs com folhas próprias + enlace hub-a-hub calculado
+- [ ] Link budget multi-hop acumula perdas corretamente ao longo do caminho
+- [ ] Nó com dois hubs upstream mostra melhor margem entre os dois caminhos
+- [ ] `pytest tests/test_topology.py` passa
+
+### Report ao final da fase
+Escrever `.reports/sistema-antenas/Fase_9.md`
+
+---
+
+## Fase 10 — Site Selection / Planejamento de Torre
+
+### Descrição
+Onde colocar a estação base e com qual altura. Usuário marca candidatos a torre no mapa (manual ou via KML). Sistema calcula cobertura por candidato e ranqueia. Requer Okumura-Hata/Longley-Rice da Fase 6.
+
+### Passos sugeridos
+1. Criar schema `CandidateSite`: `id`, `name`, `lat`, `lon`, `height_m`, `is_existing_tower`, `notes`
+2. Criar schema `CoverageResult`: por candidato, lista de nós com margem calculada e status semáforo
+3. `api/link_routes.py` — `POST /api/v1/scenarios/{id}/candidates` — adicionar candidato
+4. `api/link_routes.py` — `POST /api/v1/scenarios/{id}/site-selection` — calcular cobertura para todos candidatos
+5. KML: reconhecer ponto marcado como torre existente (via tag/nome) e importar como `CandidateSite` com `is_existing_tower: true`
+6. UI — mapa: marcador diferente para candidatos vs nós de campo
+7. UI — resultado: tabela ranqueada por % de nós cobertos (margem > 0 dB)
+8. UI — detalhe por candidato: cada nó de campo com margem calculada e semáforo
+9. UI — slider de altura: usuário ajusta altura da torre e recalcula cobertura ao vivo
+10. `docs/for-dummies/16-como-usar-site-selection.md`
+11. `docs/for-dummies/17-como-interpretar-cobertura.md`
+12. `tests/test_site_selection.py` — candidatos fixos, verificar ranking com valores conhecidos
+
+### Checkpoint
+- [ ] `POST /api/v1/scenarios/{id}/site-selection` retorna ranking de candidatos com % cobertura
+- [ ] Candidato com maior % de nós cobertos aparece primeiro
+- [ ] Slider de altura recalcula cobertura sem reload de página
+- [ ] KML com torre existente importa como `CandidateSite` com `is_existing_tower: true`
+- [ ] Tabela de detalhe mostra margem por nó para candidato selecionado
+- [ ] Semáforo por nó consistente com critérios da Fase 4 (verde/amarelo/vermelho)
+- [ ] `pytest tests/test_site_selection.py` passa com fixtures documentadas
+
+### Report ao final da fase
+Escrever `.reports/sistema-antenas/Fase_10.md`
+
+---
+
+## Fase 11 — Docs Parte II
+
+### Descrição
+Completar documentação das funcionalidades adicionadas nas Fases 9 e 10. Atualizar schemas, guias, `README.md` das pastas novas e `README.md` raiz com escopo expandido.
+
+### Passos sugeridos
+1. Completar `docs/for-dummies/14` a `17` (malha manual, multi-estrela, site selection, cobertura)
+2. Atualizar `docs/for-dummies/09-como-montar-enlace.md` — adicionar seção sobre topologias avançadas
+3. Atualizar `docs/link-planner-schema.md` — documentar `topology_type`, `CandidateSite`, `CoverageResult`
+4. Criar `docs/calculos/11-site-selection-e-cobertura.md` — método de cálculo de cobertura por candidato, limitações
+5. Verificar `README.md` em pastas novas ou alteradas nas Fases 9–10
+6. Atualizar seção **Fora do MVP / Escopo Negativo** no `README.md` raiz — remover itens que agora estão implementados, adicionar novos limites (ex: sem otimização automática de posição de torre, sem ray tracing urbano)
+7. Testar fluxo end-to-end estendido: criar antena → biblioteca → malha manual → site selection → exportar cenário completo
+
+### Checkpoint
+- [ ] `docs/for-dummies/14` a `17` preenchidos
+- [ ] `docs/for-dummies/09` atualizado com seção de topologias avançadas
+- [ ] `docs/link-planner-schema.md` documenta todos os novos schemas
+- [ ] `docs/calculos/11` explica método + limitações do site selection
+- [ ] Toda pasta nova das Fases 9–10 tem `README.md` não-stub
+- [ ] `README.md` raiz com escopo negativo atualizado
+- [ ] Fluxo end-to-end estendido funciona sem erro inesperado
+
+### Report ao final da fase
+Escrever `.reports/sistema-antenas/Fase_11.md`
+
+---
+
 ## Riscos e Mitigação
 
 | Risco | Probabilidade | Mitigação |
@@ -373,6 +466,8 @@ Escrever `.reports/sistema-antenas/Fase_8.md`
 | Biblioteca | `AntennaSpec` (salva) | `/api/v1/antennas` |
 | Link Planner | `NodeSpec` + `LinkScenario` | `/api/v1/scenarios` |
 | Jobs | `Job` | `/api/v1/jobs` |
+| Topologias avançadas | `LinkScenario` estendido | `/api/v1/scenarios/{id}/links` |
+| Site Selection | `CandidateSite` + `CoverageResult` | `/api/v1/scenarios/{id}/candidates` |
 
 ## Solvers por contexto
 
