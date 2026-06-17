@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sistema de Antenas LoRa</title>
+  <style>
+    body { font-family: sans-serif; max-width: 800px; margin: 4rem auto; padding: 0 1rem; }
+    h1 { font-size: 1.8rem; }
+    .status { display: inline-block; padding: 0.3rem 0.8rem; border-radius: 4px; font-size: 0.9rem; }
+    .ok { background: #d4edda; color: #155724; }
+    nav a { margin-right: 1.5rem; text-decoration: none; color: #0066cc; }
+  </style>
+</head>
+<body>
+  <h1>Sistema de Antenas LoRa</h1>
+  <p id="health-status">Verificando backend...</p>
+
+  <nav>
+    <a href="/library.html">Biblioteca</a>
+    <a href="/sandbox.html">Sandbox</a>
+    <a href="/link-planner.html">Link Planner</a>
+  </nav>
+
+  <script>
+    fetch('/health')
+      .then(r => r.json())
+      .then(d => {
+        document.getElementById('health-status').innerHTML =
+          `Backend <span class="status ok">${d.status} v${d.version}</span>`;
+      })
+      .catch(() => {
+        document.getElementById('health-status').textContent = 'Backend indisponível.';
+      });
+  </script>
+</body>
+</html>
