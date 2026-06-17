@@ -24,5 +24,16 @@ class LinkScenario(BaseModel):
     node_a: NodeSpec
     node_b: NodeSpec
     frequency_hz: float
+    topology_type: str = "P2P"  # "P2P" | "CHAIN" | "STAR"
+    extra_nodes: list[NodeSpec] = Field(default_factory=list)
+    polygons: list[dict] = Field(default_factory=list)
     results: Optional[LinkResult] = None
     metadata: dict = Field(default_factory=dict)
+
+
+class KmlImportResult(BaseModel):
+    scenario_id: str
+    nodes_imported: int
+    polygons_imported: int
+    nodes: list[NodeSpec]
+    polygons: list[dict]

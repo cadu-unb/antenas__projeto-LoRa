@@ -68,11 +68,43 @@ FSPL     = 20·log10(4π·d·f/c)
 | Sensibilidade | −137 dBm |
 | **Margem** | **49.6 dB → Verde** |
 
+## Topologias disponíveis
+
+Use a barra de topologia no topo da página:
+
+| Topologia | Descrição | Nó A é... |
+|---|---|---|
+| P2P | Um enlace direto entre dois nós | Transmissor |
+| Cadeia | Série de nós em linha | Início da cadeia |
+| Estrela | Hub central conectado a múltiplos nós | Hub central |
+
+Cadeia e Estrela permitem adicionar nós extras manualmente ou via KML.
+
+## Importar nós via KML
+
+Arquivo `.kml` do Google Earth ou similar:
+
+1. Preencha Nó A e Nó B
+2. Clique **Importar KML**
+3. Selecione o arquivo `.kml`
+4. Nós importados aparecem no mapa e na seção de nós extras
+5. Selecione topologia Cadeia ou Estrela para incluí-los no enlace
+
+Ver guia completo em `docs/for-dummies/08-como-importar-kml.md`.
+
+## Mapa Leaflet
+
+O mapa mostra automaticamente:
+- Nó A (azul) e Nó B (verde)
+- Nós extras manuais ou importados (laranja)
+- Linhas de enlace (vermelho tracejado) por topologia
+- Polígonos KML (roxo, apenas visual)
+
 ## Exportar o cenário
 
 Após calcular, clique **Exportar JSON** para baixar o `LinkScenario` completo (nós, parâmetros, resultado). Útil para documentação ou importar em outro momento.
 
-## Limitações desta versão (MVP)
+## Limitações desta versão
 
 - Sem modelo de terreno — assume espaço livre (FSPL puro)
 - Sem obstáculos físicos (árvores, prédios, montanhas)

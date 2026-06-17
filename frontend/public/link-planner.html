@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Link Planner — Antenas LoRa</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: system-ui, sans-serif; background: #0f1117; color: #e2e8f0; min-height: 100vh; }
@@ -14,13 +15,32 @@
     nav a:hover { color: #e2e8f0; }
     nav a.active { color: #4f6ef7; }
 
-    main { padding: 1.5rem 2rem; max-width: 1200px; margin: 0 auto; }
+    main { padding: 1.5rem 2rem; max-width: 1300px; margin: 0 auto; }
 
     h2 { font-size: 1rem; font-weight: 600; margin-bottom: 1rem; }
+
+    /* Topology selector */
+    .topology-bar { display: flex; gap: 0.5rem; margin-bottom: 1.25rem; align-items: center; }
+    .topology-bar span { font-size: 0.75rem; color: #718096; margin-right: 0.5rem; }
+    .topo-btn {
+      padding: 0.35rem 1rem; border-radius: 5px; border: 1px solid #4a5568;
+      background: transparent; color: #a0aec0; font-size: 0.8rem; cursor: pointer; transition: all 0.15s;
+    }
+    .topo-btn:hover { border-color: #4f6ef7; color: #e2e8f0; }
+    .topo-btn.active { background: #4f6ef7; border-color: #4f6ef7; color: #fff; font-weight: 600; }
 
     .nodes-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem; }
     .node-card { background: #1a1d27; border: 1px solid #2d3748; border-radius: 8px; padding: 1.25rem; }
     .node-title { font-size: 0.75rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #a0aec0; margin-bottom: 1rem; }
+
+    /* Extra nodes (chain/star) */
+    #extra-nodes-section { margin-bottom: 1.5rem; display: none; }
+    #extra-nodes-section.visible { display: block; }
+    .extra-nodes-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem; }
+    .extra-nodes-list { display: grid; gap: 0.75rem; }
+    .extra-node-card { background: #1a1d27; border: 1px solid #2d3748; border-radius: 8px; padding: 1rem; position: relative; }
+    .extra-node-card .remove-btn { position: absolute; top: 0.6rem; right: 0.75rem; background: transparent; border: none; color: #718096; cursor: pointer; font-size: 1rem; }
+    .extra-node-card .remove-btn:hover { color: #fc8181; }
 
     .form-row { margin-bottom: 0.75rem; }
     .form-row label { display: block; font-size: 0.75rem; color: #718096; margin-bottom: 0.25rem; }
@@ -31,17 +51,27 @@
     .form-row input:focus, .form-row select:focus { outline: none; border-color: #4f6ef7; }
     .form-inline { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
 
-    .global-row { background: #1a1d27; border: 1px solid #2d3748; border-radius: 8px; padding: 1.25rem; margin-bottom: 1.5rem; display: flex; gap: 2rem; align-items: flex-end; flex-wrap: wrap; }
-    .global-row .form-row { margin-bottom: 0; min-width: 180px; }
+    .global-row { background: #1a1d27; border: 1px solid #2d3748; border-radius: 8px; padding: 1.25rem; margin-bottom: 1.5rem; display: flex; gap: 1rem; align-items: flex-end; flex-wrap: wrap; }
+    .global-row .form-row { margin-bottom: 0; min-width: 160px; }
 
     button { cursor: pointer; border: none; border-radius: 6px; padding: 0.55rem 1.25rem; font-size: 0.875rem; font-weight: 600; transition: opacity 0.15s; }
     button:hover { opacity: 0.85; }
     button:disabled { opacity: 0.4; cursor: not-allowed; }
     .btn-primary { background: #4f6ef7; color: #fff; }
+    .btn-secondary { background: #2d3748; color: #e2e8f0; }
     .btn-outline { background: transparent; border: 1px solid #4a5568; color: #a0aec0; }
+    .btn-small { padding: 0.35rem 0.75rem; font-size: 0.8rem; }
 
     #error-banner { display: none; background: #742a2a; border: 1px solid #fc8181; color: #fed7d7; border-radius: 6px; padding: 0.75rem 1rem; margin-bottom: 1rem; font-size: 0.875rem; }
     #error-banner.visible { display: block; }
+
+    #info-banner { display: none; background: #1a365d; border: 1px solid #63b3ed; color: #bee3f8; border-radius: 6px; padding: 0.75rem 1rem; margin-bottom: 1rem; font-size: 0.875rem; }
+    #info-banner.visible { display: block; }
+
+    /* Map */
+    #map-section { margin-bottom: 1.5rem; }
+    #map-section h2 { margin-bottom: 0.75rem; }
+    #map { height: 420px; border-radius: 8px; border: 1px solid #2d3748; background: #1a1d27; }
 
     /* Results */
     #results-section { display: none; }
@@ -63,6 +93,11 @@
     .metric-unit { font-size: 0.72rem; color: #718096; margin-left: 0.15rem; }
 
     .actions { display: flex; gap: 0.75rem; margin-top: 0.5rem; }
+
+    /* Leaflet dark overrides */
+    .leaflet-container { background: #2d3748 !important; }
+    .leaflet-popup-content-wrapper { background: #1a1d27; color: #e2e8f0; border: 1px solid #4a5568; }
+    .leaflet-popup-tip { background: #1a1d27; }
   </style>
 </head>
 <body>
@@ -77,14 +112,23 @@
   </header>
 
   <main>
-    <h2>Link Budget P2P</h2>
+    <h2>Link Budget</h2>
 
     <div id="error-banner"></div>
+    <div id="info-banner"></div>
+
+    <!-- Topology selector -->
+    <div class="topology-bar">
+      <span>Topologia:</span>
+      <button class="topo-btn active" data-topo="P2P">P2P</button>
+      <button class="topo-btn" data-topo="CHAIN">Cadeia</button>
+      <button class="topo-btn" data-topo="STAR">Estrela</button>
+    </div>
 
     <!-- Node forms -->
     <div class="nodes-grid">
       <div class="node-card">
-        <div class="node-title">Nó A — Transmissor</div>
+        <div class="node-title" id="node-a-title">Nó A — Transmissor</div>
         <div class="form-row">
           <label>Nome</label>
           <input type="text" id="a-name" value="Nó A" />
@@ -156,7 +200,16 @@
       </div>
     </div>
 
-    <!-- Global params + calculate -->
+    <!-- Extra nodes (chain / star) -->
+    <div id="extra-nodes-section">
+      <div class="extra-nodes-header">
+        <h2 id="extra-nodes-title">Nós intermediários</h2>
+        <button class="btn-secondary btn-small" id="btn-add-node">+ Adicionar nó</button>
+      </div>
+      <div class="extra-nodes-list" id="extra-nodes-list"></div>
+    </div>
+
+    <!-- Global params + actions -->
     <div class="global-row">
       <div class="form-row">
         <label>Nome do cenário</label>
@@ -167,6 +220,14 @@
         <input type="number" id="frequency" value="915" min="1" step="0.001" />
       </div>
       <button class="btn-primary" id="btn-calculate">Calcular Link Budget</button>
+      <button class="btn-secondary" id="btn-import-kml" title="Importar arquivo KML">Importar KML</button>
+      <input type="file" id="kml-file-input" accept=".kml" style="display:none" />
+    </div>
+
+    <!-- Leaflet map -->
+    <div id="map-section">
+      <h2>Mapa</h2>
+      <div id="map"></div>
     </div>
 
     <!-- Results -->
@@ -179,41 +240,247 @@
     </div>
   </main>
 
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script type="module">
     import { api } from "/js/api-client.js";
 
-    const errorBanner = document.getElementById("error-banner");
+    const errorBanner  = document.getElementById("error-banner");
+    const infoBanner   = document.getElementById("info-banner");
     const resultsSection = document.getElementById("results-section");
-    const resultsGrid = document.getElementById("results-grid");
-    const semBadge = document.getElementById("semaphore-badge");
+    const resultsGrid  = document.getElementById("results-grid");
+    const semBadge     = document.getElementById("semaphore-badge");
     const btnCalculate = document.getElementById("btn-calculate");
-    const btnExport = document.getElementById("btn-export");
+    const btnExport    = document.getElementById("btn-export");
+    const btnImportKml = document.getElementById("btn-import-kml");
+    const kmlFileInput = document.getElementById("kml-file-input");
+    const extraSection = document.getElementById("extra-nodes-section");
+    const extraList    = document.getElementById("extra-nodes-list");
+    const btnAddNode   = document.getElementById("btn-add-node");
 
     let lastScenarioId = null;
+    let currentTopology = "P2P";
+    let antennaOptions  = [];  // [{id, label}]
+    let manualExtraNodes = [];  // {name, lat, lon, height_m, antenna_id, ...}
+    let kmlExtraNodes  = [];   // from last KML import (NodeSpec objects)
+    let kmlPolygons    = [];   // from last KML import
+
+    // ── Leaflet map ────────────────────────────────────────────────────────────
+    const lmap = L.map("map").setView([-23.0, -45.0], 6);
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      attribution: "© OpenStreetMap contributors",
+      maxZoom: 18,
+    }).addTo(lmap);
+    const layerMarkers = L.layerGroup().addTo(lmap);
+    const layerLines   = L.layerGroup().addTo(lmap);
+    const layerPolys   = L.layerGroup().addTo(lmap);
+
+    const ICON_A = L.divIcon({ className: "", html: `<div style="width:14px;height:14px;background:#4f6ef7;border:2px solid #fff;border-radius:50%"></div>`, iconAnchor: [7,7] });
+    const ICON_B = L.divIcon({ className: "", html: `<div style="width:14px;height:14px;background:#68d391;border:2px solid #fff;border-radius:50%"></div>`, iconAnchor: [7,7] });
+    const ICON_EXTRA = L.divIcon({ className: "", html: `<div style="width:12px;height:12px;background:#f6ad55;border:2px solid #fff;border-radius:50%"></div>`, iconAnchor: [6,6] });
+
+    function updateMap() {
+      layerMarkers.clearLayers();
+      layerLines.clearLayers();
+      layerPolys.clearLayers();
+
+      const aLat = parseFloat(document.getElementById("a-lat").value);
+      const aLon = parseFloat(document.getElementById("a-lon").value);
+      const bLat = parseFloat(document.getElementById("b-lat").value);
+      const bLon = parseFloat(document.getElementById("b-lon").value);
+
+      const valid = v => !isNaN(v) && isFinite(v);
+      if (!valid(aLat) || !valid(aLon) || !valid(bLat) || !valid(bLon)) return;
+
+      const aName = document.getElementById("a-name").value || "Nó A";
+      const bName = document.getElementById("b-name").value || "Nó B";
+
+      L.marker([aLat, aLon], { icon: ICON_A })
+        .bindPopup(`<b>${aName}</b><br>Lat: ${aLat}<br>Lon: ${aLon}`)
+        .addTo(layerMarkers);
+      L.marker([bLat, bLon], { icon: ICON_B })
+        .bindPopup(`<b>${bName}</b><br>Lat: ${bLat}<br>Lon: ${bLon}`)
+        .addTo(layerMarkers);
+
+      // Extra nodes
+      const allExtra = [...manualExtraNodes, ...kmlExtraNodes];
+      allExtra.forEach(n => {
+        if (!valid(n.lat) || !valid(n.lon)) return;
+        L.marker([n.lat, n.lon], { icon: ICON_EXTRA })
+          .bindPopup(`<b>${n.name}</b><br>Lat: ${n.lat}<br>Lon: ${n.lon}<br>Altura: ${n.height_m} m`)
+          .addTo(layerMarkers);
+      });
+
+      // Link lines
+      const chain = [{ lat: aLat, lon: aLon }, { lat: bLat, lon: bLon }, ...allExtra];
+      if (currentTopology === "P2P") {
+        L.polyline([[aLat, aLon], [bLat, bLon]], { color: "#fc8181", weight: 2, dashArray: "6 4" }).addTo(layerLines);
+      } else if (currentTopology === "CHAIN") {
+        for (let i = 0; i < chain.length - 1; i++) {
+          L.polyline([[chain[i].lat, chain[i].lon], [chain[i+1].lat, chain[i+1].lon]], { color: "#fc8181", weight: 2, dashArray: "6 4" }).addTo(layerLines);
+        }
+      } else if (currentTopology === "STAR") {
+        for (let i = 1; i < chain.length; i++) {
+          L.polyline([[aLat, aLon], [chain[i].lat, chain[i].lon]], { color: "#fc8181", weight: 2, dashArray: "6 4" }).addTo(layerLines);
+        }
+      }
+
+      // KML polygons
+      kmlPolygons.forEach(poly => {
+        if (!poly.outer_ring || poly.outer_ring.length < 3) return;
+        const latlngs = poly.outer_ring.map(c => [c[1], c[0]]);
+        L.polygon(latlngs, { color: "#b794f4", weight: 1.5, fillOpacity: 0.15 })
+          .bindPopup(`<b>${poly.name}</b><br><em>Área de interesse (visual)</em>`)
+          .addTo(layerPolys);
+      });
+
+      // Fit bounds to all nodes
+      const pts = chain.filter(n => valid(n.lat) && valid(n.lon)).map(n => [n.lat, n.lon]);
+      if (pts.length > 0) {
+        lmap.fitBounds(L.latLngBounds(pts), { padding: [50, 50], maxZoom: 12 });
+      }
+    }
+
+    // Update map on coordinate change
+    ["a-lat", "a-lon", "b-lat", "b-lon"].forEach(id => {
+      document.getElementById(id).addEventListener("input", updateMap);
+    });
+
+    // ── Topology selector ──────────────────────────────────────────────────────
+    document.querySelectorAll(".topo-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".topo-btn").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        currentTopology = btn.dataset.topo;
+        updateTopologyUI();
+        updateMap();
+      });
+    });
+
+    function updateTopologyUI() {
+      const nodeATitle = document.getElementById("node-a-title");
+      const extraTitle = document.getElementById("extra-nodes-title");
+      if (currentTopology === "P2P") {
+        nodeATitle.textContent = "Nó A — Transmissor";
+        extraSection.classList.remove("visible");
+      } else if (currentTopology === "CHAIN") {
+        nodeATitle.textContent = "Nó A — Início da cadeia";
+        extraSection.classList.add("visible");
+        extraTitle.textContent = "Nós intermediários (cadeia)";
+      } else if (currentTopology === "STAR") {
+        nodeATitle.textContent = "Nó A — Hub central";
+        extraSection.classList.add("visible");
+        extraTitle.textContent = "Nós folha (estrela)";
+      }
+    }
+
+    // ── Extra nodes management ─────────────────────────────────────────────────
+    function renderExtraNodes() {
+      extraList.innerHTML = "";
+      manualExtraNodes.forEach((node, idx) => {
+        const card = document.createElement("div");
+        card.className = "extra-node-card";
+        card.innerHTML = `
+          <button class="remove-btn" data-idx="${idx}">✕</button>
+          <div class="form-inline">
+            <div class="form-row"><label>Nome</label><input type="text" data-field="name" data-idx="${idx}" value="${node.name}" /></div>
+            <div class="form-row"><label>Altura (m)</label><input type="number" data-field="height_m" data-idx="${idx}" value="${node.height_m}" min="0" step="0.1" /></div>
+          </div>
+          <div class="form-inline">
+            <div class="form-row"><label>Latitude</label><input type="number" data-field="lat" data-idx="${idx}" value="${node.lat}" step="0.000001" /></div>
+            <div class="form-row"><label>Longitude</label><input type="number" data-field="lon" data-idx="${idx}" value="${node.lon}" step="0.000001" /></div>
+          </div>
+          <div class="form-row">
+            <label>Antena da biblioteca</label>
+            <select data-field="antenna_id" data-idx="${idx}">
+              <option value="">— Sem antena —</option>
+              ${antennaOptions.map(a => `<option value="${a.id}" ${node.antenna_id === a.id ? "selected" : ""}>${a.label}</option>`).join("")}
+            </select>
+          </div>
+        `;
+        extraList.appendChild(card);
+      });
+
+      // Show KML-imported nodes as read-only info
+      if (kmlExtraNodes.length > 0) {
+        const header = document.createElement("div");
+        header.style.cssText = "font-size:0.75rem;color:#718096;margin-top:0.75rem;margin-bottom:0.4rem;";
+        header.textContent = `${kmlExtraNodes.length} nó(s) importados via KML (somente leitura):`;
+        extraList.appendChild(header);
+        kmlExtraNodes.forEach(node => {
+          const row = document.createElement("div");
+          row.className = "extra-node-card";
+          row.style.opacity = "0.7";
+          row.innerHTML = `
+            <div style="font-size:0.8rem;font-weight:600;margin-bottom:0.4rem;">${node.name}</div>
+            <div style="font-size:0.75rem;color:#a0aec0;">
+              Lat: ${node.lat} &nbsp; Lon: ${node.lon} &nbsp; Alt: ${node.height_m} m
+              <br><em>Importado via KML</em>
+            </div>
+            <div class="form-row" style="margin-top:0.5rem;">
+              <label>Antena da biblioteca</label>
+              <select data-kml-idx="${kmlExtraNodes.indexOf(node)}">
+                <option value="">— Sem antena —</option>
+                ${antennaOptions.map(a => `<option value="${a.id}" ${node.antenna_id === a.id ? "selected" : ""}>${a.label}</option>`).join("")}
+              </select>
+            </div>
+          `;
+          extraList.appendChild(row);
+        });
+      }
+
+      // Bind events
+      extraList.querySelectorAll(".remove-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+          manualExtraNodes.splice(parseInt(btn.dataset.idx), 1);
+          renderExtraNodes();
+          updateMap();
+        });
+      });
+      extraList.querySelectorAll("input[data-idx], select[data-field][data-idx]").forEach(el => {
+        el.addEventListener("input", () => {
+          const idx = parseInt(el.dataset.idx);
+          const field = el.dataset.field;
+          manualExtraNodes[idx][field] = (field === "name" || field === "antenna_id") ? el.value : parseFloat(el.value) || 0;
+          updateMap();
+        });
+      });
+      extraList.querySelectorAll("select[data-kml-idx]").forEach(sel => {
+        sel.addEventListener("change", () => {
+          const idx = parseInt(sel.dataset.kmlIdx);
+          kmlExtraNodes[idx].antenna_id = sel.value || null;
+        });
+      });
+    }
+
+    btnAddNode.addEventListener("click", () => {
+      manualExtraNodes.push({ name: `Nó ${manualExtraNodes.length + 3}`, lat: 0, lon: 0, height_m: 0, antenna_id: null, tx_power_dbm: 14, rx_sensitivity_dbm: -137, cable_loss_db: 0 });
+      renderExtraNodes();
+    });
 
     // ── Load antenna dropdowns ─────────────────────────────────────────────────
     async function loadAntennas() {
       try {
         const list = await api.listAntennas();
+        antennaOptions = list.map(ant => ({
+          id: ant.id,
+          label: `${ant.name} (${ant.type}, ${(ant.frequency_hz / 1e6).toFixed(1)} MHz)`,
+        }));
         ["a-antenna", "b-antenna"].forEach(id => {
           const sel = document.getElementById(id);
-          list.forEach(ant => {
+          antennaOptions.forEach(({ id: aId, label }) => {
             const opt = document.createElement("option");
-            opt.value = ant.id;
-            const freqMhz = (ant.frequency_hz / 1e6).toFixed(1);
-            opt.textContent = `${ant.name} (${ant.type}, ${freqMhz} MHz)`;
+            opt.value = aId;
+            opt.textContent = label;
             sel.appendChild(opt);
           });
         });
       } catch {}
     }
 
-    // ── Error handling ─────────────────────────────────────────────────────────
-    function showError(msg) {
-      errorBanner.textContent = msg;
-      errorBanner.classList.add("visible");
-    }
-    function clearError() { errorBanner.classList.remove("visible"); }
+    // ── Error / info banners ───────────────────────────────────────────────────
+    function showError(msg) { errorBanner.textContent = msg; errorBanner.classList.add("visible"); infoBanner.classList.remove("visible"); }
+    function showInfo(msg)  { infoBanner.textContent = msg; infoBanner.classList.add("visible"); errorBanner.classList.remove("visible"); }
+    function clearBanners() { errorBanner.classList.remove("visible"); infoBanner.classList.remove("visible"); }
 
     // ── Validate inputs ────────────────────────────────────────────────────────
     function validate() {
@@ -232,16 +499,16 @@
     // ── Build scenario payload ─────────────────────────────────────────────────
     function buildScenario() {
       const g = id => document.getElementById(id);
-      const antA = g("a-antenna").value || null;
-      const antB = g("b-antenna").value || null;
+      const allExtra = [...manualExtraNodes, ...kmlExtraNodes];
       return {
         name: g("scenario-name").value || "Cenário",
+        topology_type: currentTopology,
         node_a: {
           name: g("a-name").value || "Nó A",
           lat: parseFloat(g("a-lat").value),
           lon: parseFloat(g("a-lon").value),
           height_m: parseFloat(g("a-height").value) || 0,
-          antenna_id: antA,
+          antenna_id: g("a-antenna").value || null,
           tx_power_dbm: parseFloat(g("a-txpower").value) || 14,
           cable_loss_db: parseFloat(g("a-cable").value) || 0,
           rx_sensitivity_dbm: -137,
@@ -251,13 +518,33 @@
           lat: parseFloat(g("b-lat").value),
           lon: parseFloat(g("b-lon").value),
           height_m: parseFloat(g("b-height").value) || 0,
-          antenna_id: antB,
+          antenna_id: g("b-antenna").value || null,
           tx_power_dbm: 14,
           rx_sensitivity_dbm: parseFloat(g("b-rxsens").value) || -137,
           cable_loss_db: parseFloat(g("b-cable").value) || 0,
         },
+        extra_nodes: allExtra.map(n => ({
+          name: n.name,
+          lat: n.lat,
+          lon: n.lon,
+          height_m: n.height_m || 0,
+          antenna_id: n.antenna_id || null,
+          tx_power_dbm: n.tx_power_dbm || 14,
+          rx_sensitivity_dbm: n.rx_sensitivity_dbm || -137,
+          cable_loss_db: n.cable_loss_db || 0,
+        })),
+        polygons: kmlPolygons,
         frequency_hz: parseFloat(g("frequency").value) * 1e6,
       };
+    }
+
+    // ── Ensure scenario exists ─────────────────────────────────────────────────
+    async function ensureScenario() {
+      if (lastScenarioId) return lastScenarioId;
+      const scenario = buildScenario();
+      const created = await api.createScenario(scenario);
+      lastScenarioId = created.id;
+      return lastScenarioId;
     }
 
     // ── Render results ─────────────────────────────────────────────────────────
@@ -265,7 +552,6 @@
       const semClasses = { verde: "sem-verde", amarelo: "sem-amarelo", vermelho: "sem-vermelho" };
       const semLabels  = { verde: "✓ Enlace viável", amarelo: "⚠ Margem apertada", vermelho: "✗ Enlace inviável" };
       semBadge.innerHTML = `<div class="semaphore ${semClasses[r.feasibility]}">${semLabels[r.feasibility]} — margem ${r.link_margin_db > 0 ? "+" : ""}${r.link_margin_db} dB</div>`;
-
       resultsGrid.innerHTML = `
         <div class="metric">
           <div class="metric-label">Distância</div>
@@ -297,23 +583,59 @@
 
     // ── Calculate ──────────────────────────────────────────────────────────────
     btnCalculate.addEventListener("click", async () => {
-      clearError();
+      clearBanners();
       if (!validate()) return;
-
       btnCalculate.disabled = true;
       btnCalculate.textContent = "Calculando…";
-
       try {
         const scenario = buildScenario();
         const created = await api.createScenario(scenario);
         lastScenarioId = created.id;
         const result = await api.calculateScenario(created.id);
         renderResults(result);
+        updateMap();
       } catch (e) {
         showError("Erro: " + (e.detail ?? e.message ?? "erro desconhecido"));
       } finally {
         btnCalculate.disabled = false;
         btnCalculate.textContent = "Calcular Link Budget";
+      }
+    });
+
+    // ── KML import ─────────────────────────────────────────────────────────────
+    btnImportKml.addEventListener("click", () => kmlFileInput.click());
+
+    kmlFileInput.addEventListener("change", async () => {
+      const file = kmlFileInput.files[0];
+      if (!file) return;
+      clearBanners();
+      btnImportKml.disabled = true;
+      btnImportKml.textContent = "Importando…";
+      try {
+        if (!validate()) return;
+        const scenarioId = await ensureScenario();
+        const formData = new FormData();
+        formData.append("file", file);
+        const resp = await fetch(`/api/v1/scenarios/${scenarioId}/kml`, { method: "POST", body: formData });
+        if (!resp.ok) {
+          const err = await resp.json();
+          throw new Error(err.detail ?? "Erro no servidor");
+        }
+        const result = await resp.json();
+        kmlExtraNodes = result.nodes;
+        kmlPolygons   = result.polygons;
+        showInfo(`KML importado: ${result.nodes_imported} nó(s), ${result.polygons_imported} polígono(s).`);
+        if (currentTopology === "P2P" && result.nodes_imported > 0) {
+          showInfo(`KML importado: ${result.nodes_imported} nó(s), ${result.polygons_imported} polígono(s). Troque a topologia para Cadeia ou Estrela para visualizar os nós importados no cálculo.`);
+        }
+        renderExtraNodes();
+        updateMap();
+      } catch (e) {
+        showError("Erro ao importar KML: " + (e.message ?? "erro desconhecido"));
+      } finally {
+        btnImportKml.disabled = false;
+        btnImportKml.textContent = "Importar KML";
+        kmlFileInput.value = "";
       }
     });
 
@@ -333,7 +655,9 @@
       }
     });
 
-    loadAntennas();
+    // ── Init ───────────────────────────────────────────────────────────────────
+    await loadAntennas();
+    updateMap();
   </script>
 </body>
 </html>

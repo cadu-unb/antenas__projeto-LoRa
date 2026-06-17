@@ -1,7 +1,9 @@
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, File, HTTPException, UploadFile, status
 
 from ..domain import link_budget as lb
-from ..schemas.link_scenario import LinkResult, LinkScenario
+from ..domain.kml.parser import parse_kml
+from ..schemas.link_scenario import KmlImportResult, LinkResult, LinkScenario
+from ..schemas.node_spec import NodeSpec
 from ..storage import antenna_storage, scenario_storage
 
 router = APIRouter(prefix="/api/v1/scenarios", tags=["link"])
@@ -71,3 +73,42 @@ def calculate(id: str) -> LinkResult:
 
     scenario_storage.save(s.model_copy(update={"results": result}))
     return result
+
+
+@router.post("/{id}/kml", response_model=KmlImportResult)
+async def import_kml(id: str, file: UploadFile = File(...)) -> KmlImportResult:
+    s = scenario_storage.load(id)
+    if s is None:
+        raise HTTPException(status_code=404, detail="Cenário não encontrado")
+
+    raw = await file.read()
+    try:
+        content = raw.decode("utf-8", errors="replace")
+        parsed = parse_kml(content)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+
+    new_nodes = [
+        NodeSpec(
+            name=p.name,
+            lat=p.lat,
+            lon=p.lon,
+            height_m=p.altitude or 0.0,
+        )
+        for p in parsed.points
+    ]
+    poly_dicts = [p.model_dump() for p in parsed.polygons]
+
+    updated = s.model_copy(update={
+        "extra_nodes": s.extra_nodes + new_nodes,
+        "polygons": s.polygons + poly_dicts,
+    })
+    scenario_storage.save(updated)
+
+    return KmlImportResult(
+        scenario_id=id,
+        nodes_imported=len(new_nodes),
+        polygons_imported=len(parsed.polygons),
+        nodes=new_nodes,
+        polygons=poly_dicts,
+    )
