@@ -1,4 +1,4 @@
-# Fase 4 — Solvers & Modelos de Propagação
+# Fase 3 — Sandbox Rápido
 **Data:** —  
 **Status:** ⬜ Pendente
 

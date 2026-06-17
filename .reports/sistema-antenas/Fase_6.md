@@ -1,4 +1,4 @@
-# Fase 6 — Fila de Jobs & Monitoramento
+# Fase 6 — Solvers Avançados
 **Data:** —  
 **Status:** ⬜ Pendente
 

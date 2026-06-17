@@ -1,4 +1,4 @@
-# Fase 2 — Schema & Biblioteca de Antenas
+# Fase 0 — Convenções do Repositório
 **Data:** —  
 **Status:** ⬜ Pendente
 

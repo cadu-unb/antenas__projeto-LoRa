@@ -1,4 +1,4 @@
-# Fase 3 — Sandbox de Antenas
+# Fase 2 — AntennaSpec e Biblioteca
 **Data:** —  
 **Status:** ⬜ Pendente
 

@@ -1,4 +1,4 @@
-# Fase 7 — Documentação & Polimento
+# Fase 1 — Backend Mínimo
 **Data:** —  
 **Status:** ⬜ Pendente
 
