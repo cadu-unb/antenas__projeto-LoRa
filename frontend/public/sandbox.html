@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sandbox — Antenas LoRa</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: system-ui, sans-serif;
+      background: #0f1117;
+      color: #e2e8f0;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    header {
+      background: #1a1d27;
+      border-bottom: 1px solid #2d3748;
+      padding: 0.75rem 2rem;
+      display: flex;
+      align-items: center;
+      gap: 2rem;
+      flex-shrink: 0;
+    }
+    header h1 { font-size: 1.1rem; font-weight: 600; }
+    nav a { color: #a0aec0; text-decoration: none; font-size: 0.875rem; }
+    nav a:hover { color: #e2e8f0; }
+    nav a.active { color: #4f6ef7; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: 1fr 1fr;
+      gap: 1px;
+      flex: 1;
+      background: #2d3748;
+      overflow: hidden;
+    }
+
+    .panel {
+      background: #0f1117;
+      padding: 1rem 1.25rem;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+    }
+    .panel-title {
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #4a5568;
+      margin-bottom: 0.75rem;
+      flex-shrink: 0;
+    }
+
+    /* Panel 1 — Visual */
+    #panel-visual svg {
+      width: 100%;
+      flex: 1;
+      min-height: 0;
+    }
+    #svg-wrapper {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 0;
+    }
+
+    /* Panel 2 — Params */
+    .form-row { margin-bottom: 0.75rem; }
+    .form-row label {
+      display: block;
+      font-size: 0.75rem;
+      color: #a0aec0;
+      margin-bottom: 0.25rem;
+    }
+    .form-row input,
+    .form-row select {
+      width: 100%;
+      background: #1a1d27;
+      border: 1px solid #2d3748;
+      border-radius: 5px;
+      color: #e2e8f0;
+      padding: 0.4rem 0.6rem;
+      font-size: 0.875rem;
+    }
+    .form-row input:focus, .form-row select:focus {
+      outline: none;
+      border-color: #4f6ef7;
+    }
+    .form-section-title {
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: #4a5568;
+      margin: 0.9rem 0 0.5rem;
+    }
+    .btn-row { display: flex; gap: 0.5rem; margin-top: 1rem; }
+    button {
+      cursor: pointer; border: none; border-radius: 6px;
+      padding: 0.5rem 1rem; font-size: 0.8rem; font-weight: 600;
+      transition: opacity 0.15s;
+    }
+    button:hover { opacity: 0.85; }
+    button:disabled { opacity: 0.4; cursor: not-allowed; }
+    .btn-primary { background: #4f6ef7; color: #fff; flex: 1; }
+    .btn-save { background: #38a169; color: #fff; flex: 1; }
+
+    .solver-badge {
+      display: inline-block; padding: 0.1rem 0.5rem; border-radius: 4px;
+      background: #1a1d27; border: 1px solid #4f6ef7;
+      color: #a0aec0; font-size: 0.7rem;
+    }
+    .solver-badge.disabled { border-color: #2d3748; color: #4a5568; cursor: not-allowed; }
+
+    /* Panel 3 — Results */
+    .metric-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem;
+      flex: 1;
+    }
+    .metric {
+      background: #1a1d27;
+      border-radius: 8px;
+      padding: 0.75rem 1rem;
+    }
+    .metric-label { font-size: 0.7rem; color: #718096; margin-bottom: 0.25rem; }
+    .metric-value { font-size: 1.4rem; font-weight: 700; color: #90cdf4; }
+    .metric-unit { font-size: 0.75rem; color: #718096; margin-left: 0.2rem; }
+    .metric-full { grid-column: 1 / -1; }
+
+    .pattern-label {
+      background: #1a1d27; border-radius: 6px; padding: 0.5rem 0.75rem;
+      font-size: 0.8rem; color: #a0aec0; margin-top: 0.5rem;
+    }
+    .warning-box {
+      background: #744210; border: 1px solid #d69e2e; border-radius: 6px;
+      padding: 0.5rem 0.75rem; font-size: 0.75rem; color: #fefcbf;
+      margin-top: 0.5rem; display: none;
+    }
+    .warning-box.visible { display: block; }
+
+    #status-msg {
+      font-size: 0.75rem; margin-top: 0.5rem; min-height: 1.2em;
+    }
+    .msg-ok { color: #68d391; }
+    .msg-err { color: #fc8181; }
+
+    /* Panel 4 — Radiation */
+    #canvas-polar {
+      width: 100%;
+      flex: 1;
+      min-height: 0;
+      max-width: 100%;
+    }
+    #canvas-wrapper {
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .canvas-placeholder {
+      color: #4a5568; font-size: 0.875rem; text-align: center;
+    }
+
+    .input-error { border-color: #e53e3e !important; }
+    .field-error { color: #fc8181; font-size: 0.7rem; margin-top: 0.2rem; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Antenas LoRa</h1>
+    <nav>
+      <a href="/">Início</a> &nbsp;·&nbsp;
+      <a href="/library.html">Biblioteca</a> &nbsp;·&nbsp;
+      <a href="/sandbox.html" class="active">Sandbox</a> &nbsp;·&nbsp;
+      <a href="/link-planner.html">Link Planner</a>
+    </nav>
+  </header>
+
+  <div class="grid">
+    <!-- Panel 1: Visual -->
+    <div class="panel" id="panel-visual">
+      <div class="panel-title">Visual Físico</div>
+      <div id="svg-wrapper"></div>
+    </div>
+
+    <!-- Panel 2: Parameters -->
+    <div class="panel" id="panel-params">
+      <div class="panel-title">Parâmetros</div>
+
+      <div class="form-row">
+        <label for="sel-type">Tipo de antena</label>
+        <select id="sel-type">
+          <option value="dipolo">Dipolo</option>
+          <option value="monopolo">Monopolo</option>
+          <option value="helicoidal">Helicoidal</option>
+          <option value="parabolica">Parabólica</option>
+        </select>
+      </div>
+
+      <div class="form-row">
+        <label for="inp-name">Nome</label>
+        <input type="text" id="inp-name" value="Minha Antena" />
+      </div>
+
+      <div class="form-section-title">Frequência</div>
+      <div class="form-row">
+        <label for="inp-freq">Frequência (MHz)</label>
+        <input type="number" id="inp-freq" value="915" min="1" step="0.001" />
+        <div class="field-error" id="err-freq"></div>
+      </div>
+
+      <div class="form-section-title">Geometria</div>
+      <div id="geometry-fields"></div>
+
+      <div class="form-section-title">Solver</div>
+      <div class="form-row">
+        <span class="solver-badge">Rápido (analítico) ✓</span>
+        <span class="solver-badge disabled" style="margin-left:0.4rem">Padrão (MoM) — Fase 6</span>
+        <span class="solver-badge disabled" style="margin-left:0.4rem">Preciso — Fase 6</span>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn-primary" id="btn-preview">Calcular Preview</button>
+        <button class="btn-save" id="btn-save" disabled>Salvar na Biblioteca</button>
+      </div>
+      <div id="status-msg"></div>
+    </div>
+
+    <!-- Panel 3: EM Results -->
+    <div class="panel" id="panel-results">
+      <div class="panel-title">Resultado EM</div>
+      <div class="metric-grid" id="metrics">
+        <div class="metric metric-full canvas-placeholder">
+          Configure os parâmetros e clique em <strong>Calcular Preview</strong>.
+        </div>
+      </div>
+    </div>
+
+    <!-- Panel 4: Radiation Pattern -->
+    <div class="panel" id="panel-radiation">
+      <div class="panel-title">Padrão de Irradiação (plano E)</div>
+      <div id="canvas-wrapper">
+        <div class="canvas-placeholder">Diagrama polar aparece após calcular preview.</div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { api } from "/js/api-client.js";
+
+    // ── State ──────────────────────────────────────────────────────────────────
+    let lastResult = null;
+
+    // ── SVG renderers ──────────────────────────────────────────────────────────
+    const SVGs = {
+      dipolo(geo, freqMhz) {
+        const lam = 300 / freqMhz;
+        const len = geo.length_m ?? lam / 2;
+        const arm = Math.min(80, (len / lam) * 80);
+        return `<svg viewBox="-110 -110 220 220" xmlns="http://www.w3.org/2000/svg">
+          <line x1="${-arm}" y1="0" x2="${arm}" y2="0" stroke="#90cdf4" stroke-width="4" stroke-linecap="round"/>
+          <circle cx="0" cy="0" r="4" fill="#4f6ef7"/>
+          <text x="0" y="100" text-anchor="middle" fill="#4a5568" font-size="10">λ/2 = ${(lam/2*100).toFixed(1)} cm</text>
+        </svg>`;
+      },
+      monopolo(geo, freqMhz) {
+        const lam = 300 / freqMhz;
+        const h = geo.height_m ?? lam / 4;
+        const len = Math.min(80, (h / (lam/4)) * 60);
+        return `<svg viewBox="-110 -110 220 220" xmlns="http://www.w3.org/2000/svg">
+          <line x1="-90" y1="40" x2="90" y2="40" stroke="#68d391" stroke-width="3"/>
+          <line x1="0" y1="40" x2="0" y2="${40 - len}" stroke="#90cdf4" stroke-width="4" stroke-linecap="round"/>
+          <circle cx="0" cy="40" r="4" fill="#4f6ef7"/>
+          <text x="0" y="100" text-anchor="middle" fill="#4a5568" font-size="10">λ/4 = ${(lam/4*100).toFixed(1)} cm</text>
+        </svg>`;
+      },
+      helicoidal(geo) {
+        const n = geo.turns ?? 8;
+        const d = 40;
+        let path = `M 0 80`;
+        const steps = n * 12;
+        for (let i = 0; i <= steps; i++) {
+          const t = i / steps;
+          const angle = t * n * 2 * Math.PI;
+          const x = (d / 2) * Math.cos(angle);
+          const y = 80 - t * 160;
+          path += ` L ${x.toFixed(1)} ${y.toFixed(1)}`;
+        }
+        return `<svg viewBox="-110 -110 220 220" xmlns="http://www.w3.org/2000/svg">
+          <line x1="-50" y1="80" x2="50" y2="80" stroke="#68d391" stroke-width="3"/>
+          <path d="${path}" fill="none" stroke="#90cdf4" stroke-width="2.5"/>
+          <circle cx="0" cy="80" r="4" fill="#4f6ef7"/>
+          <text x="0" y="100" text-anchor="middle" fill="#4a5568" font-size="10">${n} espiras</text>
+        </svg>`;
+      },
+      parabolica(geo, freqMhz) {
+        const D = geo.diameter_m ?? 0.6;
+        const f = geo.focal_length_m ?? D * 0.367;
+        const r = 85;
+        const fLen = Math.min(70, (f / D) * r * 2);
+        let path = `M ${-r} ${r}`;
+        for (let x = -r; x <= r; x += 2) {
+          const y = (x * x) / (4 * fLen) - fLen + r;
+          path += ` L ${x.toFixed(1)} ${y.toFixed(1)}`;
+        }
+        const focalY = fLen * 0 + (r - fLen);
+        return `<svg viewBox="-110 -110 220 220" xmlns="http://www.w3.org/2000/svg">
+          <path d="${path}" fill="none" stroke="#90cdf4" stroke-width="3"/>
+          <line x1="${-r}" y1="${r}" x2="${r}" y2="${r}" stroke="#90cdf4" stroke-width="2"/>
+          <circle cx="0" cy="${focalY}" r="5" fill="#f6e05e"/>
+          <line x1="0" y1="${focalY}" x2="0" y2="${r}" stroke="#4f6ef7" stroke-width="1" stroke-dasharray="4 3"/>
+          <text x="0" y="100" text-anchor="middle" fill="#4a5568" font-size="10">D = ${D.toFixed(2)} m  f = ${f.toFixed(2)} m</text>
+        </svg>`;
+      },
+    };
+
+    // ── Geometry field configs ─────────────────────────────────────────────────
+    const GEO_FIELDS = {
+      dipolo: [
+        { id: "length_m", label: "Comprimento total (m)", default: (f) => (300/f/2).toFixed(4), step: "0.001" },
+        { id: "diameter_mm", label: "Diâmetro do condutor (mm)", default: () => "1.5", step: "0.1" },
+      ],
+      monopolo: [
+        { id: "height_m", label: "Altura da haste (m)", default: (f) => (300/f/4).toFixed(4), step: "0.001" },
+        { id: "ground_diameter_m", label: "Diâmetro do plano terra (m)", default: () => "0.25", step: "0.01" },
+      ],
+      helicoidal: [
+        { id: "turns", label: "Número de espiras", default: () => "10", step: "1", min: "1" },
+        { id: "circumference_m", label: "Circunferência de espira (m)", default: (f) => (300/f).toFixed(4), step: "0.001" },
+        { id: "pitch_angle_deg", label: "Ângulo de passo (°)", default: () => "14", step: "1" },
+      ],
+      parabolica: [
+        { id: "diameter_m", label: "Diâmetro do refletor (m)", default: () => "0.60", step: "0.01" },
+        { id: "focal_length_m", label: "Distância focal (m)", default: () => "0.22", step: "0.01" },
+      ],
+    };
+
+    // ── DOM helpers ────────────────────────────────────────────────────────────
+    const selType   = document.getElementById("sel-type");
+    const inpName   = document.getElementById("inp-name");
+    const inpFreq   = document.getElementById("inp-freq");
+    const errFreq   = document.getElementById("err-freq");
+    const geoDiv    = document.getElementById("geometry-fields");
+    const svgWrapper = document.getElementById("svg-wrapper");
+    const btnPreview = document.getElementById("btn-preview");
+    const btnSave    = document.getElementById("btn-save");
+    const statusMsg  = document.getElementById("status-msg");
+    const metricsDiv = document.getElementById("metrics");
+    const canvasWrapper = document.getElementById("canvas-wrapper");
+
+    function getFreqMhz() { return parseFloat(inpFreq.value) || 915; }
+
+    function getGeoValues() {
+      const fields = GEO_FIELDS[selType.value] || [];
+      const geo = {};
+      fields.forEach(f => {
+        const el = document.getElementById("geo-" + f.id);
+        if (el) geo[f.id] = parseFloat(el.value) || 0;
+      });
+      return geo;
+    }
+
+    function rebuildGeoFields() {
+      const type = selType.value;
+      const freq = getFreqMhz();
+      const fields = GEO_FIELDS[type] || [];
+      geoDiv.innerHTML = "";
+      fields.forEach(f => {
+        const row = document.createElement("div");
+        row.className = "form-row";
+        row.innerHTML = `<label for="geo-${f.id}">${f.label}</label>
+          <input type="number" id="geo-${f.id}" value="${f.default(freq)}" step="${f.step || "any"}" min="${f.min || "0"}" />`;
+        geoDiv.appendChild(row);
+        document.getElementById("geo-" + f.id).addEventListener("input", updateVisual);
+      });
+    }
+
+    function updateVisual() {
+      const type = selType.value;
+      const freq = getFreqMhz();
+      const geo  = getGeoValues();
+      const renderer = SVGs[type];
+      svgWrapper.innerHTML = renderer ? renderer(geo, freq) : `<div class="canvas-placeholder">Sem visual</div>`;
+    }
+
+    // ── Polar diagram ──────────────────────────────────────────────────────────
+    function drawPolar(patternData) {
+      canvasWrapper.innerHTML = "";
+      const canvas = document.createElement("canvas");
+      canvas.id = "canvas-polar";
+      canvasWrapper.appendChild(canvas);
+
+      const size = Math.min(canvasWrapper.clientWidth, canvasWrapper.clientHeight);
+      canvas.width = size;
+      canvas.height = size;
+
+      const ctx = canvas.getContext("2d");
+      const cx = size / 2, cy = size / 2;
+      const R = size * 0.40;
+
+      // Background
+      ctx.fillStyle = "#1a1d27";
+      ctx.fillRect(0, 0, size, size);
+
+      // Graticule circles
+      const rings = [0.25, 0.5, 0.75, 1.0];
+      rings.forEach(r => {
+        ctx.beginPath();
+        ctx.arc(cx, cy, R * r, 0, 2 * Math.PI);
+        ctx.strokeStyle = "#2d3748";
+        ctx.lineWidth = 1;
+        ctx.stroke();
+      });
+
+      // Radial lines every 30°
+      for (let a = 0; a < 360; a += 30) {
+        const rad = (a - 90) * Math.PI / 180;
+        ctx.beginPath();
+        ctx.moveTo(cx, cy);
+        ctx.lineTo(cx + R * Math.cos(rad), cy + R * Math.sin(rad));
+        ctx.strokeStyle = "#2d3748";
+        ctx.lineWidth = 1;
+        ctx.stroke();
+        // Angle labels
+        const lx = cx + (R + 14) * Math.cos(rad);
+        const ly = cy + (R + 14) * Math.sin(rad);
+        ctx.fillStyle = "#4a5568";
+        ctx.font = `${Math.round(size * 0.03)}px system-ui`;
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(a + "°", lx, ly);
+      }
+
+      // Normalize pattern
+      const maxG = Math.max(...patternData.map(p => p.gain_linear), 1e-9);
+      const pts = patternData.map(p => ({
+        angle_deg: p.angle_deg,
+        norm: p.gain_linear / maxG,
+      }));
+
+      // Draw pattern
+      ctx.beginPath();
+      pts.forEach((p, i) => {
+        const rad = (p.angle_deg - 90) * Math.PI / 180;
+        const r = p.norm * R;
+        const x = cx + r * Math.cos(rad);
+        const y = cy + r * Math.sin(rad);
+        if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+      });
+      ctx.closePath();
+      ctx.strokeStyle = "#4f6ef7";
+      ctx.lineWidth = 2;
+      ctx.stroke();
+      ctx.fillStyle = "rgba(79, 110, 247, 0.15)";
+      ctx.fill();
+
+      // dB labels on rings
+      const dbLabels = ["-12", "-6", "-3", "0"];
+      dbLabels.forEach((lbl, i) => {
+        ctx.fillStyle = "#718096";
+        ctx.font = `${Math.round(size * 0.028)}px system-ui`;
+        ctx.textAlign = "left";
+        ctx.fillText(lbl + " dB", cx + 4, cy - R * rings[i] + 3);
+      });
+    }
+
+    // ── Results panel ──────────────────────────────────────────────────────────
+    function showResults(r) {
+      lastResult = r;
+      btnSave.disabled = false;
+
+      metricsDiv.innerHTML = `
+        <div class="metric">
+          <div class="metric-label">Ganho</div>
+          <div class="metric-value">${r.gain_dbi}<span class="metric-unit">dBi</span></div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Impedância</div>
+          <div class="metric-value">${r.impedance_ohm}<span class="metric-unit">Ω</span></div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">SWR</div>
+          <div class="metric-value">${r.swr}<span class="metric-unit">:1</span></div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Eficiência</div>
+          <div class="metric-value">${r.efficiency_pct}<span class="metric-unit">%</span></div>
+        </div>
+        <div class="metric metric-full">
+          <div class="metric-label">Padrão de radiação</div>
+          <div style="color:#a0aec0;font-size:0.875rem;margin-top:0.25rem">${r.radiation_pattern}</div>
+        </div>
+      `;
+
+      if (r.warning) {
+        const w = document.createElement("div");
+        w.className = "warning-box visible";
+        w.textContent = "⚠ " + r.warning;
+        metricsDiv.appendChild(w);
+      }
+
+      drawPolar(r.pattern_data);
+    }
+
+    // ── Validation ─────────────────────────────────────────────────────────────
+    function validate() {
+      let ok = true;
+      const freq = parseFloat(inpFreq.value);
+      if (!freq || freq <= 0) {
+        inpFreq.classList.add("input-error");
+        errFreq.textContent = "Frequência deve ser maior que 0.";
+        ok = false;
+      } else {
+        inpFreq.classList.remove("input-error");
+        errFreq.textContent = "";
+      }
+      return ok;
+    }
+
+    // ── Event: preview ─────────────────────────────────────────────────────────
+    btnPreview.addEventListener("click", async () => {
+      if (!validate()) return;
+
+      btnPreview.disabled = true;
+      btnPreview.textContent = "Calculando…";
+      statusMsg.textContent = "";
+
+      const req = {
+        name: inpName.value || "Antena",
+        type: selType.value,
+        frequency_hz: getFreqMhz() * 1e6,
+        geometry: getGeoValues(),
+        solver: "rapido",
+      };
+
+      try {
+        const result = await api.previewAntenna(req);
+        showResults(result);
+      } catch (e) {
+        statusMsg.textContent = "Erro no preview: " + (e.detail ?? e.message ?? "erro desconhecido");
+        statusMsg.className = "msg-err";
+      } finally {
+        btnPreview.disabled = false;
+        btnPreview.textContent = "Calcular Preview";
+      }
+    });
+
+    // ── Event: save to library ──────────────────────────────────────────────────
+    btnSave.addEventListener("click", async () => {
+      if (!lastResult) return;
+      btnSave.disabled = true;
+      statusMsg.textContent = "";
+
+      const spec = {
+        name: inpName.value || "Antena",
+        type: selType.value,
+        frequency_hz: getFreqMhz() * 1e6,
+        units: { frequency: "Hz", gain: "dBi", impedance: "Ohm" },
+        geometry: getGeoValues(),
+        solver: "rapido",
+        results: {
+          gain_dbi: lastResult.gain_dbi,
+          impedance_ohm: lastResult.impedance_ohm,
+          swr: lastResult.swr,
+          efficiency_pct: lastResult.efficiency_pct,
+          radiation_pattern: lastResult.radiation_pattern,
+        },
+        metadata: {},
+      };
+
+      try {
+        const saved = await api.createAntenna(spec);
+        statusMsg.textContent = `✓ Salva na biblioteca (id: ${saved.id.slice(0, 8)}…)`;
+        statusMsg.className = "msg-ok";
+      } catch (e) {
+        statusMsg.textContent = "Erro ao salvar: " + (e.detail ?? "erro desconhecido");
+        statusMsg.className = "msg-err";
+      } finally {
+        btnSave.disabled = false;
+      }
+    });
+
+    // ── Event: type / freq change ──────────────────────────────────────────────
+    selType.addEventListener("change", () => {
+      rebuildGeoFields();
+      updateVisual();
+      lastResult = null;
+      btnSave.disabled = true;
+    });
+
+    inpFreq.addEventListener("input", () => {
+      rebuildGeoFields();
+      updateVisual();
+    });
+
+    // ── Init ───────────────────────────────────────────────────────────────────
+    rebuildGeoFields();
+    updateVisual();
+  </script>
+</body>
+</html>

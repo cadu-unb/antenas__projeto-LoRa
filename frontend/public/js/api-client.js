@@ -19,4 +19,5 @@ export const api = {
   getAntenna: (id) => request("GET", `/antennas/${id}`),
   updateAntenna: (id, spec) => request("PUT", `/antennas/${id}`, spec),
   deleteAntenna: (id) => request("DELETE", `/antennas/${id}`),
+  previewAntenna: (req) => request("POST", "/sandbox/preview", req),
 };
