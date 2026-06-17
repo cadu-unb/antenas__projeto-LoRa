@@ -1,8 +1,16 @@
 from fastapi import APIRouter, File, HTTPException, UploadFile, status
+from pydantic import BaseModel
 
 from ..domain import link_budget as lb
 from ..domain.kml.parser import parse_kml
-from ..schemas.link_scenario import KmlImportResult, LinkResult, LinkScenario
+from ..schemas.link_scenario import (
+    HopResult,
+    KmlImportResult,
+    LinkEdge,
+    LinkResult,
+    LinkScenario,
+    TopologyResult,
+)
 from ..schemas.node_spec import NodeSpec
 from ..storage import antenna_storage, scenario_storage
 
@@ -72,6 +80,92 @@ def calculate(id: str) -> LinkResult:
     )
 
     scenario_storage.save(s.model_copy(update={"results": result}))
+    return result
+
+
+class LinkEdgeIn(BaseModel):
+    id: str | None = None
+    node_a_id: str
+    node_b_id: str
+
+
+@router.post("/{id}/links", response_model=LinkScenario)
+def add_link(id: str, body: LinkEdgeIn) -> LinkScenario:
+    s = scenario_storage.load(id)
+    if s is None:
+        raise HTTPException(status_code=404, detail="Cenário não encontrado")
+    edge = LinkEdge(
+        **({"id": body.id} if body.id else {}),
+        node_a_id=body.node_a_id,
+        node_b_id=body.node_b_id,
+    )
+    updated = s.model_copy(update={"links": s.links + [edge]})
+    scenario_storage.save(updated)
+    return updated
+
+
+@router.delete("/{id}/links/{link_id}", status_code=status.HTTP_204_NO_CONTENT)
+def remove_link(id: str, link_id: str) -> None:
+    s = scenario_storage.load(id)
+    if s is None:
+        raise HTTPException(status_code=404, detail="Cenário não encontrado")
+    new_links = [e for e in s.links if e.id != link_id]
+    if len(new_links) == len(s.links):
+        raise HTTPException(status_code=404, detail="Enlace não encontrado")
+    scenario_storage.save(s.model_copy(update={"links": new_links}))
+
+
+@router.post("/{id}/calculate_links", response_model=TopologyResult)
+def calculate_links(id: str) -> TopologyResult:
+    s = scenario_storage.load(id)
+    if s is None:
+        raise HTTPException(status_code=404, detail="Cenário não encontrado")
+
+    all_nodes = [s.node_a, s.node_b] + s.extra_nodes
+    nodes_by_id = {n.id: n for n in all_nodes}
+
+    islands = lb.find_islands(list(nodes_by_id.keys()), s.links)
+
+    hops: list[HopResult] = []
+    for edge in s.links:
+        na = nodes_by_id.get(edge.node_a_id)
+        nb = nodes_by_id.get(edge.node_b_id)
+        if na is None or nb is None:
+            continue
+        d = lb.haversine(na.lat, na.lon, nb.lat, nb.lon)
+        loss = lb.fspl_db(d, s.frequency_hz)
+        gain_a = _antenna_gain(na.antenna_id)
+        gain_b = _antenna_gain(nb.antenna_id)
+        rx_p, margin = lb.compute_link(
+            tx_power_dbm=na.tx_power_dbm,
+            tx_gain_dbi=gain_a,
+            tx_cable_db=na.cable_loss_db,
+            path_loss_db=loss,
+            rx_gain_dbi=gain_b,
+            rx_cable_db=nb.cable_loss_db,
+            rx_sensitivity_dbm=nb.rx_sensitivity_dbm,
+        )
+        hops.append(HopResult(
+            edge_id=edge.id,
+            node_a_id=na.id,
+            node_b_id=nb.id,
+            node_a_name=na.name,
+            node_b_name=nb.name,
+            distance_m=round(d, 1),
+            fspl_db=round(loss, 2),
+            rx_power_dbm=round(rx_p, 2),
+            link_margin_db=round(margin, 2),
+            feasibility=lb.feasibility(margin),
+        ))
+
+    bottleneck = min((h.link_margin_db for h in hops), default=0.0)
+    result = TopologyResult(
+        hops=hops,
+        islands=islands,
+        bottleneck_margin_db=round(bottleneck, 2),
+        feasibility=lb.feasibility(bottleneck) if hops else "vermelho",
+    )
+    scenario_storage.save(s.model_copy(update={"topology_result": result}))
     return result
 
 

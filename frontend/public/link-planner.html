@@ -123,12 +123,30 @@
       <button class="topo-btn active" data-topo="P2P">P2P</button>
       <button class="topo-btn" data-topo="CHAIN">Cadeia</button>
       <button class="topo-btn" data-topo="STAR">Estrela</button>
+      <button class="topo-btn" data-topo="MESH">Malha</button>
+      <button class="topo-btn" data-topo="MULTI_STAR">Multi-Estrela</button>
+    </div>
+
+    <!-- Mesh link builder (MESH / MULTI_STAR) -->
+    <div id="mesh-section" style="display:none; background:#1a1d27; border:1px solid #2d3748; border-radius:8px; padding:1.25rem; margin-bottom:1.5rem;">
+      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:0.75rem;">
+        <h2 style="margin:0;">Enlaces manuais</h2>
+        <button class="btn-secondary btn-small" id="btn-connect-mode">Conectar nós</button>
+      </div>
+      <div id="connect-hint" style="display:none; font-size:0.8rem; color:#f6ad55; margin-bottom:0.75rem;">
+        Clique no primeiro nó no mapa, depois no segundo para criar o enlace.
+      </div>
+      <div id="mesh-links-list" style="display:grid; gap:0.5rem;"></div>
+      <div id="islands-warning" style="display:none; margin-top:0.75rem; background:#742a2a; border:1px solid #fc8181; color:#fed7d7; border-radius:6px; padding:0.6rem 1rem; font-size:0.8rem;"></div>
     </div>
 
     <!-- Node forms -->
     <div class="nodes-grid">
       <div class="node-card">
         <div class="node-title" id="node-a-title">Nó A — Transmissor</div>
+        <div class="form-row" id="a-hub-row" style="display:none;">
+          <label><input type="checkbox" id="a-is-hub" /> Hub (gateway central)</label>
+        </div>
         <div class="form-row">
           <label>Nome</label>
           <input type="text" id="a-name" value="Nó A" />
@@ -165,6 +183,9 @@
 
       <div class="node-card">
         <div class="node-title">Nó B — Receptor</div>
+        <div class="form-row" id="b-hub-row" style="display:none;">
+          <label><input type="checkbox" id="b-is-hub" /> Hub (gateway central)</label>
+        </div>
         <div class="form-row">
           <label>Nome</label>
           <input type="text" id="b-name" value="Nó B" />
@@ -230,12 +251,32 @@
       <div id="map"></div>
     </div>
 
-    <!-- Results -->
+    <!-- Results (P2P / CHAIN / STAR) -->
     <div id="results-section">
       <div id="semaphore-badge"></div>
       <div class="results-grid" id="results-grid"></div>
       <div class="actions">
         <button class="btn-outline" id="btn-export">Exportar JSON</button>
+      </div>
+    </div>
+
+    <!-- Topology results (MESH / MULTI_STAR) -->
+    <div id="topo-results-section" style="display:none;">
+      <div id="topo-semaphore-badge" style="margin-bottom:1rem;"></div>
+      <table id="hops-table" style="width:100%; border-collapse:collapse; font-size:0.85rem; margin-bottom:1rem;">
+        <thead>
+          <tr style="color:#718096; border-bottom:1px solid #2d3748;">
+            <th style="text-align:left; padding:0.4rem 0.6rem;">Enlace</th>
+            <th style="padding:0.4rem 0.6rem;">Dist (km)</th>
+            <th style="padding:0.4rem 0.6rem;">FSPL (dB)</th>
+            <th style="padding:0.4rem 0.6rem;">Margem (dB)</th>
+            <th style="padding:0.4rem 0.6rem;">Status</th>
+          </tr>
+        </thead>
+        <tbody id="hops-tbody"></tbody>
+      </table>
+      <div class="actions">
+        <button class="btn-outline" id="btn-export-topo">Exportar JSON</button>
       </div>
     </div>
   </main>
@@ -264,6 +305,23 @@
     let kmlExtraNodes  = [];   // from last KML import (NodeSpec objects)
     let kmlPolygons    = [];   // from last KML import
 
+    // Mesh state
+    let meshLinks = [];   // [{id, node_a_id, node_b_id, node_a_name, node_b_name}]
+    let connectMode = false;
+    let pendingNodeId = null;
+    let pendingMarker = null;
+    const nodeAId = _uuid();
+    const nodeBId = _uuid();
+
+    function _uuid() {
+      return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+        const r = Math.random() * 16 | 0;
+        return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+      });
+    }
+
+    const isMesh = () => currentTopology === "MESH" || currentTopology === "MULTI_STAR";
+
     // ── Leaflet map ────────────────────────────────────────────────────────────
     const lmap = L.map("map").setView([-23.0, -45.0], 6);
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
@@ -274,14 +332,23 @@
     const layerLines   = L.layerGroup().addTo(lmap);
     const layerPolys   = L.layerGroup().addTo(lmap);
 
-    const ICON_A = L.divIcon({ className: "", html: `<div style="width:14px;height:14px;background:#4f6ef7;border:2px solid #fff;border-radius:50%"></div>`, iconAnchor: [7,7] });
-    const ICON_B = L.divIcon({ className: "", html: `<div style="width:14px;height:14px;background:#68d391;border:2px solid #fff;border-radius:50%"></div>`, iconAnchor: [7,7] });
+    const ICON_A     = L.divIcon({ className: "", html: `<div style="width:14px;height:14px;background:#4f6ef7;border:2px solid #fff;border-radius:50%"></div>`, iconAnchor: [7,7] });
+    const ICON_B     = L.divIcon({ className: "", html: `<div style="width:14px;height:14px;background:#68d391;border:2px solid #fff;border-radius:50%"></div>`, iconAnchor: [7,7] });
     const ICON_EXTRA = L.divIcon({ className: "", html: `<div style="width:12px;height:12px;background:#f6ad55;border:2px solid #fff;border-radius:50%"></div>`, iconAnchor: [6,6] });
+    const ICON_HUB   = L.divIcon({ className: "", html: `<div style="width:16px;height:16px;background:#4f6ef7;border:3px solid #f6e05e;border-radius:4px"></div>`, iconAnchor: [8,8] });
+    const ICON_ISLAND= L.divIcon({ className: "", html: `<div style="width:14px;height:14px;background:#fc8181;border:2px solid #fff;border-radius:50%"></div>`, iconAnchor: [7,7] });
+    const ICON_PENDING=L.divIcon({ className: "", html: `<div style="width:18px;height:18px;background:#f6e05e;border:2px solid #fff;border-radius:50%"></div>`, iconAnchor: [9,9] });
+
+    let nodeRegistry = {};  // {nodeId: {lat, lon, name, isHub}}
+
+    // islandIds: set of node IDs marked as islands (updated after calculate_links)
+    let islandIds = new Set();
 
     function updateMap() {
       layerMarkers.clearLayers();
       layerLines.clearLayers();
       layerPolys.clearLayers();
+      nodeRegistry = {};
 
       const aLat = parseFloat(document.getElementById("a-lat").value);
       const aLon = parseFloat(document.getElementById("a-lon").value);
@@ -293,24 +360,37 @@
 
       const aName = document.getElementById("a-name").value || "Nó A";
       const bName = document.getElementById("b-name").value || "Nó B";
+      const aIsHub = document.getElementById("a-is-hub")?.checked;
+      const bIsHub = document.getElementById("b-is-hub")?.checked;
 
-      L.marker([aLat, aLon], { icon: ICON_A })
-        .bindPopup(`<b>${aName}</b><br>Lat: ${aLat}<br>Lon: ${aLon}`)
-        .addTo(layerMarkers);
-      L.marker([bLat, bLon], { icon: ICON_B })
-        .bindPopup(`<b>${bName}</b><br>Lat: ${bLat}<br>Lon: ${bLon}`)
-        .addTo(layerMarkers);
+      const iconForNode = (nid, isHub) => {
+        if (islandIds.has(nid)) return ICON_ISLAND;
+        if (nid === pendingNodeId) return ICON_PENDING;
+        if (isHub && isMesh()) return ICON_HUB;
+        return nid === nodeAId ? ICON_A : nid === nodeBId ? ICON_B : ICON_EXTRA;
+      };
+
+      const addNodeMarker = (nid, lat, lon, name, isHub) => {
+        nodeRegistry[nid] = { lat, lon, name, isHub };
+        const marker = L.marker([lat, lon], { icon: iconForNode(nid, isHub) })
+          .bindPopup(`<b>${name}</b><br>${isHub ? "Hub" : "Nó"}<br>Lat: ${lat}<br>Lon: ${lon}`);
+        if (isMesh()) {
+          marker.on("click", () => handleNodeClick(nid, name));
+        }
+        marker.addTo(layerMarkers);
+      };
+
+      addNodeMarker(nodeAId, aLat, aLon, aName, aIsHub);
+      addNodeMarker(nodeBId, bLat, bLon, bName, bIsHub);
 
       // Extra nodes
       const allExtra = [...manualExtraNodes, ...kmlExtraNodes];
       allExtra.forEach(n => {
         if (!valid(n.lat) || !valid(n.lon)) return;
-        L.marker([n.lat, n.lon], { icon: ICON_EXTRA })
-          .bindPopup(`<b>${n.name}</b><br>Lat: ${n.lat}<br>Lon: ${n.lon}<br>Altura: ${n.height_m} m`)
-          .addTo(layerMarkers);
+        addNodeMarker(n.id, n.lat, n.lon, n.name, n.is_hub);
       });
 
-      // Link lines
+      // Link lines (P2P / CHAIN / STAR)
       const chain = [{ lat: aLat, lon: aLon }, { lat: bLat, lon: bLon }, ...allExtra];
       if (currentTopology === "P2P") {
         L.polyline([[aLat, aLon], [bLat, bLon]], { color: "#fc8181", weight: 2, dashArray: "6 4" }).addTo(layerLines);
@@ -324,6 +404,23 @@
         }
       }
 
+      // Mesh links
+      if (isMesh()) {
+        meshLinks.forEach(link => {
+          const na = nodeRegistry[link.node_a_id];
+          const nb = nodeRegistry[link.node_b_id];
+          if (!na || !nb) return;
+          const line = L.polyline([[na.lat, na.lon], [nb.lat, nb.lon]], { color: "#63b3ed", weight: 2.5 });
+          line.bindPopup(`
+            <b>${na.name} ↔ ${nb.name}</b><br>
+            <button onclick="removeMeshLink('${link.id}')" style="margin-top:0.4rem;padding:0.2rem 0.6rem;background:#742a2a;color:#fff;border:none;border-radius:4px;cursor:pointer;">
+              Remover
+            </button>
+          `);
+          line.addTo(layerLines);
+        });
+      }
+
       // KML polygons
       kmlPolygons.forEach(poly => {
         if (!poly.outer_ring || poly.outer_ring.length < 3) return;
@@ -333,11 +430,54 @@
           .addTo(layerPolys);
       });
 
-      // Fit bounds to all nodes
+      // Fit bounds
       const pts = chain.filter(n => valid(n.lat) && valid(n.lon)).map(n => [n.lat, n.lon]);
       if (pts.length > 0) {
         lmap.fitBounds(L.latLngBounds(pts), { padding: [50, 50], maxZoom: 12 });
       }
+    }
+
+    // Global function for popup remove button
+    window.removeMeshLink = (linkId) => {
+      meshLinks = meshLinks.filter(l => l.id !== linkId);
+      renderMeshLinks();
+      updateMap();
+      lmap.closePopup();
+    };
+
+    function handleNodeClick(nodeId, nodeName) {
+      if (!connectMode) return;
+      if (!pendingNodeId) {
+        pendingNodeId = nodeId;
+        updateMap();
+        document.getElementById("connect-hint").textContent =
+          `Nó "${nodeName}" selecionado. Clique no segundo nó para criar o enlace.`;
+      } else {
+        if (pendingNodeId === nodeId) { pendingNodeId = null; updateMap(); return; }
+        const existing = meshLinks.find(l =>
+          (l.node_a_id === pendingNodeId && l.node_b_id === nodeId) ||
+          (l.node_a_id === nodeId && l.node_b_id === pendingNodeId)
+        );
+        if (!existing) {
+          const aName = nodeRegistry[pendingNodeId]?.name || pendingNodeId;
+          meshLinks.push({ id: _uuid(), node_a_id: pendingNodeId, node_b_id: nodeId, node_a_name: aName, node_b_name: nodeName });
+          renderMeshLinks();
+        }
+        pendingNodeId = null;
+        document.getElementById("connect-hint").textContent = "Enlace criado. Clique em Conectar nós para adicionar outro.";
+        updateMap();
+      }
+    }
+
+    function renderMeshLinks() {
+      const list = document.getElementById("mesh-links-list");
+      list.innerHTML = meshLinks.length === 0
+        ? `<div style="font-size:0.8rem;color:#718096;">Nenhum enlace adicionado.</div>`
+        : meshLinks.map(l => `
+          <div style="display:flex;align-items:center;justify-content:space-between;background:#0f1117;border:1px solid #2d3748;border-radius:6px;padding:0.4rem 0.75rem;font-size:0.8rem;">
+            <span>${l.node_a_name} ↔ ${l.node_b_name}</span>
+            <button onclick="removeMeshLink('${l.id}')" style="background:transparent;border:none;color:#718096;cursor:pointer;font-size:0.9rem;">✕</button>
+          </div>`).join("");
     }
 
     // Update map on coordinate change
@@ -359,17 +499,46 @@
     function updateTopologyUI() {
       const nodeATitle = document.getElementById("node-a-title");
       const extraTitle = document.getElementById("extra-nodes-title");
+      const meshSection = document.getElementById("mesh-section");
+      const hubRows = [document.getElementById("a-hub-row"), document.getElementById("b-hub-row")];
+      const calcBtn = document.getElementById("btn-calculate");
+
       if (currentTopology === "P2P") {
         nodeATitle.textContent = "Nó A — Transmissor";
         extraSection.classList.remove("visible");
+        meshSection.style.display = "none";
+        hubRows.forEach(r => r && (r.style.display = "none"));
+        calcBtn.textContent = "Calcular Link Budget";
       } else if (currentTopology === "CHAIN") {
         nodeATitle.textContent = "Nó A — Início da cadeia";
         extraSection.classList.add("visible");
         extraTitle.textContent = "Nós intermediários (cadeia)";
+        meshSection.style.display = "none";
+        hubRows.forEach(r => r && (r.style.display = "none"));
+        calcBtn.textContent = "Calcular Link Budget";
       } else if (currentTopology === "STAR") {
         nodeATitle.textContent = "Nó A — Hub central";
         extraSection.classList.add("visible");
         extraTitle.textContent = "Nós folha (estrela)";
+        meshSection.style.display = "none";
+        hubRows.forEach(r => r && (r.style.display = "none"));
+        calcBtn.textContent = "Calcular Link Budget";
+      } else if (currentTopology === "MESH") {
+        nodeATitle.textContent = "Nó A";
+        extraSection.classList.add("visible");
+        extraTitle.textContent = "Nós da malha";
+        meshSection.style.display = "block";
+        hubRows.forEach(r => r && (r.style.display = "none"));
+        calcBtn.textContent = "Calcular enlaces";
+        renderMeshLinks();
+      } else if (currentTopology === "MULTI_STAR") {
+        nodeATitle.textContent = "Nó A";
+        extraSection.classList.add("visible");
+        extraTitle.textContent = "Nós da topologia";
+        meshSection.style.display = "block";
+        hubRows.forEach(r => r && (r.style.display = "block"));
+        calcBtn.textContent = "Calcular enlaces";
+        renderMeshLinks();
       }
     }
 
@@ -453,8 +622,27 @@
     }
 
     btnAddNode.addEventListener("click", () => {
-      manualExtraNodes.push({ name: `Nó ${manualExtraNodes.length + 3}`, lat: 0, lon: 0, height_m: 0, antenna_id: null, tx_power_dbm: 14, rx_sensitivity_dbm: -137, cable_loss_db: 0 });
+      manualExtraNodes.push({ id: _uuid(), name: `Nó ${manualExtraNodes.length + 3}`, lat: 0, lon: 0, height_m: 0, antenna_id: null, tx_power_dbm: 14, rx_sensitivity_dbm: -137, cable_loss_db: 0, is_hub: false });
       renderExtraNodes();
+    });
+
+    // Connect mode button
+    document.getElementById("btn-connect-mode").addEventListener("click", () => {
+      connectMode = !connectMode;
+      pendingNodeId = null;
+      const hint = document.getElementById("connect-hint");
+      const btn = document.getElementById("btn-connect-mode");
+      if (connectMode) {
+        btn.textContent = "✕ Cancelar conexão";
+        btn.style.background = "#744210";
+        hint.style.display = "block";
+        hint.textContent = "Clique no primeiro nó no mapa.";
+      } else {
+        btn.textContent = "Conectar nós";
+        btn.style.background = "";
+        hint.style.display = "none";
+      }
+      updateMap();
     });
 
     // ── Load antenna dropdowns ─────────────────────────────────────────────────
@@ -504,6 +692,7 @@
         name: g("scenario-name").value || "Cenário",
         topology_type: currentTopology,
         node_a: {
+          id: nodeAId,
           name: g("a-name").value || "Nó A",
           lat: parseFloat(g("a-lat").value),
           lon: parseFloat(g("a-lon").value),
@@ -512,8 +701,10 @@
           tx_power_dbm: parseFloat(g("a-txpower").value) || 14,
           cable_loss_db: parseFloat(g("a-cable").value) || 0,
           rx_sensitivity_dbm: -137,
+          is_hub: g("a-is-hub")?.checked ?? false,
         },
         node_b: {
+          id: nodeBId,
           name: g("b-name").value || "Nó B",
           lat: parseFloat(g("b-lat").value),
           lon: parseFloat(g("b-lon").value),
@@ -522,8 +713,10 @@
           tx_power_dbm: 14,
           rx_sensitivity_dbm: parseFloat(g("b-rxsens").value) || -137,
           cable_loss_db: parseFloat(g("b-cable").value) || 0,
+          is_hub: g("b-is-hub")?.checked ?? false,
         },
         extra_nodes: allExtra.map(n => ({
+          id: n.id,
           name: n.name,
           lat: n.lat,
           lon: n.lon,
@@ -532,7 +725,9 @@
           tx_power_dbm: n.tx_power_dbm || 14,
           rx_sensitivity_dbm: n.rx_sensitivity_dbm || -137,
           cable_loss_db: n.cable_loss_db || 0,
+          is_hub: n.is_hub || false,
         })),
+        links: isMesh() ? meshLinks.map(l => ({ id: l.id, node_a_id: l.node_a_id, node_b_id: l.node_b_id })) : [],
         polygons: kmlPolygons,
         frequency_hz: parseFloat(g("frequency").value) * 1e6,
       };
@@ -591,16 +786,60 @@
         const scenario = buildScenario();
         const created = await api.createScenario(scenario);
         lastScenarioId = created.id;
-        const result = await api.calculateScenario(created.id);
-        renderResults(result);
-        updateMap();
+
+        if (isMesh()) {
+          const topoResult = await fetch(`/api/v1/scenarios/${created.id}/calculate_links`, { method: "POST" });
+          if (!topoResult.ok) throw new Error((await topoResult.json()).detail ?? "Erro ao calcular");
+          const data = await topoResult.json();
+          renderTopoResults(data);
+          islandIds = new Set(data.islands);
+          updateMap();
+        } else {
+          const result = await api.calculateScenario(created.id);
+          renderResults(result);
+          updateMap();
+        }
       } catch (e) {
         showError("Erro: " + (e.detail ?? e.message ?? "erro desconhecido"));
       } finally {
         btnCalculate.disabled = false;
-        btnCalculate.textContent = "Calcular Link Budget";
+        btnCalculate.textContent = isMesh() ? "Calcular enlaces" : "Calcular Link Budget";
       }
     });
+
+    function renderTopoResults(data) {
+      const semClasses = { verde: "sem-verde", amarelo: "sem-amarelo", vermelho: "sem-vermelho" };
+      const semLabels  = { verde: "✓ Rede viável", amarelo: "⚠ Margem apertada", vermelho: "✗ Rede inviável" };
+      const topo = document.getElementById("topo-results-section");
+      const badge = document.getElementById("topo-semaphore-badge");
+      const tbody = document.getElementById("hops-tbody");
+
+      badge.innerHTML = `<div class="semaphore ${semClasses[data.feasibility]}">${semLabels[data.feasibility]} — gargalo ${data.bottleneck_margin_db > 0 ? "+" : ""}${data.bottleneck_margin_db} dB</div>`;
+
+      if (data.hops.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" style="padding:0.75rem;color:#718096;text-align:center;">Nenhum enlace configurado.</td></tr>`;
+      } else {
+        tbody.innerHTML = data.hops.map(h => {
+          const cls = h.feasibility === "verde" ? "#68d391" : h.feasibility === "amarelo" ? "#f6e05e" : "#fc8181";
+          return `<tr style="border-bottom:1px solid #2d3748;">
+            <td style="padding:0.4rem 0.6rem;">${h.node_a_name} ↔ ${h.node_b_name}</td>
+            <td style="text-align:center;padding:0.4rem;">${(h.distance_m/1000).toFixed(2)}</td>
+            <td style="text-align:center;padding:0.4rem;">${h.fspl_db}</td>
+            <td style="text-align:center;padding:0.4rem;color:${cls};font-weight:600;">${h.link_margin_db > 0 ? "+" : ""}${h.link_margin_db}</td>
+            <td style="text-align:center;padding:0.4rem;color:${cls};">●</td>
+          </tr>`;
+        }).join("");
+      }
+
+      if (data.islands.length > 0) {
+        const warn = document.getElementById("islands-warning");
+        warn.style.display = "block";
+        warn.textContent = `⚠ Nós sem enlace (ilhas): ${data.islands.length} nó(s) não conectado(s). Adicione enlaces para cobrir todos os nós.`;
+      }
+
+      document.getElementById("results-section").style.display = "none";
+      topo.style.display = "block";
+    }
 
     // ── KML import ─────────────────────────────────────────────────────────────
     btnImportKml.addEventListener("click", () => kmlFileInput.click());
@@ -636,6 +875,22 @@
         btnImportKml.disabled = false;
         btnImportKml.textContent = "Importar KML";
         kmlFileInput.value = "";
+      }
+    });
+
+    // ── Export topo results ────────────────────────────────────────────────────
+    document.getElementById("btn-export-topo").addEventListener("click", async () => {
+      if (!lastScenarioId) return;
+      try {
+        const full = await api.getScenario(lastScenarioId);
+        const blob = new Blob([JSON.stringify(full, null, 2)], { type: "application/json" });
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = `${full.name.replace(/\s+/g, "_")}.json`;
+        a.click();
+        URL.revokeObjectURL(a.href);
+      } catch (e) {
+        showError("Erro ao exportar: " + (e.detail ?? "erro desconhecido"));
       }
     });
 

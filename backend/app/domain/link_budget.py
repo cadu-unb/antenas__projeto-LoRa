@@ -69,3 +69,21 @@ def feasibility(margin_db: float) -> str:
     if margin_db >= 0:
         return "amarelo"
     return "vermelho"
+
+
+def find_islands(all_node_ids: list[str], links: list) -> list[str]:
+    """Return node IDs that appear in no link."""
+    connected: set[str] = set()
+    for edge in links:
+        connected.add(edge.node_a_id)
+        connected.add(edge.node_b_id)
+    return [nid for nid in all_node_ids if nid not in connected]
+
+
+def best_path_margin(target_node_id: str, hops: list) -> float | None:
+    """Return best (highest) link_margin_db among all hops ending at target_node_id."""
+    margins = [
+        h.link_margin_db for h in hops
+        if h.node_b_id == target_node_id or h.node_a_id == target_node_id
+    ]
+    return max(margins) if margins else None

@@ -16,3 +16,4 @@ class NodeSpec(BaseModel):
     tx_power_dbm: float = 14.0
     rx_sensitivity_dbm: float = -137.0
     cable_loss_db: float = 0.0
+    is_hub: bool = False

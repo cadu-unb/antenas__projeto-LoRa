@@ -1,0 +1,44 @@
+{
+  "id": "a7d72036-8a77-4dc6-8113-c7339e6e1fdf",
+  "name": "Cenário KML test",
+  "node_a": {
+    "id": "36339165-89bf-4e1a-aee9-450e15a05d6d",
+    "name": "A",
+    "lat": -23.5505,
+    "lon": -46.6333,
+    "height_m": 10.0,
+    "antenna_id": null,
+    "tx_power_dbm": 14.0,
+    "rx_sensitivity_dbm": -137.0,
+    "cable_loss_db": 0.0,
+    "is_hub": false
+  },
+  "node_b": {
+    "id": "298d9684-28d1-4c48-8f4d-26755663c882",
+    "name": "B",
+    "lat": -22.9068,
+    "lon": -43.1729,
+    "height_m": 10.0,
+    "antenna_id": null,
+    "tx_power_dbm": 14.0,
+    "rx_sensitivity_dbm": -137.0,
+    "cable_loss_db": 0.0,
+    "is_hub": false
+  },
+  "frequency_hz": 915000000.0,
+  "topology_type": "P2P",
+  "extra_nodes": [],
+  "links": [],
+  "polygons": [],
+  "results": {
+    "distance_m": 360748.8,
+    "azimuth_deg": 79.24,
+    "elevation_deg": 0.0,
+    "fspl_db": 142.81,
+    "rx_power_dbm": -128.81,
+    "link_margin_db": 8.19,
+    "feasibility": "amarelo"
+  },
+  "topology_result": null,
+  "metadata": {}
+}
