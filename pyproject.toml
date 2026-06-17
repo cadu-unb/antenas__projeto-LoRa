@@ -14,3 +14,6 @@ mom = ["PyNEC>=1.7.3.4"]
 
 [tool.pytest.ini_options]
 pythonpath = ["."]
+
+[tool.uv.extra-build-dependencies]
+pynec = ["numpy"]
