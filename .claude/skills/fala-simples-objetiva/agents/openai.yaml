@@ -1,0 +1,4 @@
+interface:
+  display_name: "Fala Simples Objetiva"
+  short_description: "Respostas curtas, claras e diretas"
+  default_prompt: "Use $fala-simples-objetiva para responder de forma simples, objetiva e sintética."
