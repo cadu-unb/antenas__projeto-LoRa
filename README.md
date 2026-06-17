@@ -42,3 +42,18 @@ Requer compilador C instalado antes do `pip install PyNEC`:
 3. `pip install PyNEC`
 
 > Recomendação: usar WSL2 (Ubuntu) elimina dependência de compilador no Windows.
+
+## Fora do MVP / Escopo Negativo
+
+Funcionalidades fora do escopo deste projeto:
+
+- **Sem detecção automática de obstáculos por imagem** — árvores, prédios e relevo não são identificados automaticamente por satélite ou câmera. Obstáculos físicos requerem modelo KML com altura e material.
+- **Sem Ray Tracing urbano completo** — ray tracing 3D exige modelo geométrico da cena (edifícios, superfícies). O arquivo `solvers/ray_tracing_solver.py` é um stub arquitetural sem lógica implementada.
+- **Sem MoM para parabólicas grandes** — antenas parabólicas usam aproximação de abertura (G = η·(πD/λ)²), não MoM. MoM em regime de óptica geométrica converge para o mesmo resultado com custo muito maior.
+- **Sem KML nível 2** — KML com modelo 3D extrudado (edificações com altura e geometria) não é suportado. Polígonos KML (nível 1) são renderizados no mapa apenas visualmente, sem penalidade física de obstrução.
+
+## Documentação
+
+- `docs/for-dummies/` — guias em linguagem acessível (instalação, uso, tipos de antena, erros comuns)
+- `docs/calculos/` — documentação técnica dos métodos de cálculo (MoM, Okumura-Hata, Longley-Rice, link budget)
+- `docs/calculos/10-referencias-tecnicas.md` — referências bibliográficas verificáveis
