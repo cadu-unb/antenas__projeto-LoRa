@@ -1,14 +1,15 @@
 from __future__ import annotations
 
+import asyncio
 import math
 from typing import Any, Optional
 
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
 
 from ..schemas.antenna_spec import AntennaSpec
-from ..solvers.mom_solver import MoMSolver
 from ..solvers.aperture_solver import ApertureSolver
+from ..solvers.mom_solver import MoMSolver
 
 C = 3e8  # m/s
 
@@ -211,6 +212,40 @@ _SOLVERS = {
 
 
 # ── Route ─────────────────────────────────────────────────────────────────────
+
+class JobRef(BaseModel):
+    job_id: str
+
+
+async def _simulate_coro(req: SandboxPreviewRequest, set_progress) -> dict:
+    """Coroutine executada pelo worker para modos Padrão e Preciso."""
+    set_progress(5)
+    await asyncio.sleep(0.2)
+    set_progress(20)
+    await asyncio.sleep(0.15)
+    set_progress(40)
+
+    loop = asyncio.get_event_loop()
+    result = await loop.run_in_executor(None, _preview_advanced, req)
+
+    set_progress(85)
+    await asyncio.sleep(0.1)
+    return result.model_dump()
+
+
+@router.post("/simulate", response_model=JobRef)
+async def simulate(req: SandboxPreviewRequest) -> JobRef:
+    """Enfileira simulação pesada. Retorna job_id imediatamente."""
+    if req.solver == "rapido":
+        raise HTTPException(
+            status_code=400,
+            detail="Modo rápido é síncrono. Use POST /api/v1/sandbox/preview.",
+        )
+    from ..workers.job_queue import job_queue
+
+    job_id = job_queue.enqueue(lambda sp: _simulate_coro(req, sp))
+    return JobRef(job_id=job_id)
+
 
 @router.post("/preview", response_model=PreviewResult)
 def preview(req: SandboxPreviewRequest) -> PreviewResult:
