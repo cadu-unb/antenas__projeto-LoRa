@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Biblioteca — Antenas LoRa</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: system-ui, sans-serif; background: #0f1117; color: #e2e8f0; min-height: 100vh; }
+
+    header { background: #1a1d27; border-bottom: 1px solid #2d3748; padding: 1rem 2rem; display: flex; align-items: center; gap: 2rem; }
+    header h1 { font-size: 1.25rem; font-weight: 600; }
+    nav a { color: #a0aec0; text-decoration: none; font-size: 0.9rem; }
+    nav a:hover { color: #e2e8f0; }
+
+    main { padding: 2rem; max-width: 1100px; margin: 0 auto; }
+
+    .toolbar { display: flex; gap: 1rem; margin-bottom: 1.5rem; align-items: center; flex-wrap: wrap; }
+    .toolbar h2 { font-size: 1.1rem; font-weight: 600; flex: 1; }
+
+    button { cursor: pointer; border: none; border-radius: 6px; padding: 0.5rem 1rem; font-size: 0.875rem; font-weight: 500; transition: opacity 0.15s; }
+    button:hover { opacity: 0.85; }
+    .btn-primary { background: #4f6ef7; color: #fff; }
+    .btn-danger  { background: #e53e3e; color: #fff; }
+    .btn-outline { background: transparent; border: 1px solid #4a5568; color: #a0aec0; }
+    .btn-sm { padding: 0.3rem 0.65rem; font-size: 0.8rem; }
+
+    #error-banner { display: none; background: #742a2a; border: 1px solid #fc8181; color: #fed7d7; border-radius: 6px; padding: 0.75rem 1rem; margin-bottom: 1rem; font-size: 0.875rem; }
+    #error-banner.visible { display: block; }
+
+    table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
+    th { background: #1a1d27; color: #a0aec0; text-align: left; padding: 0.65rem 0.75rem; border-bottom: 1px solid #2d3748; font-weight: 500; }
+    td { padding: 0.65rem 0.75rem; border-bottom: 1px solid #2d3748; vertical-align: middle; }
+    tr:hover td { background: #1a1d27; }
+
+    .badge { display: inline-block; padding: 0.15rem 0.5rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 500; background: #2d3748; color: #90cdf4; }
+    .empty { color: #4a5568; text-align: center; padding: 3rem; }
+
+    #import-input { display: none; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Antenas LoRa</h1>
+    <nav>
+      <a href="/">Início</a> &nbsp;·&nbsp;
+      <a href="/library.html">Biblioteca</a> &nbsp;·&nbsp;
+      <a href="/sandbox.html">Sandbox</a> &nbsp;·&nbsp;
+      <a href="/link-planner.html">Link Planner</a>
+    </nav>
+  </header>
+
+  <main>
+    <div class="toolbar">
+      <h2>Biblioteca de Antenas</h2>
+      <button class="btn-outline" id="btn-import">Importar JSON</button>
+      <input type="file" id="import-input" accept=".json,application/json" />
+    </div>
+
+    <div id="error-banner"></div>
+
+    <div id="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Nome</th>
+            <th>Tipo</th>
+            <th>Frequência</th>
+            <th>Solver</th>
+            <th>Resultados</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="antenna-list">
+          <tr><td colspan="6" class="empty">Carregando…</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </main>
+
+  <script type="module">
+    import { api } from "/js/api-client.js";
+
+    const tbody = document.getElementById("antenna-list");
+    const errorBanner = document.getElementById("error-banner");
+    const importInput = document.getElementById("import-input");
+
+    function showError(msg) {
+      errorBanner.textContent = msg;
+      errorBanner.classList.add("visible");
+    }
+
+    function clearError() {
+      errorBanner.classList.remove("visible");
+    }
+
+    function freqLabel(hz) {
+      if (hz >= 1e9) return (hz / 1e9).toFixed(3) + " GHz";
+      if (hz >= 1e6) return (hz / 1e6).toFixed(3) + " MHz";
+      return hz + " Hz";
+    }
+
+    function renderRow(spec) {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${spec.name}</td>
+        <td><span class="badge">${spec.type}</span></td>
+        <td>${freqLabel(spec.frequency_hz)}</td>
+        <td>${spec.solver}</td>
+        <td>${spec.results ? "✓" : "—"}</td>
+        <td>
+          <button class="btn-outline btn-sm" data-export="${spec.id}">Export</button>
+          <button class="btn-danger btn-sm" data-delete="${spec.id}" style="margin-left:0.4rem">Deletar</button>
+        </td>
+      `;
+      return tr;
+    }
+
+    async function loadList() {
+      try {
+        const list = await api.listAntennas();
+        tbody.innerHTML = "";
+        if (list.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="6" class="empty">Nenhuma antena salva ainda.</td></tr>`;
+          return;
+        }
+        list.forEach(spec => tbody.appendChild(renderRow(spec)));
+      } catch (e) {
+        showError("Erro ao carregar lista: " + (e.detail ?? e.message ?? "erro desconhecido"));
+      }
+    }
+
+    tbody.addEventListener("click", async (e) => {
+      const id = e.target.dataset.delete;
+      if (id) {
+        clearError();
+        try {
+          await api.deleteAntenna(id);
+          loadList();
+        } catch (err) {
+          showError("Erro ao deletar: " + (err.detail ?? "erro desconhecido"));
+        }
+      }
+
+      const exportId = e.target.dataset.export;
+      if (exportId) {
+        clearError();
+        try {
+          const spec = await api.getAntenna(exportId);
+          const blob = new Blob([JSON.stringify(spec, null, 2)], { type: "application/json" });
+          const a = document.createElement("a");
+          a.href = URL.createObjectURL(blob);
+          a.download = `${spec.name.replace(/\s+/g, "_")}.json`;
+          a.click();
+          URL.revokeObjectURL(a.href);
+        } catch (err) {
+          showError("Erro ao exportar: " + (err.detail ?? "erro desconhecido"));
+        }
+      }
+    });
+
+    document.getElementById("btn-import").addEventListener("click", () => importInput.click());
+
+    importInput.addEventListener("change", async () => {
+      clearError();
+      const file = importInput.files[0];
+      if (!file) return;
+      importInput.value = "";
+
+      let parsed;
+      try {
+        parsed = JSON.parse(await file.text());
+      } catch {
+        showError("JSON inválido: verifique a sintaxe do arquivo.");
+        return;
+      }
+
+      try {
+        await api.createAntenna(parsed);
+        loadList();
+      } catch (err) {
+        if (err.status === 422) {
+          showError("Schema inválido: " + err.detail);
+        } else {
+          showError("Erro ao importar: " + (err.detail ?? "erro desconhecido"));
+        }
+      }
+    });
+
+    loadList();
+  </script>
+</body>
+</html>
