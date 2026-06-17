@@ -20,6 +20,7 @@ dist/
 .uv-cache/
 
 # Local scratch scripts and generated helper listings
+!wsl.md
 filter.py
 tree_focada.txt
 caminhos.txt
