@@ -35,7 +35,7 @@ uv pip install PyNEC
 ## Rodar localmente
 
 ```bash
-uvicorn backend.app.main:app --reload
+uv run uvicorn backend.app.main:app --reload
 ```
 
 Acessar em: `http://localhost:8000`
@@ -48,7 +48,7 @@ Páginas disponíveis:
 ## Rodar com Docker
 
 ```bash
-docker-compose up
+docker-compose up --build
 ```
 
 Mesmo endereço: `http://localhost:8000`
@@ -56,7 +56,7 @@ Mesmo endereço: `http://localhost:8000`
 ## Verificar instalação
 
 ```bash
-curl http://localhost:8000/api/v1/health
+curl http://localhost:8000/health
 # Esperado: {"status": "ok", "version": "0.1.0"}
 ```
 
@@ -73,6 +73,7 @@ Todos os dados ficam em `backend/data/` (não versionado):
 ```
 backend/data/
 ├── antenna_specs/   # antenas salvas (.json por ID)
+├── scenarios/       # cenários do Link Planner (.json por ID)
 ├── simulations/     # logs de jobs (.jsonl por job_id)
 ├── kml_uploads/     # arquivos KML importados
 └── reports/         # relatórios exportados
@@ -83,5 +84,5 @@ backend/data/
 | Erro | Causa | Solução |
 |---|---|---|
 | `ModuleNotFoundError: fastapi` | Dependências não instaladas | `uv sync` |
-| Porta 8000 em uso | Outro processo | `uvicorn ... --port 8001` |
+| Porta 8000 em uso | Outro processo | `uv run uvicorn backend.app.main:app --reload --port 8001` |
 | PyNEC não encontrado | Compilador C ausente (Windows) | Usar WSL2 ou instalar MSVC |
