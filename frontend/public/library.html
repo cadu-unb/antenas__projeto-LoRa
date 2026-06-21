@@ -37,6 +37,22 @@
     .empty { color: #4a5568; text-align: center; padding: 3rem; }
 
     #import-input { display: none; }
+
+    /* LoRa modules panel */
+    #lora-modules-panel { margin-top: 2rem; }
+    #lora-modules-panel h2 { font-size: 1.1rem; font-weight: 600; margin-bottom: 1rem; }
+    #lora-modules-panel h3 { font-size: 0.95rem; font-weight: 600; margin: 1.25rem 0 0.75rem; }
+    .lora-card { background: #1a1d27; border: 1px solid #2d3748; border-radius: 8px; padding: 1rem; margin-bottom: 0.75rem; }
+    .lora-card-name { font-weight: 600; font-size: 0.9rem; margin-bottom: 0.4rem; }
+    .lora-card-detail { font-size: 0.8rem; color: #a0aec0; }
+    .energy-form { background: #1a1d27; border: 1px solid #2d3748; border-radius: 8px; padding: 1.25rem; }
+    .energy-form label { display: inline-flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; margin-right: 1rem; margin-bottom: 0.5rem; }
+    .energy-form input, .energy-form select { background: #0f1117; border: 1px solid #2d3748; border-radius: 5px; color: #e2e8f0; padding: 0.35rem 0.5rem; font-size: 0.85rem; width: 90px; }
+    #energy-result { margin-top: 1rem; }
+    #energy-result table { border-collapse: collapse; font-size: 0.85rem; }
+    #energy-result td { padding: 0.4rem 0.75rem; border-bottom: 1px solid #2d3748; }
+    #energy-result td:first-child { color: #718096; }
+    #energy-result td:last-child { font-weight: 600; color: #90cdf4; }
   </style>
 </head>
 <body>
@@ -76,6 +92,31 @@
         </tbody>
       </table>
     </div>
+
+    <!-- LoRa Modules Panel -->
+    <section id="lora-modules-panel">
+      <h2>Módulos LoRa</h2>
+      <div id="lora-modules-list"><p style="color:#718096;font-size:0.85rem;">Carregando…</p></div>
+
+      <h3>Estimativa de consumo energético</h3>
+      <div class="energy-form">
+        <div style="margin-bottom:0.75rem;">
+          <label>Módulo: <select id="energy-module-select"><option value="">Carregando…</option></select></label>
+          <label>SF: <select id="energy-sf">
+            <option value="7">7</option>
+            <option value="8">8</option>
+            <option value="9">9</option>
+            <option value="10">10</option>
+            <option value="11">11</option>
+            <option value="12" selected>12</option>
+          </select></label>
+          <label>Potência TX (dBm): <input id="energy-tx-power" type="number" value="20" min="0" max="30" step="1" /></label>
+          <label>Transmissões/dia: <input id="energy-tx-count" type="number" value="96" min="1" step="1" /></label>
+        </div>
+        <button class="btn-primary" onclick="runEnergyEstimate()">Calcular</button>
+        <div id="energy-result"></div>
+      </div>
+    </section>
   </main>
 
   <script type="module">
@@ -188,6 +229,73 @@
     });
 
     loadList();
+
+    // ── LoRa modules ───────────────────────────────────────────────────────────
+    async function loadLoraModules() {
+      try {
+        const modules = await fetch("/api/v1/antennas/lora-modules").then(r => r.json());
+        const listEl = document.getElementById("lora-modules-list");
+        const sel = document.getElementById("energy-module-select");
+        sel.innerHTML = "";
+
+        if (!modules.length) {
+          listEl.innerHTML = `<p style="color:#718096;font-size:0.85rem;">Nenhum módulo no catálogo.</p>`;
+          return;
+        }
+
+        listEl.innerHTML = modules.map(m => {
+          const sf12 = (m.sensitivity_modes || []).find(s => s.sf === 12 && s.bw_khz === 125);
+          const sens = sf12 ? sf12.sensitivity_dbm : "—";
+          return `<div class="lora-card">
+            <div class="lora-card-name">${m.name}</div>
+            <div class="lora-card-detail">
+              ID: ${m.id} &nbsp;·&nbsp; Freq: ${(m.frequency_hz/1e6).toFixed(0)} MHz
+              &nbsp;·&nbsp; TX max: ${Math.max(...m.tx_power_options_dbm)} dBm
+              &nbsp;·&nbsp; Sens. SF12: ${sens} dBm
+            </div>
+          </div>`;
+        }).join("");
+
+        modules.forEach(m => {
+          const opt = document.createElement("option");
+          opt.value = m.id;
+          opt.textContent = m.name;
+          sel.appendChild(opt);
+        });
+      } catch (e) {
+        document.getElementById("lora-modules-list").innerHTML =
+          `<p style="color:#fc8181;font-size:0.85rem;">Erro ao carregar módulos.</p>`;
+      }
+    }
+
+    window.runEnergyEstimate = async function() {
+      const moduleId = document.getElementById("energy-module-select").value;
+      if (!moduleId) { alert("Selecione um módulo."); return; }
+      const sf = document.getElementById("energy-sf").value;
+      const txPower = document.getElementById("energy-tx-power").value;
+      const txCount = document.getElementById("energy-tx-count").value;
+      const url = `/api/v1/antennas/lora-modules/${moduleId}/energy?sf=${sf}&tx_power_dbm=${txPower}&transmissions_per_day=${txCount}`;
+      try {
+        const resp = await fetch(url, { method: "POST" });
+        if (!resp.ok) { alert("Erro: " + (await resp.json()).detail); return; }
+        const data = await resp.json();
+        const lifeStr = data.battery_life_days !== null
+          ? data.battery_life_days.toFixed(0) + " dias"
+          : "∞";
+        document.getElementById("energy-result").innerHTML = `
+          <table>
+            <tr><td>Tempo no ar (ToA)</td><td>${data.tx_duration_ms.toFixed(1)} ms</td></tr>
+            <tr><td>Energia por TX</td><td>${data.energy_per_tx_mj.toFixed(3)} mJ</td></tr>
+            <tr><td>Energia/dia</td><td>${data.daily_energy_mwh.toFixed(3)} mWh</td></tr>
+            <tr><td>Vida útil (bat. 2000 mAh / 3.3 V)</td><td>${lifeStr}</td></tr>
+          </table>`;
+      } catch (e) {
+        document.getElementById("energy-result").innerHTML =
+          `<p style="color:#fc8181;font-size:0.85rem;">Erro: ${e.message}</p>`;
+      }
+    };
+
+    loadLoraModules();
   </script>
 </body>
 </html>

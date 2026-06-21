@@ -114,6 +114,28 @@
     .site-badge-verde { background: #1c4532; color: #68d391; }
     .site-badge-amarelo { background: #744210; color: #f6e05e; }
     .site-badge-vermelho { background: #742a2a; color: #fc8181; }
+
+    /* Warnings */
+    #link-warnings { display: none; background: #332200; border: 1px solid #e8a82a; padding: 8px 12px; margin-top: 8px; border-radius: 4px; }
+    .warning-msg { font-size: 0.82rem; color: #f6ad55; }
+
+    /* Advanced details */
+    details.adv { margin-top: 0.75rem; }
+    details.adv summary { font-size: 0.75rem; color: #718096; cursor: pointer; user-select: none; margin-bottom: 0.5rem; }
+    details.adv summary:hover { color: #a0aec0; }
+
+    /* Export buttons */
+    .export-buttons { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+
+    /* Comparison table */
+    #comparison-panel { display: none; background: #1a1d27; border: 1px solid #2d3748; border-radius: 8px; padding: 1.25rem; margin-bottom: 1.5rem; }
+    #comparison-panel.visible { display: block; }
+    #comparison-results table { width: 100%; border-collapse: collapse; font-size: 0.8rem; margin-top: 0.75rem; }
+    #comparison-results th { background: #0f1117; color: #718096; text-align: left; padding: 0.4rem 0.6rem; border-bottom: 1px solid #2d3748; font-weight: 500; }
+    #comparison-results td { padding: 0.4rem 0.6rem; border-bottom: 1px solid #2d3748; }
+    #comparison-results .row-ok td { color: #68d391; }
+    #comparison-results .row-warn td { color: #f6e05e; }
+    #comparison-results .row-fail td { color: #fc8181; }
   </style>
 </head>
 <body>
@@ -170,16 +192,22 @@
         <div class="form-inline">
           <div class="form-row">
             <label>Latitude (°)</label>
-            <input type="number" id="a-lat" value="-23.5505" step="0.000001" />
+            <input type="number" id="a-lat" value="-15.7801" step="0.000001" />
           </div>
           <div class="form-row">
             <label>Longitude (°)</label>
-            <input type="number" id="a-lon" value="-46.6333" step="0.000001" />
+            <input type="number" id="a-lon" value="-47.9292" step="0.000001" />
           </div>
         </div>
         <div class="form-row">
           <label>Altura sobre solo (m)</label>
           <input type="number" id="a-height" value="10" min="0" step="0.1" />
+        </div>
+        <div class="form-row">
+          <label>Módulo LoRa</label>
+          <select id="a-lora-module" onchange="onModuleChange('a')">
+            <option value="">— manual —</option>
+          </select>
         </div>
         <div class="form-row">
           <label>Antena da biblioteca</label>
@@ -195,6 +223,33 @@
             <input type="number" id="a-cable" value="0" min="0" step="0.1" />
           </div>
         </div>
+        <details class="adv">
+          <summary>Configurações avançadas de antena e perdas</summary>
+          <div class="form-inline">
+            <div class="form-row">
+              <label>Azimute boresight (°, 0=Norte)</label>
+              <input type="number" id="a-azimuth" placeholder="vazio = omni" min="0" max="359" step="1" />
+            </div>
+            <div class="form-row">
+              <label>Inclinação tilt (°)</label>
+              <input type="number" id="a-tilt" value="0" min="-90" max="90" step="1" />
+            </div>
+          </div>
+          <div class="form-inline">
+            <div class="form-row">
+              <label>Perda extra por obstrução (dB)</label>
+              <input type="number" id="a-extra-loss" value="0" min="0" max="30" step="0.5" />
+            </div>
+            <div class="form-row">
+              <label>Margem de fading (dB)</label>
+              <input type="number" id="a-fading" value="0" min="0" max="20" step="0.5" />
+            </div>
+          </div>
+          <div class="form-row">
+            <label>Perda de polarização (dB)</label>
+            <input type="number" id="a-polarization" value="0" min="0" max="6" step="0.5" />
+          </div>
+        </details>
       </div>
 
       <div class="node-card">
@@ -209,16 +264,22 @@
         <div class="form-inline">
           <div class="form-row">
             <label>Latitude (°)</label>
-            <input type="number" id="b-lat" value="-22.9068" step="0.000001" />
+            <input type="number" id="b-lat" value="-15.8300" step="0.000001" />
           </div>
           <div class="form-row">
             <label>Longitude (°)</label>
-            <input type="number" id="b-lon" value="-43.1729" step="0.000001" />
+            <input type="number" id="b-lon" value="-48.0500" step="0.000001" />
           </div>
         </div>
         <div class="form-row">
           <label>Altura sobre solo (m)</label>
           <input type="number" id="b-height" value="10" min="0" step="0.1" />
+        </div>
+        <div class="form-row">
+          <label>Módulo LoRa</label>
+          <select id="b-lora-module" onchange="onModuleChange('b')">
+            <option value="">— manual —</option>
+          </select>
         </div>
         <div class="form-row">
           <label>Antena da biblioteca</label>
@@ -234,6 +295,33 @@
             <input type="number" id="b-cable" value="0" min="0" step="0.1" />
           </div>
         </div>
+        <details class="adv">
+          <summary>Configurações avançadas de antena e perdas</summary>
+          <div class="form-inline">
+            <div class="form-row">
+              <label>Azimute boresight (°, 0=Norte)</label>
+              <input type="number" id="b-azimuth" placeholder="vazio = omni" min="0" max="359" step="1" />
+            </div>
+            <div class="form-row">
+              <label>Inclinação tilt (°)</label>
+              <input type="number" id="b-tilt" value="0" min="-90" max="90" step="1" />
+            </div>
+          </div>
+          <div class="form-inline">
+            <div class="form-row">
+              <label>Perda extra por obstrução (dB)</label>
+              <input type="number" id="b-extra-loss" value="0" min="0" max="30" step="0.5" />
+            </div>
+            <div class="form-row">
+              <label>Margem de fading (dB)</label>
+              <input type="number" id="b-fading" value="0" min="0" max="20" step="0.5" />
+            </div>
+          </div>
+          <div class="form-row">
+            <label>Perda de polarização (dB)</label>
+            <input type="number" id="b-polarization" value="0" min="0" max="6" step="0.5" />
+          </div>
+        </details>
       </div>
     </div>
 
@@ -272,11 +360,19 @@
     <div class="global-row">
       <div class="form-row">
         <label>Nome do cenário</label>
-        <input type="text" id="scenario-name" value="Enlace SP–RJ" />
+        <input type="text" id="scenario-name" value="Enlace DF" />
       </div>
       <div class="form-row">
         <label>Frequência (MHz)</label>
         <input type="number" id="frequency" value="915" min="1" step="0.001" />
+      </div>
+      <div class="form-row">
+        <label>Modelo de propagação</label>
+        <select id="propagation-model">
+          <option value="fspl">FSPL — Espaço Livre</option>
+          <option value="okumura_hata">Okumura-Hata — Urbano/Suburbano</option>
+          <option value="longley_rice">Longley-Rice — Terreno Irregular</option>
+        </select>
       </div>
       <button class="btn-primary" id="btn-calculate">Calcular Link Budget</button>
       <button class="btn-secondary" id="btn-import-kml" title="Importar arquivo KML">Importar KML</button>
@@ -293,9 +389,23 @@
     <div id="results-section">
       <div id="semaphore-badge"></div>
       <div class="results-grid" id="results-grid"></div>
-      <div class="actions">
-        <button class="btn-outline" id="btn-export">Exportar JSON</button>
+      <div id="link-warnings"></div>
+      <div class="actions" style="margin-top:0.75rem;">
+        <div class="export-buttons">
+          <button class="btn-outline" id="btn-export-setup">Exportar Setup (.json)</button>
+          <button class="btn-outline" id="btn-export-full">Exportar Completo (.json)</button>
+        </div>
       </div>
+    </div>
+
+    <!-- Comparison panel -->
+    <div id="comparison-panel">
+      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:0.75rem;">
+        <h2 style="margin:0;">Comparação de Módulos × Antenas</h2>
+        <button class="btn-secondary btn-small" id="btn-run-comparison">Executar Comparação</button>
+      </div>
+      <p style="font-size:0.8rem; color:#718096; margin-bottom:0.5rem;">Compara automaticamente os módulos LoRa disponíveis com as antenas da biblioteca.</p>
+      <div id="comparison-results"></div>
     </div>
 
     <!-- Site Selection Results -->
@@ -359,7 +469,6 @@
     const resultsGrid  = document.getElementById("results-grid");
     const semBadge     = document.getElementById("semaphore-badge");
     const btnCalculate = document.getElementById("btn-calculate");
-    const btnExport    = document.getElementById("btn-export");
     const btnImportKml = document.getElementById("btn-import-kml");
     const kmlFileInput = document.getElementById("kml-file-input");
     const extraSection = document.getElementById("extra-nodes-section");
@@ -372,6 +481,8 @@
     let manualExtraNodes = [];  // {name, lat, lon, height_m, antenna_id, ...}
     let kmlExtraNodes  = [];   // from last KML import (NodeSpec objects)
     let kmlPolygons    = [];   // from last KML import
+    let loraModules    = [];   // cached from API
+    const nodeModuleId = { a: null, b: null };  // selected module per node
 
     // Mesh state
     let meshLinks = [];   // [{id, node_a_id, node_b_id, node_a_name, node_b_name}]
@@ -391,7 +502,7 @@
     const isMesh = () => currentTopology === "MESH" || currentTopology === "MULTI_STAR";
 
     // ── Leaflet map ────────────────────────────────────────────────────────────
-    const lmap = L.map("map").setView([-23.0, -45.0], 6);
+    const lmap = L.map("map").setView([-15.85, -47.98], 9);
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
       attribution: "© OpenStreetMap contributors",
       maxZoom: 18,
@@ -744,6 +855,101 @@
       } catch {}
     }
 
+    // ── LoRa module dropdowns ──────────────────────────────────────────────────
+    function getSF12Sensitivity(module) {
+      const mode = (module.sensitivity_modes || []).find(m => m.sf === 12 && m.bw_khz === 125);
+      return mode ? mode.sensitivity_dbm : -137;
+    }
+
+    async function loadLoraModules() {
+      try {
+        loraModules = await api.listLoraModules();
+        ["a", "b"].forEach(nodeId => {
+          const sel = document.getElementById(`${nodeId}-lora-module`);
+          if (!sel) return;
+          loraModules.forEach(m => {
+            const opt = document.createElement("option");
+            opt.value = m.id;
+            opt.textContent = `${m.name} (SF12: ${getSF12Sensitivity(m)} dBm)`;
+            sel.appendChild(opt);
+          });
+        });
+      } catch {}
+    }
+
+    window.onModuleChange = function(nodeId) {
+      const sel = document.getElementById(`${nodeId}-lora-module`);
+      const moduleId = sel.value;
+      nodeModuleId[nodeId] = moduleId || null;
+      if (!moduleId) return;
+      const module = loraModules.find(m => m.id === moduleId);
+      if (!module) return;
+      const txEl = document.getElementById(`${nodeId}-txpower`);
+      const rxEl = document.getElementById(`${nodeId}-rxsens`);
+      if (txEl) txEl.value = Math.max(...module.tx_power_options_dbm);
+      if (rxEl) rxEl.value = getSF12Sensitivity(module);
+    };
+
+    // ── Export scenario ────────────────────────────────────────────────────────
+    async function exportScenario(includeResults) {
+      if (!lastScenarioId) { showError("Salve o cenário antes de exportar."); return; }
+      const url = `/api/v1/scenarios/${lastScenarioId}/export${includeResults ? "?include_results=true" : ""}`;
+      try {
+        const resp = await fetch(url);
+        if (!resp.ok) { showError("Erro ao exportar cenário."); return; }
+        const blob = await resp.blob();
+        const filename = includeResults
+          ? `scenario_${lastScenarioId}_completo.json`
+          : `scenario_${lastScenarioId}_setup.json`;
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = filename;
+        a.click();
+        URL.revokeObjectURL(a.href);
+      } catch (e) {
+        showError("Erro ao exportar: " + (e.message ?? "erro desconhecido"));
+      }
+    }
+
+    // ── Comparison ─────────────────────────────────────────────────────────────
+    async function runComparison() {
+      if (!lastScenarioId) { showError("Calcule o link antes de comparar."); return; }
+      const btn = document.getElementById("btn-run-comparison");
+      btn.disabled = true;
+      btn.textContent = "Comparando…";
+      try {
+        const rows = await api.compareScenario(lastScenarioId);
+        renderComparisonTable(rows);
+      } catch (e) {
+        document.getElementById("comparison-results").innerHTML =
+          `<p style="color:#fc8181;font-size:0.8rem;">Erro: ${e.detail ?? e.message ?? "erro desconhecido"}</p>`;
+      } finally {
+        btn.disabled = false;
+        btn.textContent = "Executar Comparação";
+      }
+    }
+
+    function renderComparisonTable(rows) {
+      const container = document.getElementById("comparison-results");
+      if (!rows.length) { container.innerHTML = "<p style='color:#718096;font-size:0.8rem;'>Sem resultados. Adicione módulos e antenas à biblioteca.</p>"; return; }
+      const headers = ["Cen.", "Módulo", "Ant. TX", "Ant. GW", "Mín (dB)", "Média (dB)", "Falhas", "Robustez"];
+      const thead = `<tr>${headers.map(h => `<th>${h}</th>`).join("")}</tr>`;
+      const tbody = rows.map(r => {
+        const cls = r.failure_count > 0 ? "row-fail" : r.min_margin_db < 5 ? "row-warn" : "row-ok";
+        return `<tr class="${cls}">
+          <td>${r.label}</td>
+          <td>${r.module}</td>
+          <td>${r.tx_antenna}</td>
+          <td>${r.gw_antenna}</td>
+          <td>${r.min_margin_db.toFixed(1)}</td>
+          <td>${r.mean_margin_db.toFixed(1)}</td>
+          <td>${r.failure_count}</td>
+          <td>${r.robustness_score.toFixed(2)}</td>
+        </tr>`;
+      }).join("");
+      container.innerHTML = `<table><thead>${thead}</thead><tbody>${tbody}</tbody></table>`;
+    }
+
     // ── Error / info banners ───────────────────────────────────────────────────
     function showError(msg) { errorBanner.textContent = msg; errorBanner.classList.add("visible"); infoBanner.classList.remove("visible"); }
     function showInfo(msg)  { infoBanner.textContent = msg; infoBanner.classList.add("visible"); errorBanner.classList.remove("visible"); }
@@ -766,33 +972,49 @@
     // ── Build scenario payload ─────────────────────────────────────────────────
     function buildScenario() {
       const g = id => document.getElementById(id);
+      const fv = (id, def = 0) => parseFloat(g(id)?.value) || def;
       const allExtra = [...manualExtraNodes, ...kmlExtraNodes];
+      const azimuthA = g("a-azimuth")?.value !== "" && g("a-azimuth")?.value != null ? parseFloat(g("a-azimuth").value) : null;
+      const azimuthB = g("b-azimuth")?.value !== "" && g("b-azimuth")?.value != null ? parseFloat(g("b-azimuth").value) : null;
       return {
         name: g("scenario-name").value || "Cenário",
         topology_type: currentTopology,
+        propagation_model: g("propagation-model")?.value || "fspl",
         node_a: {
           id: nodeAId,
           name: g("a-name").value || "Nó A",
           lat: parseFloat(g("a-lat").value),
           lon: parseFloat(g("a-lon").value),
-          height_m: parseFloat(g("a-height").value) || 0,
+          height_m: fv("a-height"),
           antenna_id: g("a-antenna").value || null,
-          tx_power_dbm: parseFloat(g("a-txpower").value) || 14,
-          cable_loss_db: parseFloat(g("a-cable").value) || 0,
+          tx_power_dbm: fv("a-txpower", 14),
+          cable_loss_db: fv("a-cable"),
           rx_sensitivity_dbm: -137,
           is_hub: g("a-is-hub")?.checked ?? false,
+          azimuth_deg: azimuthA,
+          tilt_deg: fv("a-tilt"),
+          extra_loss_db: fv("a-extra-loss"),
+          fading_margin_db: fv("a-fading"),
+          polarization_loss_db: fv("a-polarization"),
+          lora_module_id: nodeModuleId.a || null,
         },
         node_b: {
           id: nodeBId,
           name: g("b-name").value || "Nó B",
           lat: parseFloat(g("b-lat").value),
           lon: parseFloat(g("b-lon").value),
-          height_m: parseFloat(g("b-height").value) || 0,
+          height_m: fv("b-height"),
           antenna_id: g("b-antenna").value || null,
           tx_power_dbm: 14,
-          rx_sensitivity_dbm: parseFloat(g("b-rxsens").value) || -137,
-          cable_loss_db: parseFloat(g("b-cable").value) || 0,
+          rx_sensitivity_dbm: fv("b-rxsens", -137),
+          cable_loss_db: fv("b-cable"),
           is_hub: g("b-is-hub")?.checked ?? false,
+          azimuth_deg: azimuthB,
+          tilt_deg: fv("b-tilt"),
+          extra_loss_db: fv("b-extra-loss"),
+          fading_margin_db: fv("b-fading"),
+          polarization_loss_db: fv("b-polarization"),
+          lora_module_id: nodeModuleId.b || null,
         },
         extra_nodes: allExtra.map(n => ({
           id: n.id,
@@ -826,6 +1048,8 @@
       const semClasses = { verde: "sem-verde", amarelo: "sem-amarelo", vermelho: "sem-vermelho" };
       const semLabels  = { verde: "✓ Enlace viável", amarelo: "⚠ Margem apertada", vermelho: "✗ Enlace inviável" };
       semBadge.innerHTML = `<div class="semaphore ${semClasses[r.feasibility]}">${semLabels[r.feasibility]} — margem ${r.link_margin_db > 0 ? "+" : ""}${r.link_margin_db} dB</div>`;
+      const propLabel = { fspl: "FSPL", okumura_hata: "Okumura-Hata", longley_rice: "Longley-Rice" };
+      const pathLossLabel = r.propagation_model && r.propagation_model !== "fspl" ? "Perda (modelo)" : "FSPL";
       resultsGrid.innerHTML = `
         <div class="metric">
           <div class="metric-label">Distância</div>
@@ -840,7 +1064,7 @@
           <div class="metric-value">${r.elevation_deg}<span class="metric-unit">°</span></div>
         </div>
         <div class="metric">
-          <div class="metric-label">FSPL</div>
+          <div class="metric-label">${pathLossLabel}</div>
           <div class="metric-value">${r.fspl_db}<span class="metric-unit">dB</span></div>
         </div>
         <div class="metric">
@@ -851,8 +1075,24 @@
           <div class="metric-label">Margem de Enlace</div>
           <div class="metric-value">${r.link_margin_db}<span class="metric-unit">dB</span></div>
         </div>
+        <div class="metric">
+          <div class="metric-label">Modelo</div>
+          <div class="metric-value" style="font-size:0.85rem;">${propLabel[r.propagation_model] || r.propagation_model || "FSPL"}</div>
+        </div>
       `;
+      // Warnings
+      const warningBox = document.getElementById("link-warnings");
+      if (warningBox) {
+        if (r.warnings && r.warnings.length > 0) {
+          warningBox.innerHTML = r.warnings.map(w => `<div class="warning-msg">⚠ ${w}</div>`).join("");
+          warningBox.style.display = "block";
+        } else {
+          warningBox.style.display = "none";
+        }
+      }
       resultsSection.classList.add("visible");
+      // Show comparison panel
+      document.getElementById("comparison-panel").classList.add("visible");
     }
 
     // ── Calculate ──────────────────────────────────────────────────────────────
@@ -991,20 +1231,8 @@
     });
 
     // ── Export ─────────────────────────────────────────────────────────────────
-    btnExport.addEventListener("click", async () => {
-      if (!lastScenarioId) return;
-      try {
-        const full = await api.getScenario(lastScenarioId);
-        const blob = new Blob([JSON.stringify(full, null, 2)], { type: "application/json" });
-        const a = document.createElement("a");
-        a.href = URL.createObjectURL(blob);
-        a.download = `${full.name.replace(/\s+/g, "_")}.json`;
-        a.click();
-        URL.revokeObjectURL(a.href);
-      } catch (e) {
-        showError("Erro ao exportar: " + (e.detail ?? "erro desconhecido"));
-      }
-    });
+    document.getElementById("btn-export-setup").addEventListener("click", () => exportScenario(false));
+    document.getElementById("btn-export-full").addEventListener("click", () => exportScenario(true));
 
     // ── Site Selection ─────────────────────────────────────────────────────────
     let siteMode = false;
@@ -1218,7 +1446,9 @@
     document.getElementById("btn-calc-site").addEventListener("click", calculateSiteSelection);
 
     // ── Init ───────────────────────────────────────────────────────────────────
+    document.getElementById("btn-run-comparison").addEventListener("click", runComparison);
     await loadAntennas();
+    await loadLoraModules();
     updateMap();
   </script>
 </body>

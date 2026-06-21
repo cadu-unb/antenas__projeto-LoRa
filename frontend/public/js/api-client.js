@@ -27,4 +27,10 @@ export const api = {
   listJobs: () => request("GET", "/jobs"),
   getJob: (id) => request("GET", `/jobs/${id}`),
   cancelJob: (id) => request("DELETE", `/jobs/${id}`),
+  listLoraModules: () => request("GET", "/antennas/lora-modules"),
+  getModuleEnergy: (id, params) => {
+    const q = new URLSearchParams(params).toString();
+    return request("POST", `/antennas/lora-modules/${id}/energy?${q}`);
+  },
+  compareScenario: (id) => request("POST", `/scenarios/${id}/compare`),
 };
