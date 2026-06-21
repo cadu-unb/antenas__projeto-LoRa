@@ -106,10 +106,10 @@ class MoMSolver(BaseSolver):
                 return self._analytic_fallback(spec)
 
             ctx.fr_card(0, 1, freq_hz / 1e6, 0.0)
-            ctx.rp_card(0, 37, 73, 0, 5, 0.0, 0.0, 5.0, 5.0, 0.0, 0.0, 0.0, 0.0)
+            ctx.rp_card(0, 37, 73, 0, 5, 0, 0, 5.0, 5.0, 0.0, 0.0, 0.0, 0.0)
 
             ipt = ctx.get_input_parameters(0)
-            z = complex(ipt.get_impedance())
+            z = complex(ipt.get_impedance()[0])
             z_in = z.real if z.real > 0 else 50.0
 
             rp = ctx.get_radiation_pattern(0)
