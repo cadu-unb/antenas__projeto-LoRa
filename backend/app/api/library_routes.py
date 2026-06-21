@@ -1,5 +1,6 @@
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, HTTPException, Query, status
 
+from ..domain.energy import estimate_energy
 from ..schemas.antenna_spec import AntennaSpec
 from ..schemas.lora_module import LoRaModule
 from ..storage import antenna_storage
@@ -34,6 +35,31 @@ def get_lora_module(module_id: str):
     if m is None:
         raise HTTPException(status_code=404, detail="Módulo não encontrado")
     return m
+
+
+@router.post("/lora-modules/{module_id}/energy", response_model=dict)
+def estimate_module_energy(
+    module_id: str,
+    sf: int = Query(12, ge=7, le=12),
+    bw_khz: int = Query(125),
+    tx_power_dbm: float = Query(20.0),
+    payload_bytes: int = Query(20, ge=1, le=255),
+    transmissions_per_day: int = Query(96),
+) -> dict:
+    """Estima consumo energético e vida útil de bateria para um módulo LoRa."""
+    module = lora_module_storage.get_module(module_id)
+    if module is None:
+        raise HTTPException(status_code=404, detail="Módulo não encontrado")
+
+    est = estimate_energy(module, tx_power_dbm, sf, bw_khz, payload_bytes, transmissions_per_day)
+    return {
+        "module": module_id,
+        "tx_duration_ms": round(est.tx_duration_ms, 2),
+        "energy_per_tx_mj": round(est.energy_per_tx_mj, 4),
+        "daily_tx_count": est.daily_tx_count,
+        "daily_energy_mwh": round(est.daily_energy_mwh, 4),
+        "battery_life_days": round(est.battery_life_days, 1) if est.battery_life_days != float("inf") else None,
+    }
 
 
 # ── Antenna CRUD (continued) ──────────────────────────────────────────────────

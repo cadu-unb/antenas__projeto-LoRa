@@ -9,7 +9,7 @@ class PcbSolver(BaseSolver):
 
     antenna_type = "pcb_compact"
 
-    def gain_dbi(self, freq_hz: float) -> float:
+    def gain_dbi(self, freq_hz: float, **kwargs) -> float:
         freq_mhz = freq_hz / 1e6
         if freq_mhz < 800:
             return 0.0
@@ -20,7 +20,7 @@ class PcbSolver(BaseSolver):
     def impedance_ohm(self, freq_hz: float) -> float:
         return 50.0
 
-    def pattern_g(self, theta_deg: float, phi_deg: float, freq_hz: float) -> float:
+    def pattern_g(self, theta_deg: float, phi_deg: float, freq_hz: float, **kwargs) -> float:
         """Quasi-omni com penalidade de elevação acima de 30°."""
         g_max = self.gain_dbi(freq_hz)
         elev_penalty = max(0.0, abs(theta_deg) - 30) * 0.05

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import uuid
-from typing import Optional
+from typing import Literal, Optional
 
 from pydantic import BaseModel, Field
 
@@ -16,6 +16,9 @@ class LinkResult(BaseModel):
     rx_power_dbm: float
     link_margin_db: float
     feasibility: str  # "verde" | "amarelo" | "vermelho"
+    # novos campos (defaults garantem retrocompatibilidade)
+    extra_loss_db: float = 0.0
+    propagation_model: str = "fspl"
     warnings: list[str] = []
 
 
@@ -82,6 +85,7 @@ class LinkScenario(BaseModel):
     node_a: NodeSpec
     node_b: NodeSpec
     frequency_hz: float
+    propagation_model: Literal["fspl", "okumura_hata", "longley_rice"] = "fspl"
     topology_type: str = "P2P"  # P2P | CHAIN | STAR | MESH | MULTI_STAR | HIERARCHICAL
     extra_nodes: list[NodeSpec] = Field(default_factory=list)
     links: list[LinkEdge] = Field(default_factory=list)

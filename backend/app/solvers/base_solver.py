@@ -30,6 +30,16 @@ class BaseSolver(ABC):
     fallback analítico + warning, nunca propagar ImportError.
     """
 
+    def gain_dbi(self, freq_hz: float, **kwargs) -> float:
+        raise NotImplementedError
+
+    def pattern_g(self, theta_deg: float, phi_deg: float, freq_hz: float, **kwargs) -> float:
+        """Ganho em dBi para ângulo theta (elevação off-boresight) e phi (azimute).
+        Implementação padrão: retorna gain_dbi() — isotrope angular.
+        Sobrescrever em solvers diretivos.
+        """
+        return self.gain_dbi(freq_hz, **kwargs)
+
     @abstractmethod
     def solve(self, spec: Any) -> SolverResult:
         """Computa resultado EM ou de propagação a partir de spec.

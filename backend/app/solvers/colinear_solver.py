@@ -9,13 +9,13 @@ class ColinearSolver(BaseSolver):
 
     antenna_type = "commercial_omni_6dbi"
 
-    def gain_dbi(self, freq_hz: float) -> float:
+    def gain_dbi(self, freq_hz: float, **kwargs) -> float:
         return 6.0
 
     def impedance_ohm(self, freq_hz: float) -> float:
         return 50.0
 
-    def pattern_g(self, theta_deg: float, phi_deg: float, freq_hz: float) -> float:
+    def pattern_g(self, theta_deg: float, phi_deg: float, freq_hz: float, **kwargs) -> float:
         """Padrão colinear: gaussiano em elevação, HPBW ~20°.
 
         theta: ângulo de elevação (0 = horizonte, 90 = zenith).

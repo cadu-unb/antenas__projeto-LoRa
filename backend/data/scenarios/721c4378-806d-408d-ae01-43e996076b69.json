@@ -1,0 +1,87 @@
+{
+  "id": "721c4378-806d-408d-ae01-43e996076b69",
+  "name": "Site Selection Teste",
+  "node_a": {
+    "id": "node-a",
+    "name": "Sensor Plano Piloto",
+    "lat": -15.7801,
+    "lon": -47.9292,
+    "height_m": 5.0,
+    "antenna_id": null,
+    "tx_power_dbm": 14.0,
+    "rx_sensitivity_dbm": -137.0,
+    "cable_loss_db": 0.0,
+    "is_hub": false,
+    "extra_loss_db": 0.0,
+    "fading_margin_db": 0.0,
+    "polarization_loss_db": 0.0,
+    "azimuth_deg": null,
+    "tilt_deg": 0.0,
+    "lora_module_id": null
+  },
+  "node_b": {
+    "id": "node-b",
+    "name": "Sensor Taguatinga",
+    "lat": -15.83,
+    "lon": -48.05,
+    "height_m": 5.0,
+    "antenna_id": null,
+    "tx_power_dbm": 14.0,
+    "rx_sensitivity_dbm": -137.0,
+    "cable_loss_db": 0.0,
+    "is_hub": false,
+    "extra_loss_db": 0.0,
+    "fading_margin_db": 0.0,
+    "polarization_loss_db": 0.0,
+    "azimuth_deg": null,
+    "tilt_deg": 0.0,
+    "lora_module_id": null
+  },
+  "frequency_hz": 915000000.0,
+  "propagation_model": "fspl",
+  "topology_type": "STAR",
+  "extra_nodes": [],
+  "links": [],
+  "polygons": [],
+  "candidates": [
+    {
+      "id": "cand-h",
+      "name": "Torre Centro",
+      "lat": -15.79,
+      "lon": -47.98,
+      "height_m": 30.0,
+      "is_existing_tower": false,
+      "notes": ""
+    }
+  ],
+  "results": null,
+  "topology_result": null,
+  "site_selection_result": {
+    "candidates": [
+      {
+        "candidate_id": "cand-h",
+        "candidate_name": "Torre Centro",
+        "height_m": 50.0,
+        "coverage_pct": 100.0,
+        "node_results": [
+          {
+            "node_id": "node-a",
+            "node_name": "Sensor Plano Piloto",
+            "distance_m": 5546.0,
+            "link_margin_db": 50.45,
+            "feasibility": "verde"
+          },
+          {
+            "node_id": "node-b",
+            "node_name": "Sensor Taguatinga",
+            "distance_m": 8710.4,
+            "link_margin_db": 46.53,
+            "feasibility": "verde"
+          }
+        ],
+        "feasibility": "verde"
+      }
+    ]
+  },
+  "metadata": {}
+}

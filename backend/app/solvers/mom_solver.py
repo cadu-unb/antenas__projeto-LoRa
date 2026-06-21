@@ -35,6 +35,45 @@ class MoMSolver(BaseSolver):
     Parabólica deve usar ApertureSolver — não MoM.
     """
 
+    def gain_dbi(self, freq_hz: float, **kwargs) -> float:
+        """Ganho nominal analítico. antenna_type via kwargs (default: dipolo)."""
+        antenna_type = kwargs.get("antenna_type", "dipolo")
+        if antenna_type == "monopolo":
+            return 5.15
+        if antenna_type == "helicoidal":
+            lam = C / freq_hz
+            n = kwargs.get("turns", 10)
+            C_h = kwargs.get("circumference_m", lam)
+            pitch_deg = kwargs.get("pitch_angle_deg", 14.0)
+            is_axial = 0.75 * lam <= C_h <= 1.33 * lam
+            if is_axial:
+                gain_lin = max(1.0, 15 * n * (C_h / lam) ** 2 * math.sin(math.radians(pitch_deg)))
+                return 10 * math.log10(gain_lin)
+            return 2.15
+        return 2.15  # dipolo
+
+    def pattern_g(self, theta_deg: float, phi_deg: float, freq_hz: float, **kwargs) -> float:
+        """Padrão de radiação por tipo de antena.
+        Helicoidal: endfire (cos²θ). Dipolo/Monopolo: toroidal (sin²θ).
+        """
+        antenna_type = kwargs.get("antenna_type", "dipolo")
+        g_max = self.gain_dbi(freq_hz, **kwargs)
+
+        if antenna_type == "helicoidal":
+            theta_rad = math.radians(abs(theta_deg))
+            if theta_rad >= math.pi / 2:
+                return g_max - 20.0
+            g_linear = (10 ** (g_max / 10)) * (math.cos(theta_rad) ** 2)
+            return 10 * math.log10(max(g_linear, 1e-10))
+
+        # dipolo / monopolo — padrão toroidal: máximo no horizonte (θ=90°)
+        theta_rad = math.radians(theta_deg)
+        sin_theta = math.sin(theta_rad)
+        if sin_theta <= 0:
+            return g_max - 40.0
+        g_linear = (10 ** (g_max / 10)) * (sin_theta ** 2)
+        return 10 * math.log10(max(g_linear, 1e-10))
+
     def solve(self, spec: Any) -> SolverResult:
         if _PYNEC_AVAILABLE:
             return self._pynec_solve(spec)

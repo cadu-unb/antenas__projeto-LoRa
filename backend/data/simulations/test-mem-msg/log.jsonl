@@ -11,3 +11,5 @@
 {"ts": 1782067411.389, "event": "FAILED_MEMORY_LIMIT", "used_gb": 26.0, "limit_gb": 25}
 {"ts": 1782069165.197, "event": "FAILED_MEMORY_LIMIT", "used_gb": 26.0, "limit_gb": 25}
 {"ts": 1782070310.389, "event": "FAILED_MEMORY_LIMIT", "used_gb": 26.0, "limit_gb": 25}
+{"ts": 1782072195.639, "event": "FAILED_MEMORY_LIMIT", "used_gb": 26.0, "limit_gb": 25}
+{"ts": 1782072778.712, "event": "FAILED_MEMORY_LIMIT", "used_gb": 26.0, "limit_gb": 25}

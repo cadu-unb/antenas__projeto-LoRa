@@ -1,8 +1,11 @@
+from typing import Any, Literal
+
 from fastapi import APIRouter, Body, File, HTTPException, Query, UploadFile, status
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 
 from ..domain import link_budget as lb
+from ..domain.comparison import run_comparison
 from ..domain.kml.parser import parse_kml
 from ..schemas.link_scenario import (
     CandidateCoverageResult,
@@ -17,7 +20,7 @@ from ..schemas.link_scenario import (
     TopologyResult,
 )
 from ..schemas.node_spec import NodeSpec
-from ..storage import antenna_storage, scenario_storage
+from ..storage import antenna_storage, lora_module_storage, scenario_storage
 
 router = APIRouter(prefix="/api/v1/scenarios", tags=["link"])
 
@@ -88,39 +91,14 @@ def calculate(id: str) -> LinkResult:
     if s is None:
         raise HTTPException(status_code=404, detail="Cenário não encontrado")
 
-    d = lb.haversine(s.node_a.lat, s.node_a.lon, s.node_b.lat, s.node_b.lon)
-    az = lb.bearing(s.node_a.lat, s.node_a.lon, s.node_b.lat, s.node_b.lon)
-    el = lb.elevation_angle(d, s.node_a.height_m, s.node_b.height_m)
-    loss = lb.fspl_db(d, s.frequency_hz)
+    antenna_a = antenna_storage.load(s.node_a.antenna_id) if s.node_a.antenna_id else None
+    antenna_b = antenna_storage.load(s.node_b.antenna_id) if s.node_b.antenna_id else None
 
-    tx_gain = _antenna_gain(s.node_a.antenna_id)
-    rx_gain = _antenna_gain(s.node_b.antenna_id)
-
-    rx_power, margin = lb.compute_link(
-        tx_power_dbm=s.node_a.tx_power_dbm,
-        tx_gain_dbi=tx_gain,
-        tx_cable_db=s.node_a.cable_loss_db,
-        path_loss_db=loss,
-        rx_gain_dbi=rx_gain,
-        rx_cable_db=s.node_b.cable_loss_db,
-        rx_sensitivity_dbm=s.node_b.rx_sensitivity_dbm,
-    )
-
-    warnings: list[str] = []
-    if d > 200_000:
-        warnings.append(
-            f"Distância {d/1000:.0f} km excede escopo prático de LoRa (200 km)."
-        )
-
-    result = LinkResult(
-        distance_m=round(d, 1),
-        azimuth_deg=round(az, 2),
-        elevation_deg=round(el, 4),
-        fspl_db=round(loss, 2),
-        rx_power_dbm=round(rx_power, 2),
-        link_margin_db=round(margin, 2),
-        feasibility=lb.feasibility(margin),
-        warnings=warnings,
+    result = lb.compute_link_full(
+        s.node_a, s.node_b, s.frequency_hz,
+        propagation_model=s.propagation_model,
+        antenna_a=antenna_a,
+        antenna_b=antenna_b,
     )
 
     scenario_storage.save(s.model_copy(update={"results": result}))
@@ -213,6 +191,58 @@ def calculate_links(id: str) -> TopologyResult:
     return result
 
 
+@router.post("/{id}/compare", response_model=list[dict])
+def compare_scenarios(
+    id: str,
+    module_ids: list[str] = Query(default=[]),
+    tx_antenna_ids: list[str] = Query(default=[]),
+    gw_antenna_ids: list[str] = Query(default=[]),
+) -> list[dict]:
+    """Compara combinações módulo × antena_TX × antena_GW. Retorna tabela ordenada por margem mínima."""
+    s = scenario_storage.load(id)
+    if s is None:
+        raise HTTPException(status_code=404, detail="Cenário não encontrado")
+
+    modules = (
+        [m for mid in module_ids if (m := lora_module_storage.get_module(mid)) is not None]
+        if module_ids
+        else lora_module_storage.list_modules()
+    )
+
+    all_antennas = antenna_storage.list_all()
+    tx_ants = [a for a in all_antennas if a.id in tx_antenna_ids] if tx_antenna_ids else all_antennas[:3]
+    gw_ants = [a for a in all_antennas if a.id in gw_antenna_ids] if gw_antenna_ids else all_antennas[:3]
+
+    sensor_nodes = [s.node_b] + s.extra_nodes
+    gateway_node = s.node_a
+
+    rows = run_comparison(
+        sensor_nodes=sensor_nodes,
+        gateway_node=gateway_node,
+        freq_hz=s.frequency_hz,
+        modules=modules,
+        tx_antenna_specs=tx_ants,
+        gw_antenna_specs=gw_ants,
+    )
+
+    return [
+        {
+            "label": r.scenario_label,
+            "module": r.module_id,
+            "tx_antenna": r.tx_antenna_type,
+            "gw_antenna": r.gw_antenna_type,
+            "min_margin_db": round(r.min_margin_db, 2),
+            "mean_margin_db": round(r.mean_margin_db, 2),
+            "max_margin_db": round(r.max_margin_db, 2),
+            "failure_count": r.failure_count,
+            "critical_count": r.critical_count,
+            "comfortable_count": r.comfortable_count,
+            "robustness_score": round(r.robustness_score, 3),
+        }
+        for r in rows
+    ]
+
+
 # ── Site Selection ─────────────────────────────────────────────────────────────
 
 class CandidateSiteIn(BaseModel):
@@ -256,14 +286,19 @@ def list_candidates(id: str) -> list[CandidateSite]:
     return s.candidates
 
 
-@router.post("/{id}/site-selection", response_model=SiteSelectionResult)
+@router.post("/{id}/site-selection")
 def site_selection(
     id: str,
+    selection_mode: Literal["coverage", "minimax"] = Query("coverage"),
     body: SiteSelectionIn = Body(default=SiteSelectionIn()),
-) -> SiteSelectionResult:
+) -> Any:
     s = scenario_storage.load(id)
     if s is None:
         raise HTTPException(status_code=404, detail="Cenário não encontrado")
+
+    if selection_mode == "minimax":
+        sensor_nodes = [s.node_a, s.node_b] + s.extra_nodes
+        return lb.minimax_gateway_rank(s.candidates, sensor_nodes)
 
     field_nodes = [s.node_a, s.node_b] + s.extra_nodes
     candidate_results: list[CandidateCoverageResult] = []
