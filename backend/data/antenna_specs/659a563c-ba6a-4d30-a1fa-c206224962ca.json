@@ -1,0 +1,26 @@
+{
+  "schema_version": "1.0",
+  "id": "659a563c-ba6a-4d30-a1fa-c206224962ca",
+  "name": "dipolo",
+  "type": "dipolo",
+  "frequency_hz": 915000000.0,
+  "units": {
+    "frequency": "Hz",
+    "gain": "dBi",
+    "impedance": "Ohm"
+  },
+  "geometry": {
+    "length_m": 0.1639,
+    "diameter_mm": 1.5
+  },
+  "material": {},
+  "solver": "rapido",
+  "results": {
+    "gain_dbi": 2.05,
+    "impedance_ohm": 77.5,
+    "swr": 1.55,
+    "efficiency_pct": 98,
+    "radiation_pattern": "omnidirecional"
+  },
+  "metadata": {}
+}

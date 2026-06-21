@@ -1,0 +1,183 @@
+{
+  "id": "4c954aa9-7acb-48d7-8139-8ed6fa94bb95",
+  "name": "Enlace SP–RJ",
+  "node_a": {
+    "id": "74c0f2b1-a394-4a9f-85d5-ea816e5bc43e",
+    "name": "Nó A",
+    "lat": -15.7655173,
+    "lon": -47.8723601,
+    "height_m": 25.0,
+    "antenna_id": "0ccbfeb6-0e0c-4089-9ae5-33fa8eab647c",
+    "tx_power_dbm": 14.0,
+    "rx_sensitivity_dbm": -137.0,
+    "cable_loss_db": 0.0,
+    "is_hub": false
+  },
+  "node_b": {
+    "id": "d21fe1d3-668b-41b9-bd82-106b9578e599",
+    "name": "Nó B",
+    "lat": -15.7724441,
+    "lon": -47.8674832,
+    "height_m": 10.0,
+    "antenna_id": "6fb42313-aba0-484b-a096-cce8bbefee7f",
+    "tx_power_dbm": 14.0,
+    "rx_sensitivity_dbm": -137.0,
+    "cable_loss_db": 0.0,
+    "is_hub": false
+  },
+  "frequency_hz": 915000000.0,
+  "topology_type": "P2P",
+  "extra_nodes": [
+    {
+      "id": "081ebf76-906e-4ddf-ae18-a9b7bd4e9d31",
+      "name": "Botão FACE",
+      "lat": -15.75765082870043,
+      "lon": -47.87083077618352,
+      "height_m": 1034.446264894265,
+      "antenna_id": null,
+      "tx_power_dbm": 14.0,
+      "rx_sensitivity_dbm": -137.0,
+      "cable_loss_db": 0.0,
+      "is_hub": false
+    },
+    {
+      "id": "27a3114d-b7a5-4650-8264-d25d45fdc850",
+      "name": "Botão BCE",
+      "lat": -15.76127034065908,
+      "lon": -47.86745724717513,
+      "height_m": 1019.61698099038,
+      "antenna_id": null,
+      "tx_power_dbm": 14.0,
+      "rx_sensitivity_dbm": -137.0,
+      "cable_loss_db": 0.0,
+      "is_hub": false
+    },
+    {
+      "id": "a69a549a-6dc0-4e7c-b763-134908003bae",
+      "name": "Botão Beijódromo",
+      "lat": -15.76377698277078,
+      "lon": -47.86520966364652,
+      "height_m": 1024.139071702697,
+      "antenna_id": null,
+      "tx_power_dbm": 14.0,
+      "rx_sensitivity_dbm": -137.0,
+      "cable_loss_db": 0.0,
+      "is_hub": false
+    },
+    {
+      "id": "8310ab4c-fa13-4da4-9f12-4ea35ab067d9",
+      "name": "Botão IB",
+      "lat": -15.76601060040457,
+      "lon": -47.86657645286517,
+      "height_m": 1033.408014943337,
+      "antenna_id": null,
+      "tx_power_dbm": 14.0,
+      "rx_sensitivity_dbm": -137.0,
+      "cable_loss_db": 0.0,
+      "is_hub": false
+    },
+    {
+      "id": "40d3a361-c51f-4989-96b5-a470a9d63b0b",
+      "name": "Botão IQ",
+      "lat": -15.76831173033475,
+      "lon": -47.86572517133772,
+      "height_m": 1037.985829588322,
+      "antenna_id": null,
+      "tx_power_dbm": 14.0,
+      "rx_sensitivity_dbm": -137.0,
+      "cable_loss_db": 0.0,
+      "is_hub": false
+    },
+    {
+      "id": "f686e52a-6f80-4a1d-9486-15762f400d86",
+      "name": "Botão ICC Sul",
+      "lat": -15.76591092048512,
+      "lon": -47.86971992266324,
+      "height_m": 1039.931640249285,
+      "antenna_id": null,
+      "tx_power_dbm": 14.0,
+      "rx_sensitivity_dbm": -137.0,
+      "cable_loss_db": 0.0,
+      "is_hub": false
+    },
+    {
+      "id": "3da827ce-f566-4562-8a30-ac0f9ea6adcd",
+      "name": "Botão ICC Norte",
+      "lat": -15.76298853031727,
+      "lon": -47.87187806988097,
+      "height_m": 1038.798361313413,
+      "antenna_id": null,
+      "tx_power_dbm": 14.0,
+      "rx_sensitivity_dbm": -137.0,
+      "cable_loss_db": 0.0,
+      "is_hub": false
+    },
+    {
+      "id": "95d9b372-ad9c-44c5-92e5-5f6c92e3c11e",
+      "name": "Botão do CO",
+      "lat": -15.76448213579672,
+      "lon": -47.8598793136273,
+      "height_m": 1022.504171087457,
+      "antenna_id": null,
+      "tx_power_dbm": 14.0,
+      "rx_sensitivity_dbm": -137.0,
+      "cable_loss_db": 0.0,
+      "is_hub": false
+    },
+    {
+      "id": "085e6b26-6ef6-44f6-a11f-3a3e7300765d",
+      "name": "Botão SG",
+      "lat": -15.76679349641666,
+      "lon": -47.87124591627169,
+      "height_m": 1046.761186877331,
+      "antenna_id": null,
+      "tx_power_dbm": 14.0,
+      "rx_sensitivity_dbm": -137.0,
+      "cable_loss_db": 0.0,
+      "is_hub": false
+    }
+  ],
+  "links": [],
+  "polygons": [
+    {
+      "name": "Campus UnB",
+      "outer_ring": [
+        [
+          -47.87085162374608,
+          -15.77680091573182,
+          0.0
+        ],
+        [
+          -47.86390995118125,
+          -15.7712229884785,
+          0.0
+        ],
+        [
+          -47.85942261534346,
+          -15.76423571738823,
+          0.0
+        ],
+        [
+          -47.86700579508069,
+          -15.75694323622343,
+          0.0
+        ],
+        [
+          -47.87602062304371,
+          -15.75746556587607,
+          0.0
+        ],
+        [
+          -47.87085162374608,
+          -15.77680091573182,
+          0.0
+        ]
+      ]
+    }
+  ],
+  "candidates": [],
+  "results": null,
+  "topology_result": null,
+  "site_selection_result": null,
+  "metadata": {}
+}

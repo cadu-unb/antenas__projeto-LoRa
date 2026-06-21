@@ -1,0 +1,360 @@
+{
+  "id": "f925579c-d077-4318-9e37-3b0fbfbb4fe3",
+  "name": "Enlace SP–RJ",
+  "node_a": {
+    "id": "ee8b7e21-29a2-486e-9e92-e65ef62de710",
+    "name": "SG 11",
+    "lat": -15.7655173,
+    "lon": -47.8723601,
+    "height_m": 25.0,
+    "antenna_id": "1a51f2de-8aa9-4f73-b5c0-6512d204067e",
+    "tx_power_dbm": 14.0,
+    "rx_sensitivity_dbm": -137.0,
+    "cable_loss_db": 0.0,
+    "is_hub": false
+  },
+  "node_b": {
+    "id": "93198233-236a-44a3-8ec4-c7f62ea1c0a9",
+    "name": "Segurança UnB",
+    "lat": -15.7724441,
+    "lon": -47.8674832,
+    "height_m": 10.0,
+    "antenna_id": "1a51f2de-8aa9-4f73-b5c0-6512d204067e",
+    "tx_power_dbm": 14.0,
+    "rx_sensitivity_dbm": -100.0,
+    "cable_loss_db": 0.0,
+    "is_hub": false
+  },
+  "frequency_hz": 915000000.0,
+  "topology_type": "MESH",
+  "extra_nodes": [
+    {
+      "id": "047fc486-8ae6-4148-813f-82f620b38243",
+      "name": "Botão FACE",
+      "lat": -15.75765082870043,
+      "lon": -47.87083077618352,
+      "height_m": 1034.446264894265,
+      "antenna_id": "1a51f2de-8aa9-4f73-b5c0-6512d204067e",
+      "tx_power_dbm": 14.0,
+      "rx_sensitivity_dbm": -137.0,
+      "cable_loss_db": 0.0,
+      "is_hub": false
+    },
+    {
+      "id": "a5853c89-1bab-4abd-96ce-277fc3d6f004",
+      "name": "Botão BCE",
+      "lat": -15.76127034065908,
+      "lon": -47.86745724717513,
+      "height_m": 1019.61698099038,
+      "antenna_id": "1a51f2de-8aa9-4f73-b5c0-6512d204067e",
+      "tx_power_dbm": 14.0,
+      "rx_sensitivity_dbm": -137.0,
+      "cable_loss_db": 0.0,
+      "is_hub": false
+    },
+    {
+      "id": "11a1e6f5-f87b-41d1-bc6d-3c85fc7b422a",
+      "name": "Botão Beijódromo",
+      "lat": -15.76377698277078,
+      "lon": -47.86520966364652,
+      "height_m": 1024.139071702697,
+      "antenna_id": "1a51f2de-8aa9-4f73-b5c0-6512d204067e",
+      "tx_power_dbm": 14.0,
+      "rx_sensitivity_dbm": -137.0,
+      "cable_loss_db": 0.0,
+      "is_hub": false
+    },
+    {
+      "id": "b978d17e-ea24-4d8a-aa69-53ba4cf4897f",
+      "name": "Botão IB",
+      "lat": -15.76601060040457,
+      "lon": -47.86657645286517,
+      "height_m": 1033.408014943337,
+      "antenna_id": "1a51f2de-8aa9-4f73-b5c0-6512d204067e",
+      "tx_power_dbm": 14.0,
+      "rx_sensitivity_dbm": -137.0,
+      "cable_loss_db": 0.0,
+      "is_hub": false
+    },
+    {
+      "id": "cfc800b9-a1f8-4fe6-b459-f0404d29efc8",
+      "name": "Botão IQ",
+      "lat": -15.76831173033475,
+      "lon": -47.86572517133772,
+      "height_m": 1037.985829588322,
+      "antenna_id": "1a51f2de-8aa9-4f73-b5c0-6512d204067e",
+      "tx_power_dbm": 14.0,
+      "rx_sensitivity_dbm": -137.0,
+      "cable_loss_db": 0.0,
+      "is_hub": false
+    },
+    {
+      "id": "114eedb6-a793-4941-8d08-2b0478f47abf",
+      "name": "Botão ICC Sul",
+      "lat": -15.76591092048512,
+      "lon": -47.86971992266324,
+      "height_m": 1039.931640249285,
+      "antenna_id": "1a51f2de-8aa9-4f73-b5c0-6512d204067e",
+      "tx_power_dbm": 14.0,
+      "rx_sensitivity_dbm": -137.0,
+      "cable_loss_db": 0.0,
+      "is_hub": false
+    },
+    {
+      "id": "3c859daa-6333-4668-9562-ca7baf7194a6",
+      "name": "Botão ICC Norte",
+      "lat": -15.76298853031727,
+      "lon": -47.87187806988097,
+      "height_m": 1038.798361313413,
+      "antenna_id": "1a51f2de-8aa9-4f73-b5c0-6512d204067e",
+      "tx_power_dbm": 14.0,
+      "rx_sensitivity_dbm": -137.0,
+      "cable_loss_db": 0.0,
+      "is_hub": false
+    },
+    {
+      "id": "ba8aa0df-9d39-40f9-846a-1f573f961231",
+      "name": "Botão do CO",
+      "lat": -15.76448213579672,
+      "lon": -47.8598793136273,
+      "height_m": 1022.504171087457,
+      "antenna_id": "1a51f2de-8aa9-4f73-b5c0-6512d204067e",
+      "tx_power_dbm": 14.0,
+      "rx_sensitivity_dbm": -137.0,
+      "cable_loss_db": 0.0,
+      "is_hub": false
+    },
+    {
+      "id": "c4af52c8-fd70-4f41-9995-22157e33b140",
+      "name": "Botão SG",
+      "lat": -15.76679349641666,
+      "lon": -47.87124591627169,
+      "height_m": 1046.761186877331,
+      "antenna_id": "1a51f2de-8aa9-4f73-b5c0-6512d204067e",
+      "tx_power_dbm": 14.0,
+      "rx_sensitivity_dbm": -137.0,
+      "cable_loss_db": 0.0,
+      "is_hub": false
+    }
+  ],
+  "links": [
+    {
+      "id": "061e5379-8a86-4c0f-9e6f-cc612704b481",
+      "node_a_id": "047fc486-8ae6-4148-813f-82f620b38243",
+      "node_b_id": "a5853c89-1bab-4abd-96ce-277fc3d6f004"
+    },
+    {
+      "id": "b53cec89-5a37-464e-b0d5-9a57d0393b83",
+      "node_a_id": "a5853c89-1bab-4abd-96ce-277fc3d6f004",
+      "node_b_id": "11a1e6f5-f87b-41d1-bc6d-3c85fc7b422a"
+    },
+    {
+      "id": "5953af7c-d925-4249-b926-7eddad0e1f5e",
+      "node_a_id": "11a1e6f5-f87b-41d1-bc6d-3c85fc7b422a",
+      "node_b_id": "ba8aa0df-9d39-40f9-846a-1f573f961231"
+    },
+    {
+      "id": "913c41f2-5c32-4409-9f61-8195ac718639",
+      "node_a_id": "11a1e6f5-f87b-41d1-bc6d-3c85fc7b422a",
+      "node_b_id": "b978d17e-ea24-4d8a-aa69-53ba4cf4897f"
+    },
+    {
+      "id": "c1663bcf-d67c-4970-8d99-303f9f9a2eae",
+      "node_a_id": "b978d17e-ea24-4d8a-aa69-53ba4cf4897f",
+      "node_b_id": "cfc800b9-a1f8-4fe6-b459-f0404d29efc8"
+    },
+    {
+      "id": "d4bd9469-048f-4c4d-a2f1-d5196229ea68",
+      "node_a_id": "b978d17e-ea24-4d8a-aa69-53ba4cf4897f",
+      "node_b_id": "114eedb6-a793-4941-8d08-2b0478f47abf"
+    },
+    {
+      "id": "1fbc5b34-65f3-4ab9-957b-4f012f97afdd",
+      "node_a_id": "114eedb6-a793-4941-8d08-2b0478f47abf",
+      "node_b_id": "3c859daa-6333-4668-9562-ca7baf7194a6"
+    },
+    {
+      "id": "0da73c0c-fe42-498b-9dad-a5a09d38c518",
+      "node_a_id": "114eedb6-a793-4941-8d08-2b0478f47abf",
+      "node_b_id": "c4af52c8-fd70-4f41-9995-22157e33b140"
+    },
+    {
+      "id": "bfa7ef33-6854-4fcb-8b5f-4dca3c977a63",
+      "node_a_id": "c4af52c8-fd70-4f41-9995-22157e33b140",
+      "node_b_id": "ee8b7e21-29a2-486e-9e92-e65ef62de710"
+    },
+    {
+      "id": "9a2be52d-40c6-4ed8-b1f8-592edb34cd4b",
+      "node_a_id": "93198233-236a-44a3-8ec4-c7f62ea1c0a9",
+      "node_b_id": "cfc800b9-a1f8-4fe6-b459-f0404d29efc8"
+    }
+  ],
+  "polygons": [
+    {
+      "name": "Campus UnB",
+      "outer_ring": [
+        [
+          -47.87085162374608,
+          -15.77680091573182,
+          0
+        ],
+        [
+          -47.86390995118125,
+          -15.7712229884785,
+          0
+        ],
+        [
+          -47.85942261534346,
+          -15.76423571738823,
+          0
+        ],
+        [
+          -47.86700579508069,
+          -15.75694323622343,
+          0
+        ],
+        [
+          -47.87602062304371,
+          -15.75746556587607,
+          0
+        ],
+        [
+          -47.87085162374608,
+          -15.77680091573182,
+          0
+        ]
+      ]
+    }
+  ],
+  "candidates": [],
+  "results": null,
+  "topology_result": {
+    "hops": [
+      {
+        "edge_id": "061e5379-8a86-4c0f-9e6f-cc612704b481",
+        "node_a_id": "047fc486-8ae6-4148-813f-82f620b38243",
+        "node_b_id": "a5853c89-1bab-4abd-96ce-277fc3d6f004",
+        "node_a_name": "Botão FACE",
+        "node_b_name": "Botão BCE",
+        "distance_m": 540.7,
+        "fspl_db": 86.33,
+        "rx_power_dbm": -68.03,
+        "link_margin_db": 68.97,
+        "feasibility": "verde"
+      },
+      {
+        "edge_id": "b53cec89-5a37-464e-b0d5-9a57d0393b83",
+        "node_a_id": "a5853c89-1bab-4abd-96ce-277fc3d6f004",
+        "node_b_id": "11a1e6f5-f87b-41d1-bc6d-3c85fc7b422a",
+        "node_a_name": "Botão BCE",
+        "node_b_name": "Botão Beijódromo",
+        "distance_m": 368.2,
+        "fspl_db": 82.99,
+        "rx_power_dbm": -64.69,
+        "link_margin_db": 72.31,
+        "feasibility": "verde"
+      },
+      {
+        "edge_id": "5953af7c-d925-4249-b926-7eddad0e1f5e",
+        "node_a_id": "11a1e6f5-f87b-41d1-bc6d-3c85fc7b422a",
+        "node_b_id": "ba8aa0df-9d39-40f9-846a-1f573f961231",
+        "node_a_name": "Botão Beijódromo",
+        "node_b_name": "Botão do CO",
+        "distance_m": 575.8,
+        "fspl_db": 86.88,
+        "rx_power_dbm": -68.58,
+        "link_margin_db": 68.42,
+        "feasibility": "verde"
+      },
+      {
+        "edge_id": "913c41f2-5c32-4409-9f61-8195ac718639",
+        "node_a_id": "11a1e6f5-f87b-41d1-bc6d-3c85fc7b422a",
+        "node_b_id": "b978d17e-ea24-4d8a-aa69-53ba4cf4897f",
+        "node_a_name": "Botão Beijódromo",
+        "node_b_name": "Botão IB",
+        "distance_m": 288.2,
+        "fspl_db": 80.87,
+        "rx_power_dbm": -62.57,
+        "link_margin_db": 74.43,
+        "feasibility": "verde"
+      },
+      {
+        "edge_id": "c1663bcf-d67c-4970-8d99-303f9f9a2eae",
+        "node_a_id": "b978d17e-ea24-4d8a-aa69-53ba4cf4897f",
+        "node_b_id": "cfc800b9-a1f8-4fe6-b459-f0404d29efc8",
+        "node_a_name": "Botão IB",
+        "node_b_name": "Botão IQ",
+        "distance_m": 271.6,
+        "fspl_db": 80.35,
+        "rx_power_dbm": -62.05,
+        "link_margin_db": 74.95,
+        "feasibility": "verde"
+      },
+      {
+        "edge_id": "d4bd9469-048f-4c4d-a2f1-d5196229ea68",
+        "node_a_id": "b978d17e-ea24-4d8a-aa69-53ba4cf4897f",
+        "node_b_id": "114eedb6-a793-4941-8d08-2b0478f47abf",
+        "node_a_name": "Botão IB",
+        "node_b_name": "Botão ICC Sul",
+        "distance_m": 336.6,
+        "fspl_db": 82.21,
+        "rx_power_dbm": -63.91,
+        "link_margin_db": 73.09,
+        "feasibility": "verde"
+      },
+      {
+        "edge_id": "1fbc5b34-65f3-4ab9-957b-4f012f97afdd",
+        "node_a_id": "114eedb6-a793-4941-8d08-2b0478f47abf",
+        "node_b_id": "3c859daa-6333-4668-9562-ca7baf7194a6",
+        "node_a_name": "Botão ICC Sul",
+        "node_b_name": "Botão ICC Norte",
+        "distance_m": 398.7,
+        "fspl_db": 83.68,
+        "rx_power_dbm": -65.38,
+        "link_margin_db": 71.62,
+        "feasibility": "verde"
+      },
+      {
+        "edge_id": "0da73c0c-fe42-498b-9dad-a5a09d38c518",
+        "node_a_id": "114eedb6-a793-4941-8d08-2b0478f47abf",
+        "node_b_id": "c4af52c8-fd70-4f41-9995-22157e33b140",
+        "node_a_name": "Botão ICC Sul",
+        "node_b_name": "Botão SG",
+        "distance_m": 190.5,
+        "fspl_db": 77.27,
+        "rx_power_dbm": -58.97,
+        "link_margin_db": 78.03,
+        "feasibility": "verde"
+      },
+      {
+        "edge_id": "bfa7ef33-6854-4fcb-8b5f-4dca3c977a63",
+        "node_a_id": "c4af52c8-fd70-4f41-9995-22157e33b140",
+        "node_b_id": "ee8b7e21-29a2-486e-9e92-e65ef62de710",
+        "node_a_name": "Botão SG",
+        "node_b_name": "SG 11",
+        "distance_m": 185.3,
+        "fspl_db": 77.03,
+        "rx_power_dbm": -58.73,
+        "link_margin_db": 78.27,
+        "feasibility": "verde"
+      },
+      {
+        "edge_id": "9a2be52d-40c6-4ed8-b1f8-592edb34cd4b",
+        "node_a_id": "93198233-236a-44a3-8ec4-c7f62ea1c0a9",
+        "node_b_id": "cfc800b9-a1f8-4fe6-b459-f0404d29efc8",
+        "node_a_name": "Segurança UnB",
+        "node_b_name": "Botão IQ",
+        "distance_m": 496.5,
+        "fspl_db": 85.59,
+        "rx_power_dbm": -67.29,
+        "link_margin_db": 69.71,
+        "feasibility": "verde"
+      }
+    ],
+    "islands": [],
+    "bottleneck_margin_db": 68.42,
+    "feasibility": "verde"
+  },
+  "site_selection_result": null,
+  "metadata": {}
+}
