@@ -244,9 +244,41 @@ Faltam:
 | 15 | Matriz por raio e feixe direcional | Baixa | Paridade com scripts de apoio |
 | 16 | Polígonos KML como obstáculos | Baixa | Modelagem física de campus |
 | 17 | Integrar Okumura/Longley ao planner | Baixa | Modelos além de FSPL no fluxo principal |
+| 18 | Persistência setup vs. setup+resultados | Média | Exportação seletiva, auditoria sem reprocessamento |
+| 19 | Escala de distância — fixtures e presets | Média | Testes e UI refletirem escopo real (10–90 km) |
 
 ---
 
-## Conclusão da revisão
+### 18. Persistência de cenários — sem separação setup vs. resultados
+
+**Python atual:** `LinkScenario` é um objeto único. `GET /scenarios/{id}` retorna sempre tudo: configuração de nós, arestas, antenas, topologia, resultados de cálculo e site selection. Não há modo de salvar ou exportar apenas a estrutura do cenário sem os resultados anexados.
+
+**Necessário:** duas opções explícitas de salvamento:
+
+- **Opção A — Salvar Configuração (Setup):** persiste parâmetros de antenas, posicionamento geográfico dos nós e conexões. Não inclui dados de simulação. Ideal para reexecutar ou modificar sem carregar payloads pesados.
+- **Opção B — Salvar Cenário Completo (Setup + Resultados):** persiste tudo do Opção A mais todos os dados brutos e métricas gerados após a execução. Ideal para auditoria, relatórios e análises sem reprocessamento.
+
+Ambas devem ser exportáveis em `.json`. A distinção exige ou dois endpoints de export separados, ou um query param `?include=results` na rota de GET/export.
+
+---
+
+### 19. Escala de distância — fixtures e presets fora do escopo real
+
+**Problema atual:** os cenários padrão e fixtures de teste usam nós com coordenadas de escala intermunicipal (~400 km, equivalente à distância RJ–SP). Isso distorce validações de FSPL, site selection e cobertura — margens surgem como absurdas (positivas em distâncias impossíveis para LoRa).
+
+**Exemplo:** `CANDIDATE_FAR` em `tests/test_site_selection.py` usa `lat=-1.0, lon=-35.0` (~2500 km) para forçar margem negativa — o que revela que, sem essa distância extrema, até candidatos distantes cobrem tudo com LoRa SF12 + TX=20 dBm.
+
+**Diretriz correta:** escopo operacional de **10 km a 90 km**, condizente com a realidade técnica de LoRa em ambiente aberto/suburbano com antenas de ganho moderado.
+
+**Ação necessária:**
+- Atualizar coordenadas de fixtures de teste para nós dentro de ~30–80 km entre si (ex: pontos em Brasília-DF).
+- Rever presets/exemplos da UI para refletirem essa escala.
+- Considerar validação de interface que avise quando nós estão a >200 km (fora do escopo prático do projeto).
+
+---
+
+## Resumo de prioridade
 
 O relatório anterior capturava corretamente vários gaps físicos, mas subdescrevia o projeto Python atual. A principal correção é: o sistema já possui infraestrutura web/API, biblioteca, sandbox, KML, topologias, site selection, jobs e solvers auxiliares. O maior gap frente ao material MATLAB externo está na camada de comparação física: ganho angular, orientação/apontamento, catálogo de módulos, perdas parametrizadas e rankings multi-critério.
+
+Gaps adicionados nesta revisão: persistência de cenários em dois modos (setup vs. completo) e ajuste de escala de distância dos fixtures/presets para a faixa operacional real de LoRa (10–90 km).
