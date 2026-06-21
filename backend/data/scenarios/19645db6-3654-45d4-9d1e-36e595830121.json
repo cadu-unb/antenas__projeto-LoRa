@@ -1,0 +1,79 @@
+{
+  "id": "19645db6-3654-45d4-9d1e-36e595830121",
+  "name": "Site Selection Teste",
+  "node_a": {
+    "id": "node-a",
+    "name": "Sensor Plano Piloto",
+    "lat": -15.7801,
+    "lon": -47.9292,
+    "height_m": 5.0,
+    "antenna_id": null,
+    "tx_power_dbm": 14.0,
+    "rx_sensitivity_dbm": -137.0,
+    "cable_loss_db": 0.0,
+    "is_hub": false,
+    "extra_loss_db": 0.0,
+    "fading_margin_db": 0.0,
+    "polarization_loss_db": 0.0,
+    "azimuth_deg": null,
+    "tilt_deg": 0.0,
+    "lora_module_id": null
+  },
+  "node_b": {
+    "id": "node-b",
+    "name": "Sensor Taguatinga",
+    "lat": -15.83,
+    "lon": -48.05,
+    "height_m": 5.0,
+    "antenna_id": null,
+    "tx_power_dbm": 14.0,
+    "rx_sensitivity_dbm": -137.0,
+    "cable_loss_db": 0.0,
+    "is_hub": false,
+    "extra_loss_db": 0.0,
+    "fading_margin_db": 0.0,
+    "polarization_loss_db": 0.0,
+    "azimuth_deg": null,
+    "tilt_deg": 0.0,
+    "lora_module_id": null
+  },
+  "frequency_hz": 915000000.0,
+  "topology_type": "STAR",
+  "extra_nodes": [
+    {
+      "id": "a6f48e53-eb3e-4c7b-b9eb-8e7ccb707eaf",
+      "name": "Sensor Campo",
+      "lat": -15.81,
+      "lon": -47.99,
+      "height_m": 5.0,
+      "antenna_id": null,
+      "tx_power_dbm": 14.0,
+      "rx_sensitivity_dbm": -137.0,
+      "cable_loss_db": 0.0,
+      "is_hub": false,
+      "extra_loss_db": 0.0,
+      "fading_margin_db": 0.0,
+      "polarization_loss_db": 0.0,
+      "azimuth_deg": null,
+      "tilt_deg": 0.0,
+      "lora_module_id": null
+    }
+  ],
+  "links": [],
+  "polygons": [],
+  "candidates": [
+    {
+      "id": "f58a6b61-ba64-4cc5-802c-93467d61f0bd",
+      "name": "Torre Nordeste",
+      "lat": -15.78,
+      "lon": -47.93,
+      "height_m": 45.0,
+      "is_existing_tower": true,
+      "notes": ""
+    }
+  ],
+  "results": null,
+  "topology_result": null,
+  "site_selection_result": null,
+  "metadata": {}
+}

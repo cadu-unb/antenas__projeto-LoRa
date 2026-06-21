@@ -1,10 +1,14 @@
 from fastapi import APIRouter, HTTPException, status
 
 from ..schemas.antenna_spec import AntennaSpec
+from ..schemas.lora_module import LoRaModule
 from ..storage import antenna_storage
+from ..storage import lora_module_storage
 
 router = APIRouter(prefix="/api/v1/antennas", tags=["library"])
 
+
+# ── Antenna CRUD ──────────────────────────────────────────────────────────────
 
 @router.get("", response_model=list[AntennaSpec])
 def list_antennas():
@@ -16,6 +20,23 @@ def create_antenna(spec: AntennaSpec):
     antenna_storage.save(spec)
     return spec
 
+
+# ── LoRa module catalog (before /{id} to avoid routing conflict) ─────────────
+
+@router.get("/lora-modules", response_model=list[LoRaModule])
+def list_lora_modules():
+    return lora_module_storage.list_modules()
+
+
+@router.get("/lora-modules/{module_id}", response_model=LoRaModule)
+def get_lora_module(module_id: str):
+    m = lora_module_storage.get_module(module_id)
+    if m is None:
+        raise HTTPException(status_code=404, detail="Módulo não encontrado")
+    return m
+
+
+# ── Antenna CRUD (continued) ──────────────────────────────────────────────────
 
 @router.get("/{id}", response_model=AntennaSpec)
 def get_antenna(id: str):

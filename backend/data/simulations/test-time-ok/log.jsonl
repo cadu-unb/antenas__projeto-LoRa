@@ -22,3 +22,5 @@
 {"ts": 1782067411.5, "event": "DONE", "elapsed_min": 0.0}
 {"ts": 1782069165.315, "event": "START", "max_ram_gb": 25, "max_runtime_min": 30, "timeout_s": 5.0}
 {"ts": 1782069165.316, "event": "DONE", "elapsed_min": 0.0}
+{"ts": 1782070310.509, "event": "START", "max_ram_gb": 25, "max_runtime_min": 30, "timeout_s": 5.0}
+{"ts": 1782070310.51, "event": "DONE", "elapsed_min": 0.0}

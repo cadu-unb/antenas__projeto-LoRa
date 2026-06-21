@@ -9,7 +9,9 @@ from pydantic import BaseModel, Field
 
 from ..schemas.antenna_spec import AntennaSpec
 from ..solvers.aperture_solver import ApertureSolver
+from ..solvers.colinear_solver import ColinearSolver
 from ..solvers.mom_solver import MoMSolver
+from ..solvers.pcb_solver import PcbSolver
 
 C = 3e8  # m/s
 
@@ -17,6 +19,8 @@ router = APIRouter(prefix="/api/v1/sandbox", tags=["sandbox"])
 
 _mom = MoMSolver()
 _aperture = ApertureSolver()
+_pcb = PcbSolver()
+_colinear = ColinearSolver()
 
 
 # ── Response model ────────────────────────────────────────────────────────────
@@ -192,6 +196,33 @@ def _solve_parabolica(req: SandboxPreviewRequest) -> PreviewResult:
     )
 
 
+def _solve_pcb_compact(req: SandboxPreviewRequest) -> PreviewResult:
+    sr = _pcb.solve(req)
+    return PreviewResult(
+        gain_dbi=sr.gain_dbi,
+        impedance_ohm=sr.impedance_ohm,
+        swr=sr.swr,
+        efficiency_pct=sr.efficiency_pct,
+        radiation_pattern=sr.radiation_pattern,
+        pattern_data=_omni_pattern(),
+        solver_used=sr.solver_used,
+    )
+
+
+def _solve_colinear(req: SandboxPreviewRequest) -> PreviewResult:
+    sr = _colinear.solve(req)
+    hpbw = 20.0
+    return PreviewResult(
+        gain_dbi=sr.gain_dbi,
+        impedance_ohm=sr.impedance_ohm,
+        swr=sr.swr,
+        efficiency_pct=sr.efficiency_pct,
+        radiation_pattern=sr.radiation_pattern,
+        pattern_data=_directional_pattern(hpbw),
+        solver_used=sr.solver_used,
+    )
+
+
 _FIXTURE = PreviewResult(
     gain_dbi=2.0,
     impedance_ohm=50.0,
@@ -208,6 +239,8 @@ _SOLVERS = {
     "monopolo": _solve_monopolo,
     "helicoidal": _solve_helicoidal,
     "parabolica": _solve_parabolica,
+    "pcb_compact": _solve_pcb_compact,
+    "commercial_omni_6dbi": _solve_colinear,
 }
 
 

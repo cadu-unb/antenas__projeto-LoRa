@@ -1,0 +1,50 @@
+[
+  {
+    "id": "rfm95w_915",
+    "name": "RFM95W_915MHz",
+    "manufacturer": "HopeRF",
+    "frequency_mhz": 915.0,
+    "tx_power_options_dbm": [7, 10, 14, 17, 20],
+    "tx_current_options_ma": [28, 29, 29, 87, 120],
+    "voltage_range_v": [1.8, 3.7],
+    "sleep_current_ua": 0.2,
+    "sensitivity_modes": [
+      {"sf": 12, "bw_khz": 125, "sensitivity_dbm": -139},
+      {"sf": 10, "bw_khz": 125, "sensitivity_dbm": -136},
+      {"sf": 7,  "bw_khz": 125, "sensitivity_dbm": -118}
+    ],
+    "notes": "LongRange: SF12=-139dBm, Balanced: SF10=-136dBm, HighDataRate: SF7=-118dBm"
+  },
+  {
+    "id": "lro2_asr6601",
+    "name": "LRO2_ASR6601",
+    "manufacturer": "ASR",
+    "frequency_mhz": 915.0,
+    "tx_power_options_dbm": [10, 14, 17, 20, 22],
+    "tx_current_options_ma": [38, 42, 70, 80, 100],
+    "voltage_range_v": [2.0, 3.7],
+    "sleep_current_ua": 1.0,
+    "sensitivity_modes": [
+      {"sf": 12, "bw_khz": 125, "sensitivity_dbm": -138},
+      {"sf": 10, "bw_khz": 125, "sensitivity_dbm": -135},
+      {"sf": 7,  "bw_khz": 125, "sensitivity_dbm": -117}
+    ],
+    "notes": "ASR6601 — módulo LoRa/LoRaWAN 915 MHz"
+  },
+  {
+    "id": "e220_900t22d",
+    "name": "E220_900T22D",
+    "manufacturer": "EBYTE",
+    "frequency_mhz": 900.0,
+    "tx_power_options_dbm": [13, 17, 20, 22],
+    "tx_current_options_ma": [100, 180, 380, 480],
+    "voltage_range_v": [2.3, 5.5],
+    "sleep_current_ua": 2.0,
+    "sensitivity_modes": [
+      {"sf": 12, "bw_khz": 125, "sensitivity_dbm": -147},
+      {"sf": 10, "bw_khz": 125, "sensitivity_dbm": -143},
+      {"sf": 7,  "bw_khz": 125, "sensitivity_dbm": -126}
+    ],
+    "notes": "EBYTE E220 — chip SX1268, 22 dBm, alta sensibilidade"
+  }
+]
