@@ -17,12 +17,12 @@ KML_POINTS = """\
 <kml xmlns="http://www.opengis.net/kml/2.2">
   <Document>
     <Placemark>
-      <name>Gateway SP</name>
-      <Point><coordinates>-46.6333,-23.5505,30</coordinates></Point>
+      <name>Gateway DF</name>
+      <Point><coordinates>-47.9292,-15.7801,30</coordinates></Point>
     </Placemark>
     <Placemark>
-      <name>Sensor RJ</name>
-      <Point><coordinates>-43.1729,-22.9068,5</coordinates></Point>
+      <name>Sensor DF2</name>
+      <Point><coordinates>-48.0500,-15.8300,5</coordinates></Point>
     </Placemark>
   </Document>
 </kml>
@@ -38,9 +38,9 @@ KML_POLYGON = """\
         <outerBoundaryIs>
           <LinearRing>
             <coordinates>
-              -46.70,-23.60,0 -46.60,-23.60,0
-              -46.60,-23.50,0 -46.70,-23.50,0
-              -46.70,-23.60,0
+              -48.00,-15.90,0 -47.90,-15.90,0
+              -47.90,-15.80,0 -48.00,-15.80,0
+              -48.00,-15.90,0
             </coordinates>
           </LinearRing>
         </outerBoundaryIs>
@@ -56,14 +56,14 @@ KML_MIXED = """\
   <Document>
     <Placemark>
       <name>Nó Alpha</name>
-      <Point><coordinates>-46.00,-23.00,10</coordinates></Point>
+      <Point><coordinates>-47.93,-15.78,10</coordinates></Point>
     </Placemark>
     <Placemark>
       <name>Zona</name>
       <Polygon>
         <outerBoundaryIs>
           <LinearRing>
-            <coordinates>-46.1,-23.1,0 -45.9,-23.1,0 -45.9,-22.9,0 -46.1,-22.9,0 -46.1,-23.1,0</coordinates>
+            <coordinates>-48.0,-15.9,0 -47.8,-15.9,0 -47.8,-15.7,0 -48.0,-15.7,0 -48.0,-15.9,0</coordinates>
           </LinearRing>
         </outerBoundaryIs>
       </Polygon>
@@ -78,7 +78,7 @@ KML_NO_ALTITUDE = """\
   <Document>
     <Placemark>
       <name>Sensor</name>
-      <Point><coordinates>-46.00,-23.00</coordinates></Point>
+      <Point><coordinates>-47.93,-15.78</coordinates></Point>
     </Placemark>
   </Document>
 </kml>
@@ -90,7 +90,7 @@ KML_GOOGLE_NS = """\
   <Document>
     <Placemark>
       <name>Ponto Google</name>
-      <Point><coordinates>-46.00,-23.00,0</coordinates></Point>
+      <Point><coordinates>-47.93,-15.78,0</coordinates></Point>
     </Placemark>
   </Document>
 </kml>
@@ -116,10 +116,10 @@ def test_parse_two_points():
 
 def test_parse_point_coordinates():
     r = parse_kml(KML_POINTS)
-    sp = next(p for p in r.points if "SP" in p.name)
-    assert abs(sp.lat - (-23.5505)) < 1e-4
-    assert abs(sp.lon - (-46.6333)) < 1e-4
-    assert sp.altitude == pytest.approx(30.0)
+    gw = next(p for p in r.points if "DF" in p.name)
+    assert abs(gw.lat - (-15.7801)) < 1e-4
+    assert abs(gw.lon - (-47.9292)) < 1e-4
+    assert gw.altitude == pytest.approx(30.0)
 
 
 def test_parse_polygon():
@@ -178,12 +178,12 @@ def test_polygon_ring_coords_order():
 SCENARIO_BASE = {
     "name": "Cenário KML test",
     "node_a": {
-        "name": "A", "lat": -23.5505, "lon": -46.6333,
+        "name": "A", "lat": -15.7801, "lon": -47.9292,
         "height_m": 10.0, "tx_power_dbm": 14.0,
         "rx_sensitivity_dbm": -137.0, "cable_loss_db": 0.0,
     },
     "node_b": {
-        "name": "B", "lat": -22.9068, "lon": -43.1729,
+        "name": "B", "lat": -15.8300, "lon": -48.0500,
         "height_m": 10.0, "tx_power_dbm": 14.0,
         "rx_sensitivity_dbm": -137.0, "cable_loss_db": 0.0,
     },
@@ -227,9 +227,9 @@ def test_kml_import_nodes_have_coords():
     r = _kml_upload(sid, KML_POINTS)
     nodes = r.json()["nodes"]
     assert len(nodes) == 2
-    sp = next(n for n in nodes if "SP" in n["name"])
-    assert abs(sp["lat"] - (-23.5505)) < 1e-4
-    assert abs(sp["lon"] - (-46.6333)) < 1e-4
+    gw = next(n for n in nodes if "DF" in n["name"])
+    assert abs(gw["lat"] - (-15.7801)) < 1e-4
+    assert abs(gw["lon"] - (-47.9292)) < 1e-4
 
 
 def test_kml_import_persists_extra_nodes():
@@ -259,7 +259,7 @@ def test_kml_import_malformed_returns_422():
 
 
 def test_kml_calculate_after_import_same_as_direct():
-    """Link budget SP→RJ deve bater independente de KML importado (nós extras não afetam P2P)."""
+    """Link budget deve bater independente de KML importado (nós extras não afetam P2P)."""
     sid_direct = _make_scenario()
     r_direct = client.post(f"/api/v1/scenarios/{sid_direct}/calculate")
     fspl_direct = r_direct.json()["fspl_db"]

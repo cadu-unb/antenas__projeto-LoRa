@@ -1,0 +1,49 @@
+{
+  "id": "e1268e6e-f572-42dd-8d65-1765546fb101",
+  "name": "Longa distância",
+  "node_a": {
+    "id": "a7679934-58ef-4694-9f02-e0d711af1595",
+    "name": "DF",
+    "lat": -15.78,
+    "lon": -47.93,
+    "height_m": 5.0,
+    "antenna_id": null,
+    "tx_power_dbm": 20.0,
+    "rx_sensitivity_dbm": -137.0,
+    "cable_loss_db": 0.0,
+    "is_hub": false
+  },
+  "node_b": {
+    "id": "c6a64833-9023-4e4b-8a08-6521e69cc3e2",
+    "name": "Nordeste",
+    "lat": -3.72,
+    "lon": -38.54,
+    "height_m": 5.0,
+    "antenna_id": null,
+    "tx_power_dbm": 20.0,
+    "rx_sensitivity_dbm": -137.0,
+    "cable_loss_db": 0.0,
+    "is_hub": false
+  },
+  "frequency_hz": 915000000.0,
+  "topology_type": "P2P",
+  "extra_nodes": [],
+  "links": [],
+  "polygons": [],
+  "candidates": [],
+  "results": {
+    "distance_m": 1689053.3,
+    "azimuth_deg": 38.42,
+    "elevation_deg": 0.0,
+    "fspl_db": 156.22,
+    "rx_power_dbm": -136.22,
+    "link_margin_db": 0.78,
+    "feasibility": "amarelo",
+    "warnings": [
+      "Distância 1689 km excede escopo prático de LoRa (200 km)."
+    ]
+  },
+  "topology_result": null,
+  "site_selection_result": null,
+  "metadata": {}
+}

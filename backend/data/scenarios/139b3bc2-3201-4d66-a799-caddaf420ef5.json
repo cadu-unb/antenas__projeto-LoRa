@@ -1,0 +1,40 @@
+{
+  "id": "139b3bc2-3201-4d66-a799-caddaf420ef5",
+  "name": "Site Selection Teste",
+  "node_a": {
+    "id": "node-a",
+    "name": "Sensor Plano Piloto",
+    "lat": -15.7801,
+    "lon": -47.9292,
+    "height_m": 5.0,
+    "antenna_id": null,
+    "tx_power_dbm": 14.0,
+    "rx_sensitivity_dbm": -137.0,
+    "cable_loss_db": 0.0,
+    "is_hub": false
+  },
+  "node_b": {
+    "id": "node-b",
+    "name": "Sensor Taguatinga",
+    "lat": -15.83,
+    "lon": -48.05,
+    "height_m": 5.0,
+    "antenna_id": null,
+    "tx_power_dbm": 14.0,
+    "rx_sensitivity_dbm": -137.0,
+    "cable_loss_db": 0.0,
+    "is_hub": false
+  },
+  "frequency_hz": 915000000.0,
+  "topology_type": "STAR",
+  "extra_nodes": [],
+  "links": [],
+  "polygons": [],
+  "candidates": [],
+  "results": null,
+  "topology_result": null,
+  "site_selection_result": {
+    "candidates": []
+  },
+  "metadata": {}
+}

@@ -26,8 +26,8 @@ BASE_SCENARIO = {
     "node_a": {
         "id": "node-a",
         "name": "Hub 1",
-        "lat": -23.55,
-        "lon": -46.63,
+        "lat": -15.78,
+        "lon": -47.93,
         "height_m": 30,
         "tx_power_dbm": 20,
         "rx_sensitivity_dbm": -137,
@@ -37,8 +37,8 @@ BASE_SCENARIO = {
     "node_b": {
         "id": "node-b",
         "name": "Hub 2",
-        "lat": -23.60,
-        "lon": -46.70,
+        "lat": -15.84,
+        "lon": -48.05,
         "height_m": 30,
         "tx_power_dbm": 20,
         "rx_sensitivity_dbm": -137,
@@ -49,8 +49,8 @@ BASE_SCENARIO = {
         {
             "id": "node-c",
             "name": "Folha C",
-            "lat": -23.57,
-            "lon": -46.65,
+            "lat": -15.81,
+            "lon": -47.99,
             "height_m": 5,
             "tx_power_dbm": 14,
             "rx_sensitivity_dbm": -137,
@@ -60,8 +60,8 @@ BASE_SCENARIO = {
         {
             "id": "node-d",
             "name": "Folha D",
-            "lat": -23.53,
-            "lon": -46.68,
+            "lat": -15.75,
+            "lon": -47.97,
             "height_m": 5,
             "tx_power_dbm": 14,
             "rx_sensitivity_dbm": -137,
@@ -221,7 +221,7 @@ def test_calculate_links_no_links_all_islands():
 
 
 def test_calculate_links_single_hop_margin():
-    """Enlace de ~5 km em espaço livre com Tx=20 dBm → margem positiva."""
+    """Enlace de ~10 km em espaço livre com Tx=20 dBm → margem positiva."""
     s = _create_scenario()
     client.post(f"/api/v1/scenarios/{s['id']}/links", json={
         "node_a_id": "node-a", "node_b_id": "node-b",

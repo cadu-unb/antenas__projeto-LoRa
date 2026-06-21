@@ -1,0 +1,63 @@
+{
+  "id": "ca49388f-df0f-467e-989f-6db3f44c2012",
+  "name": "Cenário KML test",
+  "node_a": {
+    "id": "0b41d60c-c183-47f0-8b9c-829ab1c7ff22",
+    "name": "A",
+    "lat": -15.7801,
+    "lon": -47.9292,
+    "height_m": 10.0,
+    "antenna_id": null,
+    "tx_power_dbm": 14.0,
+    "rx_sensitivity_dbm": -137.0,
+    "cable_loss_db": 0.0,
+    "is_hub": false
+  },
+  "node_b": {
+    "id": "ab7eb769-7818-44cd-9cd1-9daeab102fce",
+    "name": "B",
+    "lat": -15.83,
+    "lon": -48.05,
+    "height_m": 10.0,
+    "antenna_id": null,
+    "tx_power_dbm": 14.0,
+    "rx_sensitivity_dbm": -137.0,
+    "cable_loss_db": 0.0,
+    "is_hub": false
+  },
+  "frequency_hz": 915000000.0,
+  "topology_type": "P2P",
+  "extra_nodes": [
+    {
+      "id": "7012efa4-5dbc-4a7d-8166-003b1588fe21",
+      "name": "Gateway DF",
+      "lat": -15.7801,
+      "lon": -47.9292,
+      "height_m": 30.0,
+      "antenna_id": null,
+      "tx_power_dbm": 14.0,
+      "rx_sensitivity_dbm": -137.0,
+      "cable_loss_db": 0.0,
+      "is_hub": false
+    },
+    {
+      "id": "65e1b435-6cc1-4cc6-9480-5819d171e4dd",
+      "name": "Sensor DF2",
+      "lat": -15.83,
+      "lon": -48.05,
+      "height_m": 5.0,
+      "antenna_id": null,
+      "tx_power_dbm": 14.0,
+      "rx_sensitivity_dbm": -137.0,
+      "cable_loss_db": 0.0,
+      "is_hub": false
+    }
+  ],
+  "links": [],
+  "polygons": [],
+  "candidates": [],
+  "results": null,
+  "topology_result": null,
+  "site_selection_result": null,
+  "metadata": {}
+}

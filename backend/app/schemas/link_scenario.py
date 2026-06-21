@@ -16,6 +16,7 @@ class LinkResult(BaseModel):
     rx_power_dbm: float
     link_margin_db: float
     feasibility: str  # "verde" | "amarelo" | "vermelho"
+    warnings: list[str] = []
 
 
 class LinkEdge(BaseModel):
@@ -90,6 +91,16 @@ class LinkScenario(BaseModel):
     topology_result: Optional[TopologyResult] = None
     site_selection_result: Optional[SiteSelectionResult] = None
     metadata: dict = Field(default_factory=dict)
+
+    def export_setup(self) -> dict:
+        """Config only — no simulation results."""
+        return self.model_dump(
+            exclude={"results", "topology_result", "site_selection_result"}
+        )
+
+    def export_full(self) -> dict:
+        """Config + all simulation results."""
+        return self.model_dump()
 
 
 class KmlImportResult(BaseModel):

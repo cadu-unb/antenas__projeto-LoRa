@@ -1,4 +1,5 @@
-from fastapi import APIRouter, Body, File, HTTPException, UploadFile, status
+from fastapi import APIRouter, Body, File, HTTPException, Query, UploadFile, status
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 
 from ..domain import link_budget as lb
@@ -56,6 +57,31 @@ def get_scenario(id: str) -> LinkScenario:
     return s
 
 
+@router.get("/{id}/export")
+def export_scenario(
+    id: str,
+    include_results: bool = Query(False),
+) -> JSONResponse:
+    """
+    Exporta cenário como JSON para download.
+    - include_results=false (padrão): apenas configuração (nós, antenas, links, candidatos)
+    - include_results=true: configuração + todos os resultados de simulação
+    """
+    s = scenario_storage.load(id)
+    if s is None:
+        raise HTTPException(status_code=404, detail="Cenário não encontrado")
+
+    if include_results:
+        data = s.export_full()
+        filename = f"scenario_{id}_completo.json"
+    else:
+        data = s.export_setup()
+        filename = f"scenario_{id}_setup.json"
+
+    headers = {"Content-Disposition": f'attachment; filename="{filename}"'}
+    return JSONResponse(content=data, headers=headers)
+
+
 @router.post("/{id}/calculate", response_model=LinkResult)
 def calculate(id: str) -> LinkResult:
     s = scenario_storage.load(id)
@@ -80,6 +106,12 @@ def calculate(id: str) -> LinkResult:
         rx_sensitivity_dbm=s.node_b.rx_sensitivity_dbm,
     )
 
+    warnings: list[str] = []
+    if d > 200_000:
+        warnings.append(
+            f"Distância {d/1000:.0f} km excede escopo prático de LoRa (200 km)."
+        )
+
     result = LinkResult(
         distance_m=round(d, 1),
         azimuth_deg=round(az, 2),
@@ -88,6 +120,7 @@ def calculate(id: str) -> LinkResult:
         rx_power_dbm=round(rx_power, 2),
         link_margin_db=round(margin, 2),
         feasibility=lb.feasibility(margin),
+        warnings=warnings,
     )
 
     scenario_storage.save(s.model_copy(update={"results": result}))

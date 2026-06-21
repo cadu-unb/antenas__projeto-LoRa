@@ -1,0 +1,69 @@
+{
+  "id": "204953ed-271d-443c-979d-42c401cd0fad",
+  "name": "Cenário KML test",
+  "node_a": {
+    "id": "7bbe14bf-f873-436f-98dd-909997c6b71f",
+    "name": "A",
+    "lat": -15.7801,
+    "lon": -47.9292,
+    "height_m": 10.0,
+    "antenna_id": null,
+    "tx_power_dbm": 14.0,
+    "rx_sensitivity_dbm": -137.0,
+    "cable_loss_db": 0.0,
+    "is_hub": false
+  },
+  "node_b": {
+    "id": "4904bf63-82ed-4c35-9ff2-570a7d50bf70",
+    "name": "B",
+    "lat": -15.83,
+    "lon": -48.05,
+    "height_m": 10.0,
+    "antenna_id": null,
+    "tx_power_dbm": 14.0,
+    "rx_sensitivity_dbm": -137.0,
+    "cable_loss_db": 0.0,
+    "is_hub": false
+  },
+  "frequency_hz": 915000000.0,
+  "topology_type": "P2P",
+  "extra_nodes": [],
+  "links": [],
+  "polygons": [
+    {
+      "name": "Área de interesse",
+      "outer_ring": [
+        [
+          -48.0,
+          -15.9,
+          0.0
+        ],
+        [
+          -47.9,
+          -15.9,
+          0.0
+        ],
+        [
+          -47.9,
+          -15.8,
+          0.0
+        ],
+        [
+          -48.0,
+          -15.8,
+          0.0
+        ],
+        [
+          -48.0,
+          -15.9,
+          0.0
+        ]
+      ]
+    }
+  ],
+  "candidates": [],
+  "results": null,
+  "topology_result": null,
+  "site_selection_result": null,
+  "metadata": {}
+}

@@ -74,7 +74,7 @@ def test_bearing_east():
 
 
 def test_bearing_range():
-    az = bearing(-23.55, -46.63, -22.91, -43.17)
+    az = bearing(-15.78, -47.93, -15.84, -48.05)
     assert 0 <= az < 360
 
 
@@ -114,20 +114,20 @@ def test_feasibility_vermelho():
 # ── API tests ──────────────────────────────────────────────────────────────────
 
 SCENARIO_PAYLOAD = {
-    "name": "Teste SP–RJ",
+    "name": "Teste Plano Piloto a Taguatinga",
     "node_a": {
-        "name": "SP",
-        "lat": -23.5505,
-        "lon": -46.6333,
+        "name": "Plano Piloto",
+        "lat": -15.7801,
+        "lon": -47.9292,
         "height_m": 10.0,
         "tx_power_dbm": 20.0,
         "rx_sensitivity_dbm": -137.0,
         "cable_loss_db": 0.0,
     },
     "node_b": {
-        "name": "RJ",
-        "lat": -22.9068,
-        "lon": -43.1729,
+        "name": "Taguatinga",
+        "lat": -15.8300,
+        "lon": -48.0500,
         "height_m": 10.0,
         "tx_power_dbm": 14.0,
         "rx_sensitivity_dbm": -137.0,
@@ -180,7 +180,7 @@ def test_calculate_returns_link_result():
 
 
 def test_calculate_fspl_tolerance():
-    """SP→RJ ~357 km, 915 MHz. FSPL ~133 dB (rough reference)."""
+    """Plano Piloto → Taguatinga ~14 km, 915 MHz. FSPL ~114 dB."""
     r1 = client.post("/api/v1/scenarios", json=SCENARIO_PAYLOAD)
     id_ = r1.json()["id"]
     r2 = client.post(f"/api/v1/scenarios/{id_}/calculate")
@@ -190,13 +190,13 @@ def test_calculate_fspl_tolerance():
     _cleanup(id_)
 
 
-def test_calculate_distance_sp_rj():
-    """SP→RJ great-circle ≈ 357 km."""
+def test_calculate_distance_plano_taguatinga():
+    """Plano Piloto → Taguatinga great-circle ≈ 14 km."""
     r1 = client.post("/api/v1/scenarios", json=SCENARIO_PAYLOAD)
     id_ = r1.json()["id"]
     r2 = client.post(f"/api/v1/scenarios/{id_}/calculate")
     d_m = r2.json()["distance_m"]
-    assert 350_000 < d_m < 370_000, f"Expected ~357 km, got {d_m/1000:.1f} km"
+    assert 12_000 < d_m < 16_000, f"Expected ~14 km, got {d_m/1000:.1f} km"
     _cleanup(id_)
 
 

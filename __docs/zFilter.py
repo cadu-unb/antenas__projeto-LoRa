@@ -1,10 +1,12 @@
+        #".plan", ".prompt", ".report",
 DEFAULT_CONFIG: dict = {
     "ignored_dirs": [
         "__pycache__", ".git", "node_modules", 
-        ".vscode", "toolbox",
-        #".plan", ".prompt", ".report",
-        ".claude", ".codex"
-        
+        ".vscode", "toolbox", ".venv", "docs", "frontend", "tests"
+        ".claude", ".codex", "backend", ".reports/sistema-antenas"
+        # ".reports/externo", 
+        ".prompt/sistema-antenas",
+        ".reports/externo/prompt/return"
         ],
     "visible_dirs": [],
     "ignored_extensions": [".txt"],

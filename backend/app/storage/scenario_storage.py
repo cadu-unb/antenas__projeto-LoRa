@@ -7,14 +7,16 @@ DATA_DIR = Path(__file__).parent.parent.parent / "data" / "scenarios"
 
 def save(scenario: LinkScenario) -> None:
     DATA_DIR.mkdir(parents=True, exist_ok=True)
-    (DATA_DIR / f"{scenario.id}.json").write_text(scenario.model_dump_json(indent=2))
+    (DATA_DIR / f"{scenario.id}.json").write_text(
+        scenario.model_dump_json(indent=2), encoding="utf-8"
+    )
 
 
 def load(id: str) -> LinkScenario | None:
     path = DATA_DIR / f"{id}.json"
     if not path.exists():
         return None
-    return LinkScenario.model_validate_json(path.read_text())
+    return LinkScenario.model_validate_json(path.read_text(encoding="utf-8"))
 
 
 def list_all() -> list[LinkScenario]:
@@ -23,7 +25,7 @@ def list_all() -> list[LinkScenario]:
     result = []
     for f in sorted(DATA_DIR.glob("*.json")):
         try:
-            result.append(LinkScenario.model_validate_json(f.read_text()))
+            result.append(LinkScenario.model_validate_json(f.read_text(encoding="utf-8")))
         except Exception:
             pass
     return result

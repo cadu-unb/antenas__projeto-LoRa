@@ -1,0 +1,47 @@
+{
+  "id": "03b881c7-dc26-4d1f-8a94-5bd7c2274e97",
+  "name": "Exportação Teste",
+  "node_a": {
+    "id": "c165d8ae-a044-4fb9-86fc-3248a6568705",
+    "name": "Plano Piloto",
+    "lat": -15.7801,
+    "lon": -47.9292,
+    "height_m": 5.0,
+    "antenna_id": null,
+    "tx_power_dbm": 20.0,
+    "rx_sensitivity_dbm": -137.0,
+    "cable_loss_db": 0.0,
+    "is_hub": false
+  },
+  "node_b": {
+    "id": "25b6131a-acf0-40aa-ae36-03680534b874",
+    "name": "Taguatinga",
+    "lat": -15.83,
+    "lon": -48.05,
+    "height_m": 5.0,
+    "antenna_id": null,
+    "tx_power_dbm": 14.0,
+    "rx_sensitivity_dbm": -137.0,
+    "cable_loss_db": 0.0,
+    "is_hub": false
+  },
+  "frequency_hz": 915000000.0,
+  "topology_type": "P2P",
+  "extra_nodes": [],
+  "links": [],
+  "polygons": [],
+  "candidates": [],
+  "results": {
+    "distance_m": 14065.2,
+    "azimuth_deg": 246.75,
+    "elevation_deg": 0.0,
+    "fspl_db": 114.63,
+    "rx_power_dbm": -94.63,
+    "link_margin_db": 42.37,
+    "feasibility": "verde",
+    "warnings": []
+  },
+  "topology_result": null,
+  "site_selection_result": null,
+  "metadata": {}
+}

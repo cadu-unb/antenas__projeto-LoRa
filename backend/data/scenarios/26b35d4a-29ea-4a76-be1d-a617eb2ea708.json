@@ -1,0 +1,73 @@
+{
+  "id": "26b35d4a-29ea-4a76-be1d-a617eb2ea708",
+  "name": "Malha teste",
+  "node_a": {
+    "id": "node-a",
+    "name": "Hub 1",
+    "lat": -15.78,
+    "lon": -47.93,
+    "height_m": 30.0,
+    "antenna_id": null,
+    "tx_power_dbm": 20.0,
+    "rx_sensitivity_dbm": -137.0,
+    "cable_loss_db": 0.0,
+    "is_hub": true
+  },
+  "node_b": {
+    "id": "node-b",
+    "name": "Hub 2",
+    "lat": -15.84,
+    "lon": -48.05,
+    "height_m": 30.0,
+    "antenna_id": null,
+    "tx_power_dbm": 20.0,
+    "rx_sensitivity_dbm": -137.0,
+    "cable_loss_db": 0.0,
+    "is_hub": true
+  },
+  "frequency_hz": 915000000.0,
+  "topology_type": "MESH",
+  "extra_nodes": [
+    {
+      "id": "node-c",
+      "name": "Folha C",
+      "lat": -15.81,
+      "lon": -47.99,
+      "height_m": 5.0,
+      "antenna_id": null,
+      "tx_power_dbm": 14.0,
+      "rx_sensitivity_dbm": -137.0,
+      "cable_loss_db": 0.0,
+      "is_hub": false
+    },
+    {
+      "id": "node-d",
+      "name": "Folha D",
+      "lat": -15.75,
+      "lon": -47.97,
+      "height_m": 5.0,
+      "antenna_id": null,
+      "tx_power_dbm": 14.0,
+      "rx_sensitivity_dbm": -137.0,
+      "cable_loss_db": 0.0,
+      "is_hub": false
+    }
+  ],
+  "links": [],
+  "polygons": [],
+  "candidates": [],
+  "results": null,
+  "topology_result": {
+    "hops": [],
+    "islands": [
+      "node-a",
+      "node-b",
+      "node-c",
+      "node-d"
+    ],
+    "bottleneck_margin_db": 0.0,
+    "feasibility": "vermelho"
+  },
+  "site_selection_result": null,
+  "metadata": {}
+}

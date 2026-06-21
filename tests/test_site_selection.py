@@ -19,9 +19,9 @@ BASE_SCENARIO = {
     "frequency_hz": 915e6,
     "node_a": {
         "id": "node-a",
-        "name": "Sensor Norte",
-        "lat": -23.50,
-        "lon": -46.60,
+        "name": "Sensor Plano Piloto",
+        "lat": -15.7801,
+        "lon": -47.9292,
         "height_m": 5,
         "tx_power_dbm": 14,
         "rx_sensitivity_dbm": -137,
@@ -29,9 +29,9 @@ BASE_SCENARIO = {
     },
     "node_b": {
         "id": "node-b",
-        "name": "Sensor Sul",
-        "lat": -23.55,
-        "lon": -46.65,
+        "name": "Sensor Taguatinga",
+        "lat": -15.8300,
+        "lon": -48.0500,
         "height_m": 5,
         "tx_power_dbm": 14,
         "rx_sensitivity_dbm": -137,
@@ -42,17 +42,18 @@ BASE_SCENARIO = {
     "polygons": [],
 }
 
-# Candidato próximo (≈ 3 km dos sensores) — deve cobrir todos
+# Candidato próximo (≈ 5 km dos sensores) — deve cobrir todos
 CANDIDATE_NEAR = {
     "id": "cand-near",
     "name": "Torre Centro",
-    "lat": -23.525,
-    "lon": -46.625,
+    "lat": -15.7900,
+    "lon": -47.9800,
     "height_m": 30.0,
     "is_existing_tower": False,
 }
 
-# Candidato distante (≈ 2500 km) — FSPL ≈ 161 dB → margem negativa com Tx 20 dBm / sens -137 dBm
+# Candidato distante (≈ 2200 km — Nordeste do Brasil) — FSPL > 157 dB → margem negativa
+# com site-selection usando Tx 20 dBm / sens -137 dBm (LoRa SF12 free-space limit ≈ 1847 km)
 CANDIDATE_FAR = {
     "id": "cand-far",
     "name": "Torre Distante",
@@ -225,11 +226,11 @@ KML_WITH_TOWER = """<?xml version="1.0" encoding="UTF-8"?>
   <Document>
     <Placemark>
       <name>Torre Nordeste</name>
-      <Point><coordinates>-46.5,-23.4,45.0</coordinates></Point>
+      <Point><coordinates>-47.93,-15.78,45.0</coordinates></Point>
     </Placemark>
     <Placemark>
       <name>Sensor Campo</name>
-      <Point><coordinates>-46.6,-23.5,5.0</coordinates></Point>
+      <Point><coordinates>-47.99,-15.81,5.0</coordinates></Point>
     </Placemark>
   </Document>
 </kml>"""
