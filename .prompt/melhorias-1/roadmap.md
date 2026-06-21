@@ -50,6 +50,7 @@ Cada fase é considerada concluída quando:
 2. A API retorna os novos campos nos endpoints afetados (verificado via `curl` ou docs em `/docs`).
 3. As etapas marcadas como "verificar no frontend" funcionam visualmente no browser.
 4. Nenhuma rota existente regride (rodar a suíte completa após cada etapa).
+5. O relatório final da fase é escrito em `.reports/melhorias-1/fase<n>.md`, com resumo do que foi feito, arquivos alterados, validações executadas e pendências.
 
 ---
 

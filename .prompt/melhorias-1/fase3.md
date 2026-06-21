@@ -466,3 +466,13 @@ def test_okumura_hata_gives_higher_loss_than_fspl():
 - [ ] `extra_loss_db=10` reduz margem em exatamente 10 dB
 - [ ] `GET /api/v1/scenarios/{id}/calculate` com `propagation_model="okumura_hata"` retorna `path_loss_db` diferente de FSPL
 - [ ] `LinkResult` contém campo `warnings` no JSON de resposta
+- [ ] Ao final da execução, escrever relatório em `.reports/melhorias-1/fase3.md`
+
+## Relatório Final Obrigatório
+
+Ao concluir esta fase, criar ou atualizar `.reports/melhorias-1/fase3.md` com:
+
+- Resumo do que foi implementado.
+- Arquivos alterados.
+- Testes/validações executados e resultado.
+- Pendências, riscos ou decisões deixadas para fases futuras.

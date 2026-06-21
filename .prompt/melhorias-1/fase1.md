@@ -198,3 +198,13 @@ def test_export_full_includes_results(client, scenario_with_results):
 - [ ] `GET /api/v1/scenarios/{id}/export` responde 200 com JSON sem campos de resultado
 - [ ] `GET /api/v1/scenarios/{id}/export?include_results=true` responde 200 com campos de resultado presentes
 - [ ] `GET /api/v1/scenarios/{id}` (rota original) não foi alterado — mantém comportamento existente
+- [ ] Ao final da execução, escrever relatório em `.reports/melhorias-1/fase1.md`
+
+## Relatório Final Obrigatório
+
+Ao concluir esta fase, criar ou atualizar `.reports/melhorias-1/fase1.md` com:
+
+- Resumo do que foi implementado.
+- Arquivos alterados.
+- Testes/validações executados e resultado.
+- Pendências, riscos ou decisões deixadas para fases futuras.

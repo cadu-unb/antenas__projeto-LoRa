@@ -429,3 +429,13 @@ def test_minimax_ranks_central_candidate_first(client, scenario_with_candidates)
 - [ ] `POST /api/v1/library/lora-modules/rfm95w_915/energy?sf=12` retorna `battery_life_days > 1`
 - [ ] `POST /api/v1/scenarios/{id}/site-selection?selection_mode=minimax` retorna resultado sem erro 422
 - [ ] `robustness_score` para antena diretiva com alta variância de margem é menor que para antena omni com mesma margem média
+- [ ] Ao final da execução, escrever relatório em `.reports/melhorias-1/fase4.md`
+
+## Relatório Final Obrigatório
+
+Ao concluir esta fase, criar ou atualizar `.reports/melhorias-1/fase4.md` com:
+
+- Resumo do que foi implementado.
+- Arquivos alterados.
+- Testes/validações executados e resultado.
+- Pendências, riscos ou decisões deixadas para fases futuras.

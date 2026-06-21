@@ -368,3 +368,13 @@ def test_pcb_pattern_penalizes_high_elevation():
 - [ ] Sandbox aceita `antenna_type: "pcb_compact"` e `"commercial_omni_6dbi"` sem erro 422
 - [ ] `NodeSpec` aceita campos `extra_loss_db`, `fading_margin_db`, `polarization_loss_db`, `azimuth_deg`, `tilt_deg`, `lora_module_id` sem erro
 - [ ] Cenários salvos antes desta fase ainda carregam corretamente (retrocompatibilidade)
+- [ ] Ao final da execução, escrever relatório em `.reports/melhorias-1/fase2.md`
+
+## Relatório Final Obrigatório
+
+Ao concluir esta fase, criar ou atualizar `.reports/melhorias-1/fase2.md` com:
+
+- Resumo do que foi implementado.
+- Arquivos alterados.
+- Testes/validações executados e resultado.
+- Pendências, riscos ou decisões deixadas para fases futuras.

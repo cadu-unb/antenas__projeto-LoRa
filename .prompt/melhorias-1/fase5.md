@@ -407,3 +407,13 @@ async function runEnergyEstimate() {
 - [ ] Botão "Executar Comparação" mostra tabela com ao menos 1 linha e colunas de margem/falhas/robustez
 - [ ] Em `library.html`, estimativa de energia retorna `battery_life_days` > 1 para RFM95W SF12
 - [ ] Nenhuma funcionalidade anterior regride (P2P, topologias, KML, site selection continuam funcionando)
+- [ ] Ao final da execução, escrever relatório em `.reports/melhorias-1/fase5.md`
+
+## Relatório Final Obrigatório
+
+Ao concluir esta fase, criar ou atualizar `.reports/melhorias-1/fase5.md` com:
+
+- Resumo do que foi implementado.
+- Arquivos alterados.
+- Testes/validações executados e resultado.
+- Pendências, riscos ou decisões deixadas para fases futuras.
