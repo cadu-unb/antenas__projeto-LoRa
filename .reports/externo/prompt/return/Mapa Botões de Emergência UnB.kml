@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2" xmlns:gx="http://www.google.com/kml/ext/2.2" xmlns:kml="http://www.opengis.net/kml/2.2" xmlns:atom="http://www.w3.org/2005/Atom">
+<Document id="1QB8iQ7Ibqjn5jWVf_M9kwJWnunPQQseV">
+	<name>Mapa Botões de Emergência UnB</name>
+	<gx:CascadingStyle kml:id="__managed_style_091E5AE85D3FE23982D3_highlight">
+		<Style>
+			<IconStyle>
+				<scale>1.2</scale>
+				<Icon>
+					<href>https://earth.google.com/earth/document/icon?color=1976d2&amp;id=2000&amp;scale=4</href>
+				</Icon>
+				<hotSpot x="64" y="128" xunits="pixels" yunits="insetPixels"/>
+			</IconStyle>
+			<LabelStyle>
+			</LabelStyle>
+			<LineStyle>
+				<color>ff2dc0fb</color>
+				<width>3</width>
+			</LineStyle>
+			<PolyStyle>
+				<color>40ffffff</color>
+			</PolyStyle>
+			<BalloonStyle>
+			</BalloonStyle>
+		</Style>
+	</gx:CascadingStyle>
+	<gx:CascadingStyle kml:id="__managed_style_091E5AE85D3FE23982D3_normal">
+		<Style>
+			<IconStyle>
+				<Icon>
+					<href>https://earth.google.com/earth/document/icon?color=1976d2&amp;id=2000&amp;scale=4</href>
+				</Icon>
+				<hotSpot x="64" y="128" xunits="pixels" yunits="insetPixels"/>
+			</IconStyle>
+			<LabelStyle>
+			</LabelStyle>
+			<LineStyle>
+				<color>ff2dc0fb</color>
+				<width>2</width>
+			</LineStyle>
+			<PolyStyle>
+				<color>40ffffff</color>
+			</PolyStyle>
+			<BalloonStyle>
+			</BalloonStyle>
+		</Style>
+	</gx:CascadingStyle>
+	<StyleMap id="__managed_style_091E5AE85D3FE23982D3">
+		<Pair>
+			<key>normal</key>
+			<styleUrl>#__managed_style_091E5AE85D3FE23982D3_normal</styleUrl>
+		</Pair>
+		<Pair>
+			<key>highlight</key>
+			<styleUrl>#__managed_style_091E5AE85D3FE23982D3_highlight</styleUrl>
+		</Pair>
+	</StyleMap>
+	<Placemark id="0B09D844AD3FE23982B0">
+		<name>Campus UnB</name>
+		<LookAt>
+			<longitude>-47.86498828711546</longitude>
+			<latitude>-15.76381233456165</latitude>
+			<altitude>1020.042922797154</altitude>
+			<heading>0</heading>
+			<tilt>0</tilt>
+			<gx:fovy>35</gx:fovy>
+			<range>5288.056812546565</range>
+			<altitudeMode>absolute</altitudeMode>
+		</LookAt>
+		<styleUrl>#__managed_style_091E5AE85D3FE23982D3</styleUrl>
+		<Polygon>
+			<outerBoundaryIs>
+				<LinearRing>
+					<coordinates>
+						-47.87085162374608,-15.77680091573182,0 -47.86390995118125,-15.7712229884785,0 -47.85942261534346,-15.76423571738823,0 -47.86700579508069,-15.75694323622343,0 -47.87602062304371,-15.75746556587607,0 -47.87085162374608,-15.77680091573182,0 
+					</coordinates>
+				</LinearRing>
+			</outerBoundaryIs>
+		</Polygon>
+	</Placemark>
+	<Placemark id="0B637D824D3FE23B88F6">
+		<name>Botão FACE</name>
+		<LookAt>
+			<longitude>-47.87076337765563</longitude>
+			<latitude>-15.75765208285338</latitude>
+			<altitude>1029.633347134212</altitude>
+			<heading>0</heading>
+			<tilt>0</tilt>
+			<gx:fovy>35</gx:fovy>
+			<range>96.88332139980957</range>
+			<altitudeMode>absolute</altitudeMode>
+		</LookAt>
+		<styleUrl>#__managed_style_091E5AE85D3FE23982D3</styleUrl>
+		<Point>
+			<coordinates>-47.87083077618352,-15.75765082870043,1034.446264894265</coordinates>
+		</Point>
+	</Placemark>
+	<Placemark id="0D5AA04EF83FE23BE203">
+		<name>Botão BCE</name>
+		<LookAt>
+			<longitude>-47.86717046454687</longitude>
+			<latitude>-15.76141880949478</latitude>
+			<altitude>1018.689704379372</altitude>
+			<heading>0</heading>
+			<tilt>0</tilt>
+			<gx:fovy>35</gx:fovy>
+			<range>232.3230776529817</range>
+			<altitudeMode>absolute</altitudeMode>
+		</LookAt>
+		<styleUrl>#__managed_style_091E5AE85D3FE23982D3</styleUrl>
+		<Point>
+			<coordinates>-47.86745724717513,-15.76127034065908,1019.61698099038</coordinates>
+		</Point>
+	</Placemark>
+	<Placemark id="03CCB5B5B13FE23C0FD8">
+		<name>Botão Beijódromo</name>
+		<LookAt>
+			<longitude>-47.86519524402649</longitude>
+			<latitude>-15.76384910889199</latitude>
+			<altitude>1019.612232301466</altitude>
+			<heading>0</heading>
+			<tilt>0</tilt>
+			<gx:fovy>35</gx:fovy>
+			<range>139.17587517637</range>
+			<altitudeMode>absolute</altitudeMode>
+		</LookAt>
+		<styleUrl>#__managed_style_091E5AE85D3FE23982D3</styleUrl>
+		<Point>
+			<coordinates>-47.86520966364652,-15.76377698277078,1024.139071702697</coordinates>
+		</Point>
+	</Placemark>
+	<Placemark id="00AE2A64DC3FE23C5673">
+		<name>Botão IB</name>
+		<LookAt>
+			<longitude>-47.86656766846295</longitude>
+			<latitude>-15.76601731128817</latitude>
+			<altitude>1028.587882675918</altitude>
+			<heading>67.93554084137989</heading>
+			<tilt>0</tilt>
+			<gx:fovy>35</gx:fovy>
+			<range>79.30152461986837</range>
+			<altitudeMode>absolute</altitudeMode>
+		</LookAt>
+		<styleUrl>#__managed_style_091E5AE85D3FE23982D3</styleUrl>
+		<Point>
+			<coordinates>-47.86657645286517,-15.76601060040457,1033.408014943337</coordinates>
+		</Point>
+	</Placemark>
+	<Placemark id="0824F72F793FE23C84A0">
+		<name>Botão IQ</name>
+		<LookAt>
+			<longitude>-47.86578769401736</longitude>
+			<latitude>-15.76828345192547</latitude>
+			<altitude>1033.139221842269</altitude>
+			<heading>67.93528964416366</heading>
+			<tilt>0</tilt>
+			<gx:fovy>35</gx:fovy>
+			<range>68.58514136868507</range>
+			<altitudeMode>absolute</altitudeMode>
+		</LookAt>
+		<styleUrl>#__managed_style_091E5AE85D3FE23982D3</styleUrl>
+		<Point>
+			<coordinates>-47.86572517133772,-15.76831173033475,1037.985829588322</coordinates>
+		</Point>
+	</Placemark>
+	<Placemark id="06C9C19A153FE23D7471">
+		<name>Botão ICC Sul</name>
+		<LookAt>
+			<longitude>-47.86970839881462</longitude>
+			<latitude>-15.76586211192457</latitude>
+			<altitude>1034.786403328649</altitude>
+			<heading>104.1523136253552</heading>
+			<tilt>0</tilt>
+			<gx:fovy>34.99999999999999</gx:fovy>
+			<range>120.9666607817599</range>
+			<altitudeMode>absolute</altitudeMode>
+		</LookAt>
+		<styleUrl>#__managed_style_091E5AE85D3FE23982D3</styleUrl>
+		<Point>
+			<coordinates>-47.86971992266324,-15.76591092048512,1039.931640249285</coordinates>
+		</Point>
+	</Placemark>
+	<Placemark id="029E98B7763FE23DAD56">
+		<name>Botão ICC Norte</name>
+		<LookAt>
+			<longitude>-47.87185770002824</longitude>
+			<latitude>-15.76295949954921</latitude>
+			<altitude>1034.360156675048</altitude>
+			<heading>104.1530443974646</heading>
+			<tilt>0</tilt>
+			<gx:fovy>34.99999999999999</gx:fovy>
+			<range>95.07837743846721</range>
+			<altitudeMode>absolute</altitudeMode>
+		</LookAt>
+		<styleUrl>#__managed_style_091E5AE85D3FE23982D3</styleUrl>
+		<Point>
+			<coordinates>-47.87187806988097,-15.76298853031727,1038.798361313413</coordinates>
+		</Point>
+	</Placemark>
+	<Placemark id="0BEC39BB523FE23E18AC">
+		<name>Botão do CO</name>
+		<LookAt>
+			<longitude>-47.85979866225006</longitude>
+			<latitude>-15.76474334854214</latitude>
+			<altitude>1018.071609464577</altitude>
+			<heading>104.1509173252212</heading>
+			<tilt>0</tilt>
+			<gx:fovy>34.99999999999999</gx:fovy>
+			<range>283.3992752309132</range>
+			<altitudeMode>absolute</altitudeMode>
+		</LookAt>
+		<styleUrl>#__managed_style_091E5AE85D3FE23982D3</styleUrl>
+		<Point>
+			<coordinates>-47.8598793136273,-15.76448213579672,1022.504171087457</coordinates>
+		</Point>
+	</Placemark>
+	<Placemark id="0556B8E7E63FE23E9268">
+		<name>Botão SG</name>
+		<LookAt>
+			<longitude>-47.87118465172369</longitude>
+			<latitude>-15.76674491331941</latitude>
+			<altitude>1041.854335085755</altitude>
+			<heading>104.1529977323421</heading>
+			<tilt>0</tilt>
+			<gx:fovy>34.99999999999999</gx:fovy>
+			<range>137.8163814971231</range>
+			<altitudeMode>absolute</altitudeMode>
+		</LookAt>
+		<styleUrl>#__managed_style_091E5AE85D3FE23982D3</styleUrl>
+		<Point>
+			<coordinates>-47.87124591627169,-15.76679349641666,1046.761186877331</coordinates>
+		</Point>
+	</Placemark>
+</Document>
+</kml>
