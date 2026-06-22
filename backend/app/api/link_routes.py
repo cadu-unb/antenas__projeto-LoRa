@@ -238,6 +238,9 @@ def compare_scenarios(
             "critical_count": r.critical_count,
             "comfortable_count": r.comfortable_count,
             "robustness_score": round(r.robustness_score, 3),
+            "practicality_score": round(r.practicality_score, 2),
+            "aggregate_score": round(r.aggregate_score, 3),
+            "scores_source": r.scores_source,
         }
         for r in rows
     ]

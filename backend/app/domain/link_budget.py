@@ -8,6 +8,11 @@ from .geometry import ENUVector, geodetic_to_enu
 EARTH_R = 6_371_000.0  # mean radius in meters
 C = 3e8  # m/s
 
+# Polarization mismatch constants
+_CIRCULAR_KEYWORDS = ("circular", "elliptical", "elliptic")
+_FEED_DEPENDENT = "feed-dependent"
+LINEAR_MISMATCH_LOSS_DB: float = 1.5  # penalty for explicitly incompatible linear pols (e.g., H vs V)
+
 
 def haversine(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
     """Great-circle distance in meters (Haversine formula)."""
@@ -83,6 +88,59 @@ def path_loss_db(
         r = longley_rice(freq_hz / 1e6, dist_m / 1000, tx_height_m, rx_height_m)
         return r.path_loss_db
     return fspl_db(dist_m, freq_hz)
+
+
+def _get_polarization(antenna: object) -> str | None:
+    """Return effective polarization string, filling from preset if available."""
+    if antenna is None:
+        return None
+    if hasattr(antenna, "model_dump"):
+        from ..domain.antenna_presets import apply_antenna_defaults
+        filled = apply_antenna_defaults(antenna).spec
+        return getattr(filled, "polarization", None)
+    return getattr(antenna, "polarization", None)
+
+
+def estimate_polarization_loss(tx_ant: object, rx_ant: object) -> float:
+    """Polarization mismatch loss in dB.
+
+    Rules:
+    - circular/elliptical vs linear: 3 dB
+    - two linears with explicitly different orientations (H vs V): LINEAR_MISMATCH_LOSS_DB
+    - same, unknown, or feed-dependent: 0 dB
+    """
+    tx_pol = _get_polarization(tx_ant)
+    rx_pol = _get_polarization(rx_ant)
+
+    if not tx_pol or not rx_pol:
+        return 0.0
+    if tx_pol == _FEED_DEPENDENT or rx_pol == _FEED_DEPENDENT:
+        return 0.0
+
+    def _is_circular(p: str) -> bool:
+        pl = p.lower()
+        return any(kw in pl for kw in _CIRCULAR_KEYWORDS)
+
+    def _is_linear(p: str) -> bool:
+        return p.lower().startswith("linear")
+
+    tx_circ = _is_circular(tx_pol)
+    rx_circ = _is_circular(rx_pol)
+    tx_lin = _is_linear(tx_pol)
+    rx_lin = _is_linear(rx_pol)
+
+    if (tx_circ and rx_lin) or (tx_lin and rx_circ):
+        return 3.0
+
+    if tx_lin and rx_lin and tx_pol != rx_pol:
+        # Only penalize when both have explicit orientation and they differ
+        # "linear" (bare) vs "linear vertical" → compatible (empty vs something)
+        tx_orient = tx_pol.lower().replace("linear", "").strip()
+        rx_orient = rx_pol.lower().replace("linear", "").strip()
+        if tx_orient and rx_orient and tx_orient != rx_orient:
+            return LINEAR_MISMATCH_LOSS_DB
+
+    return 0.0
 
 
 def _effective_gain(node: object, antenna: object, enu_to_peer: ENUVector) -> float:
@@ -188,9 +246,11 @@ def compute_link_full(
     extra: float = (
         getattr(node_a, "extra_loss_db", 0.0)
         + getattr(node_b, "extra_loss_db", 0.0)
-        + getattr(node_a, "polarization_loss_db", 0.0)
         + getattr(node_a, "fading_margin_db", 0.0)
     )
+    pol_manual: float = getattr(node_a, "polarization_loss_db", 0.0)
+    pol_auto: float = estimate_polarization_loss(antenna_a, antenna_b)
+    pol_total: float = pol_manual + pol_auto
 
     loss = path_loss_db(
         dist_m, freq_hz, model=propagation_model,
@@ -201,7 +261,7 @@ def compute_link_full(
     tx_power: float = getattr(node_a, "tx_power_dbm", 14.0)
     rx_sens: float = getattr(node_b, "rx_sensitivity_dbm", -137.0)
 
-    rx_power = tx_power + g_tx - l_tx - loss - l_rx + g_rx - extra
+    rx_power = tx_power + g_tx - l_tx - loss - l_rx + g_rx - extra - pol_total
     margin = rx_power - rx_sens
 
     warnings: list[str] = []
@@ -217,6 +277,7 @@ def compute_link_full(
         link_margin_db=round(margin, 2),
         feasibility=feasibility(margin),
         extra_loss_db=round(extra, 2),
+        polarization_loss_db=round(pol_total, 2),
         propagation_model=propagation_model,
         warnings=warnings,
     )

@@ -21,11 +21,16 @@ from fastapi.testclient import TestClient
 from backend.app.domain.link_budget import (
     bearing,
     compute_link,
+    compute_link_full,
     elevation_angle,
+    estimate_polarization_loss,
     feasibility,
     fspl_db,
     haversine,
+    LINEAR_MISMATCH_LOSS_DB,
 )
+from backend.app.schemas.antenna_spec import AntennaSpec
+from backend.app.schemas.node_spec import NodeSpec
 from backend.app.main import app
 
 client = TestClient(app)
@@ -221,3 +226,108 @@ def test_feasibility_in_result():
 def test_create_invalid_scenario_422():
     r = client.post("/api/v1/scenarios", json={"name": "sem nós"})
     assert r.status_code == 422
+
+
+# ── Fase 5 — estimate_polarization_loss ───────────────────────────────────────
+
+def test_polarization_circular_vs_linear_is_3db():
+    """Helicoidal (circular/elliptical) vs dipolo (linear vertical) → 3 dB."""
+    helicoidal = AntennaSpec(name="H", type="helicoidal", frequency_hz=915e6)
+    dipolo = AntennaSpec(name="D", type="dipolo", frequency_hz=915e6)
+    assert estimate_polarization_loss(helicoidal, dipolo) == pytest.approx(3.0)
+
+
+def test_polarization_linear_vs_circular_is_3db():
+    """Ordem invertida: dipolo vs helicoidal → mesmos 3 dB."""
+    helicoidal = AntennaSpec(name="H", type="helicoidal", frequency_hz=915e6)
+    dipolo = AntennaSpec(name="D", type="dipolo", frequency_hz=915e6)
+    assert estimate_polarization_loss(dipolo, helicoidal) == pytest.approx(3.0)
+
+
+def test_polarization_two_linear_vertical_no_penalty():
+    """Dipolo vs dipolo (ambos linear vertical) → 0 dB."""
+    dipolo_a = AntennaSpec(name="D1", type="dipolo", frequency_hz=915e6)
+    dipolo_b = AntennaSpec(name="D2", type="dipolo", frequency_hz=915e6)
+    assert estimate_polarization_loss(dipolo_a, dipolo_b) == pytest.approx(0.0)
+
+
+def test_polarization_linear_bare_vs_linear_vertical_no_penalty():
+    """'linear' (pcb) vs 'linear vertical' (dipolo) → compatíveis, 0 dB."""
+    pcb = AntennaSpec(name="P", type="pcb_compact", frequency_hz=915e6)
+    dipolo = AntennaSpec(name="D", type="dipolo", frequency_hz=915e6)
+    assert estimate_polarization_loss(pcb, dipolo) == pytest.approx(0.0)
+
+
+def test_polarization_feed_dependent_no_penalty():
+    """Parabólica (feed-dependent) vs qualquer antena → 0 dB."""
+    parabolica = AntennaSpec(name="P", type="parabolica", frequency_hz=2.4e9)
+    dipolo = AntennaSpec(name="D", type="dipolo", frequency_hz=915e6)
+    assert estimate_polarization_loss(parabolica, dipolo) == pytest.approx(0.0)
+
+
+def test_polarization_none_antenna_no_penalty():
+    """Antena None → 0 dB."""
+    dipolo = AntennaSpec(name="D", type="dipolo", frequency_hz=915e6)
+    assert estimate_polarization_loss(None, dipolo) == pytest.approx(0.0)
+    assert estimate_polarization_loss(dipolo, None) == pytest.approx(0.0)
+
+
+def test_polarization_linear_h_vs_v_mismatch():
+    """Lineares explicitamente incompatíveis (H vs V) → LINEAR_MISMATCH_LOSS_DB."""
+    from types import SimpleNamespace
+    ant_h = SimpleNamespace(polarization="linear horizontal")
+    ant_v = SimpleNamespace(polarization="linear vertical")
+    assert estimate_polarization_loss(ant_h, ant_v) == pytest.approx(LINEAR_MISMATCH_LOSS_DB)
+
+
+def test_polarization_link_result_field_exposed():
+    """LinkResult expõe polarization_loss_db."""
+    helicoidal = AntennaSpec(name="H", type="helicoidal", frequency_hz=915e6)
+    dipolo = AntennaSpec(name="D", type="dipolo", frequency_hz=915e6)
+    node_a = NodeSpec(name="A", lat=-15.78, lon=-47.93, height_m=5,
+                      tx_power_dbm=20, rx_sensitivity_dbm=-137)
+    node_b = NodeSpec(name="B", lat=-15.83, lon=-48.05, height_m=5,
+                      tx_power_dbm=14, rx_sensitivity_dbm=-137)
+    result = compute_link_full(node_a, node_b, 915e6, antenna_a=helicoidal, antenna_b=dipolo)
+    assert result.polarization_loss_db == pytest.approx(3.0)
+
+
+def test_polarization_manual_plus_auto_sum():
+    """NodeSpec.polarization_loss_db manual + auto polarização = total em LinkResult."""
+    helicoidal = AntennaSpec(name="H", type="helicoidal", frequency_hz=915e6)
+    dipolo = AntennaSpec(name="D", type="dipolo", frequency_hz=915e6)
+    node_a = NodeSpec(name="A", lat=-15.78, lon=-47.93, height_m=5,
+                      tx_power_dbm=20, rx_sensitivity_dbm=-137,
+                      polarization_loss_db=2.0)
+    node_b = NodeSpec(name="B", lat=-15.83, lon=-48.05, height_m=5,
+                      tx_power_dbm=14, rx_sensitivity_dbm=-137)
+    result = compute_link_full(node_a, node_b, 915e6, antenna_a=helicoidal, antenna_b=dipolo)
+    assert result.polarization_loss_db == pytest.approx(5.0)  # 3.0 auto + 2.0 manual
+
+
+def test_polarization_reduces_margin():
+    """Polarização circular vs linear reduz margem em 3 dB vs mesma antena linear."""
+    helicoidal = AntennaSpec(name="H", type="helicoidal", frequency_hz=915e6)
+    dipolo = AntennaSpec(name="D", type="dipolo", frequency_hz=915e6)
+    node_a = NodeSpec(name="A", lat=-15.78, lon=-47.93, height_m=5,
+                      tx_power_dbm=20, rx_sensitivity_dbm=-137)
+    node_b = NodeSpec(name="B", lat=-15.83, lon=-48.05, height_m=5,
+                      tx_power_dbm=14, rx_sensitivity_dbm=-137)
+    result_mismatch = compute_link_full(node_a, node_b, 915e6,
+                                        antenna_a=helicoidal, antenna_b=dipolo)
+    result_match = compute_link_full(node_a, node_b, 915e6,
+                                     antenna_a=dipolo, antenna_b=dipolo)
+    # helicoidal has higher gain but 3 dB pol loss; the pol loss component is 3 dB
+    assert result_match.polarization_loss_db == pytest.approx(0.0)
+    assert result_mismatch.polarization_loss_db == pytest.approx(3.0)
+
+
+def test_polarization_manual_still_works_no_antenna():
+    """NodeSpec.polarization_loss_db sem antena (auto=0) → total = manual."""
+    node_a = NodeSpec(name="A", lat=-15.78, lon=-47.93, height_m=5,
+                      tx_power_dbm=20, rx_sensitivity_dbm=-137,
+                      polarization_loss_db=4.0)
+    node_b = NodeSpec(name="B", lat=-15.83, lon=-48.05, height_m=5,
+                      tx_power_dbm=14, rx_sensitivity_dbm=-137)
+    result = compute_link_full(node_a, node_b, 915e6)
+    assert result.polarization_loss_db == pytest.approx(4.0)

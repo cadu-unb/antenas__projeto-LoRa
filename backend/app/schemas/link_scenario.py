@@ -18,6 +18,7 @@ class LinkResult(BaseModel):
     feasibility: str  # "verde" | "amarelo" | "vermelho"
     # novos campos (defaults garantem retrocompatibilidade)
     extra_loss_db: float = 0.0
+    polarization_loss_db: float = 0.0
     propagation_model: str = "fspl"
     warnings: list[str] = []
 
