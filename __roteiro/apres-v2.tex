@@ -64,11 +64,13 @@
 \title[Antenas LoRa/LoRaWAN]{Projeto de Antenas para Sistema de Segurança com LoRa/LoRaWAN}
 \subtitle{Botões de segurança no Campus Darcy Ribeiro da UnB}
 \author[Carlos Eduardo, Diogo e Jo\~ao Victor]{
-  Carlos Eduardo da Silva Papa -- 232013390 \\[0.2em]
-  Diogo Godinho Schwartz -- 221006861 \\[0.2em]
+  Carlos Eduardo da Silva Papa -- 232013390%
+  \texorpdfstring{\\[0.2em]}{, }%
+  Diogo Godinho Schwartz -- 221006861%
+  \texorpdfstring{\\[0.2em]}{, }%
   Jo\~ao Victor Vieira Faria -- 251031598
 }
-\institute{Universidade de Brasília}
+\institute[UnB]{Universidade de Brasília}
 \date{Junho de 2026}
 
 \begin{document}
@@ -146,6 +148,7 @@
 \includegraphics[width=\linewidth,height=0.68\textheight,keepaspectratio]{CampusUnBArranjoMapaSatelite.jpg}
 \techcaption{O mapa organiza os pontos de alarme no campus e destaca a lógica de comunicação em estrela: múltiplos nós transmitem para a central/gateway.}
 \column{0.38\textwidth}
+\vspace{-.5cm}
 \small
 \begin{block}{Cadeia funcional}
 \begin{enumerate}
@@ -520,7 +523,7 @@ O ganho cresce com o diâmetro, mas a largura de feixe diminui. A margem melhora
   \item Diâmetros analisados: 30, 40, 50 e \SI{60}{cm}.
   \item Componente usada no enlace: co-polar.
   \item Entrada do cálculo: ângulo fora do eixo.
-  \item Saída: $G_{\mathrm{parabólica}}(\alpha)$, não ganho máximo constante.
+  \item Saída: $G_{\text{parabólica}}(\alpha)$, não ganho máximo constante.
 \end{itemize}
 \end{columns}
 \end{frame}
@@ -1036,7 +1039,7 @@ Gateway precisa de cobertura. Nó de alarme precisa de confiabilidade, baixo cus
 \begin{columns}[T,onlytextwidth]
 \column{0.62\textwidth}
 \centering
-\vspace{-1cm}
+\vspace{-0.8cm}
 \includegraphics[width=\linewidth,height=0.68\textheight,keepaspectratio]{biblioteca-de-antenas.png}
 \techcaption{A biblioteca lista antenas salvas com campos físicos — HPBW, polarização, direcionalidade — e permite exportar o JSON completo de cada especificação.}
 \column{0.34\textwidth}
@@ -1128,6 +1131,7 @@ A plataforma está pronta para uso educacional, piloto e extensão por outros gr
 
 % 47
 \begin{frame}{Conclusão}
+\vspace{-.75cm}
 \small
 \begin{columns}[T,onlytextwidth]
 \column{0.48\textwidth}
