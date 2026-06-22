@@ -31,7 +31,7 @@
 
     .nodes-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem; }
     .node-card { background: #1a1d27; border: 1px solid #2d3748; border-radius: 8px; padding: 1.25rem; }
-    .node-title { font-size: 0.75rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #a0aec0; margin-bottom: 1rem; }
+    .node-title { font-size: 0.75rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #a0aec0; }
 
     /* Extra nodes (chain/star) */
     #extra-nodes-section { margin-bottom: 1.5rem; display: none; }
@@ -71,7 +71,7 @@
     /* Map */
     #map-section { margin-bottom: 1.5rem; }
     #map-section h2 { margin-bottom: 0.75rem; }
-    #map { height: 420px; border-radius: 8px; border: 1px solid #2d3748; background: #1a1d27; }
+    #map { height: 560px; border-radius: 8px; border: 1px solid #2d3748; background: #1a1d27; }
 
     /* Results */
     #results-section { display: none; }
@@ -136,6 +136,50 @@
     #comparison-results .row-ok td { color: #68d391; }
     #comparison-results .row-warn td { color: #f6e05e; }
     #comparison-results .row-fail td { color: #fc8181; }
+
+    /* Node toggle */
+    .node-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; }
+    .switch { position: relative; display: inline-block; width: 38px; height: 22px; flex-shrink: 0; }
+    .switch input { opacity: 0; width: 0; height: 0; }
+    .slider { position: absolute; cursor: pointer; inset: 0; background: #4a5568; border-radius: 22px; transition: .2s; }
+    .slider:before { position: absolute; content: ""; height: 16px; width: 16px; left: 3px; bottom: 3px; background: #fff; border-radius: 50%; transition: .2s; }
+    input:checked + .slider { background: #4f6ef7; }
+    input:checked + .slider:before { transform: translateX(16px); }
+    .node-card.node-disabled { opacity: 0.5; }
+    .node-card.node-disabled input, .node-card.node-disabled select { pointer-events: none; }
+
+    /* Global antenna row */
+    .global-antenna-row { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem; background: #1a1d27; border: 1px solid #2d3748; border-radius: 8px; padding: 0.75rem 1.25rem; flex-wrap: wrap; }
+    .global-antenna-row label { font-size: 0.8rem; color: #a0aec0; white-space: nowrap; }
+    .global-antenna-row select { flex: 1; min-width: 200px; background: #0f1117; border: 1px solid #2d3748; border-radius: 5px; color: #e2e8f0; padding: 0.4rem 0.6rem; font-size: 0.875rem; }
+
+    /* Map toolbar */
+    .map-toolbar { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; }
+
+    /* Result header */
+    .result-header { font-size: 0.9rem; font-weight: 600; color: #90cdf4; margin-bottom: 0.75rem; padding: 0.5rem 0.75rem; background: #0f1117; border-left: 3px solid #4f6ef7; border-radius: 0 4px 4px 0; }
+    .budget-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
+    .budget-table td { padding: 0.3rem 0.5rem; border-bottom: 1px solid #2d3748; }
+    .budget-table td:last-child { text-align: right; font-family: monospace; color: #90cdf4; }
+    .budget-table tr.total-row td { font-weight: 700; color: #e2e8f0; border-top: 2px solid #4a5568; }
+    .budget-table tr.sep-row td { border: none; padding: 0.1rem; }
+
+    /* Comparison filter */
+    #compare-filter-section { background: #0f1117; border-radius: 6px; padding: 0.75rem 1rem; margin-bottom: 0.75rem; display: flex; gap: 1.5rem; flex-wrap: wrap; align-items: flex-start; }
+    .filter-group { display: flex; flex-direction: column; gap: 0.35rem; }
+    .filter-label { font-size: 0.7rem; color: #718096; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 0.25rem; }
+    .filter-group label { display: flex; align-items: center; gap: 0.4rem; font-size: 0.8rem; cursor: pointer; }
+    .filter-group input[type=checkbox] { accent-color: #4f6ef7; }
+
+    /* Print */
+    @media print {
+      header, nav, .topology-bar, .nodes-grid, #extra-nodes-section, .global-row, #site-section, #mesh-section, .map-toolbar, .actions, .export-buttons, #comparison-panel, #site-results-section, #error-banner, #info-banner, .adv summary ~ *, #link-warnings { display: none !important; }
+      body { background: #fff; color: #000; }
+      #map { height: 60vh !important; }
+      #results-section, #topo-results-section { display: block !important; }
+      .metric { border: 1px solid #ccc; }
+      .metric-value { color: #1a1d27; }
+    }
   </style>
 </head>
 <body>
@@ -178,12 +222,35 @@
       <div id="islands-warning" style="display:none; margin-top:0.75rem; background:#742a2a; border:1px solid #fc8181; color:#fed7d7; border-radius:6px; padding:0.6rem 1rem; font-size:0.8rem;"></div>
     </div>
 
+    <!-- Global antenna "aplicar a todos" row -->
+    <div class="global-antenna-row">
+      <label>Antena para todos os nós:</label>
+      <select id="global-antenna">
+        <option value="">— selecionar —</option>
+      </select>
+      <button id="btn-apply-global-antenna" class="btn-secondary btn-small">Aplicar a todos</button>
+    </div>
+
     <!-- Node forms -->
     <div class="nodes-grid">
-      <div class="node-card">
-        <div class="node-title" id="node-a-title">Nó A — Transmissor</div>
+      <div class="node-card" id="node-card-a">
+        <div class="node-header">
+          <div class="node-title" id="node-a-title">Nó A — Transmissor</div>
+          <label class="switch" title="Ativar/desativar nó A">
+            <input type="checkbox" id="toggle-a" checked />
+            <span class="slider"></span>
+          </label>
+        </div>
         <div class="form-row" id="a-hub-row" style="display:none;">
           <label><input type="checkbox" id="a-is-hub" /> Hub (gateway central)</label>
+        </div>
+        <div class="form-row" style="margin-bottom:0.5rem;">
+          <label>Papel do nó</label>
+          <select id="a-role">
+            <option value="gateway">Hub / Gateway</option>
+            <option value="end_device">End-device</option>
+            <option value="relay">Repetidor</option>
+          </select>
         </div>
         <div class="form-row">
           <label>Nome</label>
@@ -192,11 +259,11 @@
         <div class="form-inline">
           <div class="form-row">
             <label>Latitude (°)</label>
-            <input type="number" id="a-lat" value="-15.7801" step="0.000001" />
+            <input type="number" id="a-lat" value="-15.7655173" step="0.000001" />
           </div>
           <div class="form-row">
             <label>Longitude (°)</label>
-            <input type="number" id="a-lon" value="-47.9292" step="0.000001" />
+            <input type="number" id="a-lon" value="-47.8723601" step="0.000001" />
           </div>
         </div>
         <div class="form-row">
@@ -252,10 +319,24 @@
         </details>
       </div>
 
-      <div class="node-card">
-        <div class="node-title">Nó B — Receptor</div>
+      <div class="node-card" id="node-card-b">
+        <div class="node-header">
+          <div class="node-title" id="node-b-title">Nó B — Receptor</div>
+          <label class="switch" title="Ativar/desativar nó B">
+            <input type="checkbox" id="toggle-b" checked />
+            <span class="slider"></span>
+          </label>
+        </div>
         <div class="form-row" id="b-hub-row" style="display:none;">
           <label><input type="checkbox" id="b-is-hub" /> Hub (gateway central)</label>
+        </div>
+        <div class="form-row" style="margin-bottom:0.5rem;">
+          <label>Papel do nó</label>
+          <select id="b-role">
+            <option value="gateway">Hub / Gateway</option>
+            <option value="end_device">End-device</option>
+            <option value="relay">Repetidor</option>
+          </select>
         </div>
         <div class="form-row">
           <label>Nome</label>
@@ -264,11 +345,11 @@
         <div class="form-inline">
           <div class="form-row">
             <label>Latitude (°)</label>
-            <input type="number" id="b-lat" value="-15.8300" step="0.000001" />
+            <input type="number" id="b-lat" value="-15.7724441" step="0.000001" />
           </div>
           <div class="form-row">
             <label>Longitude (°)</label>
-            <input type="number" id="b-lon" value="-48.0500" step="0.000001" />
+            <input type="number" id="b-lon" value="-47.8674832" step="0.000001" />
           </div>
         </div>
         <div class="form-row">
@@ -382,14 +463,20 @@
     <!-- Leaflet map -->
     <div id="map-section">
       <h2>Mapa</h2>
+      <div class="map-toolbar">
+        <button class="btn-outline btn-small" id="btn-map-fullscreen">⛶ Tela cheia</button>
+        <button class="btn-outline btn-small" id="btn-map-print">🖨 Imprimir / PDF</button>
+      </div>
       <div id="map"></div>
     </div>
 
     <!-- Results (P2P / CHAIN / STAR) -->
     <div id="results-section">
       <div id="semaphore-badge"></div>
+      <div id="result-header-bar"></div>
       <div class="results-grid" id="results-grid"></div>
       <div id="link-warnings"></div>
+      <div id="budget-details-container"></div>
       <div class="actions" style="margin-top:0.75rem;">
         <div class="export-buttons">
           <button class="btn-outline" id="btn-export-setup">Exportar Setup (.json)</button>
@@ -402,9 +489,20 @@
     <div id="comparison-panel">
       <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:0.75rem;">
         <h2 style="margin:0;">Comparação de Módulos × Antenas</h2>
-        <button class="btn-secondary btn-small" id="btn-run-comparison">Executar Comparação</button>
       </div>
       <p style="font-size:0.8rem; color:#718096; margin-bottom:0.5rem;">Compara automaticamente os módulos LoRa disponíveis com as antenas da biblioteca.</p>
+      <div id="compare-filter-section">
+        <div class="filter-group">
+          <span class="filter-label">Módulos:</span>
+          <div id="filter-modules"></div>
+        </div>
+        <div class="filter-group">
+          <span class="filter-label">Antenas:</span>
+          <div id="filter-antennas-type"></div>
+        </div>
+        <button id="btn-select-all-filters" class="btn-outline btn-small">Selecionar todos</button>
+      </div>
+      <button class="btn-secondary btn-small" id="btn-run-comparison" style="margin-bottom:0.5rem;">Executar Comparação</button>
       <div id="comparison-results"></div>
     </div>
 
@@ -477,12 +575,16 @@
 
     let lastScenarioId = null;
     let currentTopology = "P2P";
-    let antennaOptions  = [];  // [{id, label}]
+    let antennaOptions  = [];  // [{id, label, type}]
     let manualExtraNodes = [];  // {name, lat, lon, height_m, antenna_id, ...}
     let kmlExtraNodes  = [];   // from last KML import (NodeSpec objects)
     let kmlPolygons    = [];   // from last KML import
     let loraModules    = [];   // cached from API
     const nodeModuleId = { a: null, b: null };  // selected module per node
+    let lastBudgetParams = null;
+
+    // Node enable/disable state
+    const nodeEnabled = { a: true, b: true };
 
     // Mesh state
     let meshLinks = [];   // [{id, node_a_id, node_b_id, node_a_name, node_b_name}]
@@ -501,8 +603,60 @@
 
     const isMesh = () => currentTopology === "MESH" || currentTopology === "MULTI_STAR";
 
+    // ── Node enable/disable toggles ────────────────────────────────────────────
+    function applyNodeEnabledState(nodeKey) {
+      const card = document.getElementById(`node-card-${nodeKey}`);
+      if (!card) return;
+      if (nodeEnabled[nodeKey]) {
+        card.classList.remove("node-disabled");
+      } else {
+        card.classList.add("node-disabled");
+      }
+      updateMap();
+    }
+
+    document.getElementById("toggle-a").addEventListener("change", function() {
+      nodeEnabled.a = this.checked;
+      applyNodeEnabledState("a");
+    });
+
+    document.getElementById("toggle-b").addEventListener("change", function() {
+      nodeEnabled.b = this.checked;
+      applyNodeEnabledState("b");
+    });
+
+    // ── Map toolbar buttons ────────────────────────────────────────────────────
+    document.getElementById("btn-map-fullscreen").addEventListener("click", () => {
+      const mapEl = document.getElementById("map");
+      if (mapEl.requestFullscreen) mapEl.requestFullscreen();
+      else if (mapEl.webkitRequestFullscreen) mapEl.webkitRequestFullscreen();
+    });
+
+    document.getElementById("btn-map-print").addEventListener("click", () => {
+      window.print();
+    });
+
+    // ── Global antenna "aplicar a todos" ──────────────────────────────────────
+    document.getElementById("btn-apply-global-antenna").addEventListener("click", () => {
+      const globalVal = document.getElementById("global-antenna").value;
+      if (!globalVal) return;
+      document.getElementById("a-antenna").value = globalVal;
+      document.getElementById("b-antenna").value = globalVal;
+      // Apply to extra node antenna selects
+      document.querySelectorAll(".extra-node-card select[data-field='antenna_id']").forEach(sel => {
+        sel.value = globalVal;
+        const idx = parseInt(sel.dataset.idx);
+        if (!isNaN(idx)) manualExtraNodes[idx].antenna_id = globalVal;
+      });
+      document.querySelectorAll(".extra-node-card select[data-kml-idx]").forEach(sel => {
+        sel.value = globalVal;
+        const idx = parseInt(sel.dataset.kmlIdx);
+        if (!isNaN(idx)) kmlExtraNodes[idx].antenna_id = globalVal;
+      });
+    });
+
     // ── Leaflet map ────────────────────────────────────────────────────────────
-    const lmap = L.map("map").setView([-15.85, -47.98], 9);
+    const lmap = L.map("map").setView([-15.77, -47.87], 13);
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
       attribution: "© OpenStreetMap contributors",
       maxZoom: 18,
@@ -511,12 +665,14 @@
     const layerLines   = L.layerGroup().addTo(lmap);
     const layerPolys   = L.layerGroup().addTo(lmap);
 
-    const ICON_A     = L.divIcon({ className: "", html: `<div style="width:14px;height:14px;background:#4f6ef7;border:2px solid #fff;border-radius:50%"></div>`, iconAnchor: [7,7] });
-    const ICON_B     = L.divIcon({ className: "", html: `<div style="width:14px;height:14px;background:#68d391;border:2px solid #fff;border-radius:50%"></div>`, iconAnchor: [7,7] });
-    const ICON_EXTRA = L.divIcon({ className: "", html: `<div style="width:12px;height:12px;background:#f6ad55;border:2px solid #fff;border-radius:50%"></div>`, iconAnchor: [6,6] });
-    const ICON_HUB   = L.divIcon({ className: "", html: `<div style="width:16px;height:16px;background:#4f6ef7;border:3px solid #f6e05e;border-radius:4px"></div>`, iconAnchor: [8,8] });
-    const ICON_ISLAND= L.divIcon({ className: "", html: `<div style="width:14px;height:14px;background:#fc8181;border:2px solid #fff;border-radius:50%"></div>`, iconAnchor: [7,7] });
-    const ICON_PENDING=L.divIcon({ className: "", html: `<div style="width:18px;height:18px;background:#f6e05e;border:2px solid #fff;border-radius:50%"></div>`, iconAnchor: [9,9] });
+    const ICON_A      = L.divIcon({ className: "", html: `<div style="width:14px;height:14px;background:#4f6ef7;border:2px solid #fff;border-radius:50%"></div>`, iconAnchor: [7,7] });
+    const ICON_A_DIM  = L.divIcon({ className: "", html: `<div style="width:14px;height:14px;background:#6b7280;border:2px solid #9ca3af;border-radius:50%;opacity:0.5"></div>`, iconAnchor: [7,7] });
+    const ICON_B      = L.divIcon({ className: "", html: `<div style="width:14px;height:14px;background:#68d391;border:2px solid #fff;border-radius:50%"></div>`, iconAnchor: [7,7] });
+    const ICON_B_DIM  = L.divIcon({ className: "", html: `<div style="width:14px;height:14px;background:#6b7280;border:2px solid #9ca3af;border-radius:50%;opacity:0.5"></div>`, iconAnchor: [7,7] });
+    const ICON_EXTRA  = L.divIcon({ className: "", html: `<div style="width:12px;height:12px;background:#f6ad55;border:2px solid #fff;border-radius:50%"></div>`, iconAnchor: [6,6] });
+    const ICON_HUB    = L.divIcon({ className: "", html: `<div style="width:16px;height:16px;background:#4f6ef7;border:3px solid #f6e05e;border-radius:4px"></div>`, iconAnchor: [8,8] });
+    const ICON_ISLAND = L.divIcon({ className: "", html: `<div style="width:14px;height:14px;background:#fc8181;border:2px solid #fff;border-radius:50%"></div>`, iconAnchor: [7,7] });
+    const ICON_PENDING= L.divIcon({ className: "", html: `<div style="width:18px;height:18px;background:#f6e05e;border:2px solid #fff;border-radius:50%"></div>`, iconAnchor: [9,9] });
 
     let nodeRegistry = {};  // {nodeId: {lat, lon, name, isHub}}
 
@@ -546,7 +702,9 @@
         if (islandIds.has(nid)) return ICON_ISLAND;
         if (nid === pendingNodeId) return ICON_PENDING;
         if (isHub && isMesh()) return ICON_HUB;
-        return nid === nodeAId ? ICON_A : nid === nodeBId ? ICON_B : ICON_EXTRA;
+        if (nid === nodeAId) return nodeEnabled.a ? ICON_A : ICON_A_DIM;
+        if (nid === nodeBId) return nodeEnabled.b ? ICON_B : ICON_B_DIM;
+        return ICON_EXTRA;
       };
 
       const addNodeMarker = (nid, lat, lon, name, isHub) => {
@@ -842,9 +1000,12 @@
         antennaOptions = list.map(ant => ({
           id: ant.id,
           label: `${ant.name} (${ant.type}, ${(ant.frequency_hz / 1e6).toFixed(1)} MHz)`,
+          type: ant.type || "",
+          name: ant.name || "",
         }));
-        ["a-antenna", "b-antenna"].forEach(id => {
+        ["a-antenna", "b-antenna", "global-antenna"].forEach(id => {
           const sel = document.getElementById(id);
+          if (!sel) return;
           antennaOptions.forEach(({ id: aId, label }) => {
             const opt = document.createElement("option");
             opt.value = aId;
@@ -852,6 +1013,15 @@
             sel.appendChild(opt);
           });
         });
+
+        // Populate filter-antennas-type with unique types
+        const uniqueTypes = [...new Set(antennaOptions.map(a => a.type).filter(Boolean))];
+        const filterAntDiv = document.getElementById("filter-antennas-type");
+        if (filterAntDiv) {
+          filterAntDiv.innerHTML = uniqueTypes.map(t => `
+            <label><input type="checkbox" class="filter-antenna-type-cb" value="${t}" checked> ${t}</label>
+          `).join("");
+        }
       } catch {}
     }
 
@@ -874,6 +1044,14 @@
             sel.appendChild(opt);
           });
         });
+
+        // Populate filter-modules checkboxes
+        const filterModDiv = document.getElementById("filter-modules");
+        if (filterModDiv) {
+          filterModDiv.innerHTML = loraModules.map(m => `
+            <label><input type="checkbox" class="filter-module-cb" value="${m.name}" checked> ${m.name}</label>
+          `).join("");
+        }
       } catch {}
     }
 
@@ -889,6 +1067,13 @@
       if (txEl) txEl.value = Math.max(...module.tx_power_options_dbm);
       if (rxEl) rxEl.value = getSF12Sensitivity(module);
     };
+
+    // ── Select all filters toggle ──────────────────────────────────────────────
+    document.getElementById("btn-select-all-filters").addEventListener("click", () => {
+      const allCbs = document.querySelectorAll(".filter-module-cb, .filter-antenna-type-cb");
+      const allChecked = [...allCbs].every(cb => cb.checked);
+      allCbs.forEach(cb => { cb.checked = !allChecked; });
+    });
 
     // ── Export scenario ────────────────────────────────────────────────────────
     async function exportScenario(includeResults) {
@@ -918,7 +1103,21 @@
       btn.disabled = true;
       btn.textContent = "Comparando…";
       try {
-        const rows = await api.compareScenario(lastScenarioId);
+        let rows = await api.compareScenario(lastScenarioId);
+
+        // Apply filters
+        const checkedModules = [...document.querySelectorAll(".filter-module-cb:checked")].map(cb => cb.value);
+        const checkedAntTypes = [...document.querySelectorAll(".filter-antenna-type-cb:checked")].map(cb => cb.value);
+
+        rows = rows.filter(r => {
+          const moduleOk = checkedModules.length === 0 || checkedModules.includes(r.module);
+          const antOk = checkedAntTypes.length === 0 || checkedAntTypes.some(t =>
+            (r.tx_antenna && r.tx_antenna.toLowerCase().includes(t.toLowerCase())) ||
+            (r.gw_antenna && r.gw_antenna.toLowerCase().includes(t.toLowerCase()))
+          );
+          return moduleOk && antOk;
+        });
+
         renderComparisonTable(rows);
       } catch (e) {
         document.getElementById("comparison-results").innerHTML =
@@ -957,6 +1156,11 @@
 
     // ── Validate inputs ────────────────────────────────────────────────────────
     function validate() {
+      // Check if both nodes are disabled
+      if (!nodeEnabled.a && !nodeEnabled.b) {
+        showError("Ambos os nós estão desativados.");
+        return false;
+      }
       const freq = parseFloat(document.getElementById("frequency").value);
       if (!freq || freq <= 0) { showError("Frequência deve ser maior que 0."); return false; }
       const aLat = parseFloat(document.getElementById("a-lat").value);
@@ -997,6 +1201,8 @@
           fading_margin_db: fv("a-fading"),
           polarization_loss_db: fv("a-polarization"),
           lora_module_id: nodeModuleId.a || null,
+          enabled: nodeEnabled.a,
+          role: g("a-role").value,
         },
         node_b: {
           id: nodeBId,
@@ -1015,6 +1221,8 @@
           fading_margin_db: fv("b-fading"),
           polarization_loss_db: fv("b-polarization"),
           lora_module_id: nodeModuleId.b || null,
+          enabled: nodeEnabled.b,
+          role: g("b-role").value,
         },
         extra_nodes: allExtra.map(n => ({
           id: n.id,
@@ -1048,6 +1256,18 @@
       const semClasses = { verde: "sem-verde", amarelo: "sem-amarelo", vermelho: "sem-vermelho" };
       const semLabels  = { verde: "✓ Enlace viável", amarelo: "⚠ Margem apertada", vermelho: "✗ Enlace inviável" };
       semBadge.innerHTML = `<div class="semaphore ${semClasses[r.feasibility]}">${semLabels[r.feasibility]} — margem ${r.link_margin_db > 0 ? "+" : ""}${r.link_margin_db} dB</div>`;
+
+      // Result header bar
+      const headerBar = document.getElementById("result-header-bar");
+      if (headerBar && lastBudgetParams) {
+        const scenName = document.getElementById("scenario-name")?.value || "";
+        headerBar.innerHTML = `
+          <div class="result-header">
+            🔗 ${lastBudgetParams.nodeAName} → ${lastBudgetParams.nodeBName}
+            ${scenName ? `<span style="font-weight:400;color:#718096;margin-left:0.5rem;">— ${scenName}</span>` : ""}
+          </div>`;
+      }
+
       const propLabel = { fspl: "FSPL", okumura_hata: "Okumura-Hata", longley_rice: "Longley-Rice" };
       const pathLossLabel = r.propagation_model && r.propagation_model !== "fspl" ? "Perda (modelo)" : "FSPL";
       resultsGrid.innerHTML = `
@@ -1080,6 +1300,7 @@
           <div class="metric-value" style="font-size:0.85rem;">${propLabel[r.propagation_model] || r.propagation_model || "FSPL"}</div>
         </div>
       `;
+
       // Warnings
       const warningBox = document.getElementById("link-warnings");
       if (warningBox) {
@@ -1090,6 +1311,43 @@
           warningBox.style.display = "none";
         }
       }
+
+      // Budget breakdown details
+      const budgetContainer = document.getElementById("budget-details-container");
+      if (budgetContainer && lastBudgetParams) {
+        const p = lastBudgetParams;
+        const modelLabel = propLabel[r.propagation_model] || r.propagation_model || "FSPL";
+        const txPower = p.txPower;
+        const cableTx = p.cableTx;
+        const cableRx = p.cableRx;
+        const gainTxLabel = p.antennaAName ? `ver biblioteca` : "0 dBi — sem antena";
+        const gainRxLabel = p.antennaBName ? `ver biblioteca` : "0 dBi — sem antena";
+        const gainTx = 0; // gain not available from form alone
+        const gainRx = 0;
+        const pire = txPower + gainTx - cableTx;
+        const sensitivity = r.rx_power_dbm - r.link_margin_db;
+
+        budgetContainer.innerHTML = `
+          <details class="adv">
+            <summary>📊 Balanço de enlace detalhado</summary>
+            <table class="budget-table" style="margin-top:0.5rem;">
+              <tr><td>Potência TX (${p.nodeAName})</td><td>+${txPower} dBm</td></tr>
+              <tr><td>Ganho ant. TX</td><td>${gainTxLabel}</td></tr>
+              <tr><td>Perda de cabo TX</td><td>-${cableTx} dB</td></tr>
+              <tr class="total-row"><td>PIRE</td><td>= ${pire.toFixed(1)} dBm</td></tr>
+              <tr class="sep-row"><td colspan="2"></td></tr>
+              <tr><td>Propagação (${modelLabel})</td><td>-${r.fspl_db} dB</td></tr>
+              <tr><td>Ganho ant. RX</td><td>${gainRxLabel}</td></tr>
+              <tr><td>Perda de cabo RX</td><td>-${cableRx} dB</td></tr>
+              <tr class="total-row"><td>Potência Rx estimada</td><td>= ${r.rx_power_dbm} dBm</td></tr>
+              <tr class="sep-row"><td colspan="2"></td></tr>
+              <tr><td>Sensibilidade Rx (${p.nodeBName})</td><td>${sensitivity.toFixed(1)} dBm</td></tr>
+              <tr class="total-row"><td>Margem de enlace</td><td>= ${r.link_margin_db} dB</td></tr>
+            </table>
+          </details>
+        `;
+      }
+
       resultsSection.classList.add("visible");
       // Show comparison panel
       document.getElementById("comparison-panel").classList.add("visible");
@@ -1099,6 +1357,20 @@
     btnCalculate.addEventListener("click", async () => {
       clearBanners();
       if (!validate()) return;
+
+      // Capture budget params before calculating
+      const g = id => document.getElementById(id);
+      lastBudgetParams = {
+        nodeAName: g("a-name")?.value || "Nó A",
+        nodeBName: g("b-name")?.value || "Nó B",
+        txPower: parseFloat(g("a-txpower")?.value) || 14,
+        cableTx: parseFloat(g("a-cable")?.value) || 0,
+        cableRx: parseFloat(g("b-cable")?.value) || 0,
+        antennaAName: g("a-antenna")?.options[g("a-antenna")?.selectedIndex]?.text || "",
+        antennaBName: g("b-antenna")?.options[g("b-antenna")?.selectedIndex]?.text || "",
+        rxSensitivity: parseFloat(g("b-rxsens")?.value) || -137,
+      };
+
       btnCalculate.disabled = true;
       btnCalculate.textContent = "Calculando…";
       try {

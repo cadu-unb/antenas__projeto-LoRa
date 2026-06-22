@@ -42,3 +42,10 @@ caminhos.txt
 Thumbs.db
 desktop.ini
 zToolBox.md
+
+# Runtime data — gerado em execução, não versionar (ver backend/data/README.md)
+backend/data/scenarios/
+backend/data/simulations/
+backend/data/antenna_specs/
+backend/data/kml_uploads/
+backend/data/reports/

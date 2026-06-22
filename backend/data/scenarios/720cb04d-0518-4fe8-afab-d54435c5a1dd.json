@@ -1,0 +1,191 @@
+{
+  "id": "720cb04d-0518-4fe8-afab-d54435c5a1dd",
+  "name": "UNB-Estrela",
+  "node_a": {
+    "id": "ee8b7e21-29a2-486e-9e92-e65ef62de710",
+    "name": "SG 11",
+    "lat": -15.7655173,
+    "lon": -47.8723601,
+    "height_m": 25.0,
+    "antenna_id": "1a51f2de-8aa9-4f73-b5c0-6512d204067e",
+    "tx_power_dbm": 14.0,
+    "rx_sensitivity_dbm": -137.0,
+    "cable_loss_db": 0.0,
+    "is_hub": false
+  },
+  "node_b": {
+    "id": "93198233-236a-44a3-8ec4-c7f62ea1c0a9",
+    "name": "Segurança UnB",
+    "lat": -15.7724441,
+    "lon": -47.8674832,
+    "height_m": 10.0,
+    "antenna_id": "1a51f2de-8aa9-4f73-b5c0-6512d204067e",
+    "tx_power_dbm": 14.0,
+    "rx_sensitivity_dbm": -100.0,
+    "cable_loss_db": 0.0,
+    "is_hub": false
+  },
+  "frequency_hz": 915000000.0,
+  "topology_type": "STAR",
+  "extra_nodes": [
+    {
+      "id": "047fc486-8ae6-4148-813f-82f620b38243",
+      "name": "Botão FACE",
+      "lat": -15.75765082870043,
+      "lon": -47.87083077618352,
+      "height_m": 1034.446264894265,
+      "antenna_id": "1a51f2de-8aa9-4f73-b5c0-6512d204067e",
+      "tx_power_dbm": 14.0,
+      "rx_sensitivity_dbm": -137.0,
+      "cable_loss_db": 0.0,
+      "is_hub": false
+    },
+    {
+      "id": "a5853c89-1bab-4abd-96ce-277fc3d6f004",
+      "name": "Botão BCE",
+      "lat": -15.76127034065908,
+      "lon": -47.86745724717513,
+      "height_m": 1019.61698099038,
+      "antenna_id": "1a51f2de-8aa9-4f73-b5c0-6512d204067e",
+      "tx_power_dbm": 14.0,
+      "rx_sensitivity_dbm": -137.0,
+      "cable_loss_db": 0.0,
+      "is_hub": false
+    },
+    {
+      "id": "11a1e6f5-f87b-41d1-bc6d-3c85fc7b422a",
+      "name": "Botão Beijódromo",
+      "lat": -15.76377698277078,
+      "lon": -47.86520966364652,
+      "height_m": 1024.139071702697,
+      "antenna_id": "1a51f2de-8aa9-4f73-b5c0-6512d204067e",
+      "tx_power_dbm": 14.0,
+      "rx_sensitivity_dbm": -137.0,
+      "cable_loss_db": 0.0,
+      "is_hub": false
+    },
+    {
+      "id": "b978d17e-ea24-4d8a-aa69-53ba4cf4897f",
+      "name": "Botão IB",
+      "lat": -15.76601060040457,
+      "lon": -47.86657645286517,
+      "height_m": 1033.408014943337,
+      "antenna_id": "1a51f2de-8aa9-4f73-b5c0-6512d204067e",
+      "tx_power_dbm": 14.0,
+      "rx_sensitivity_dbm": -137.0,
+      "cable_loss_db": 0.0,
+      "is_hub": false
+    },
+    {
+      "id": "cfc800b9-a1f8-4fe6-b459-f0404d29efc8",
+      "name": "Botão IQ",
+      "lat": -15.76831173033475,
+      "lon": -47.86572517133772,
+      "height_m": 1037.985829588322,
+      "antenna_id": "1a51f2de-8aa9-4f73-b5c0-6512d204067e",
+      "tx_power_dbm": 14.0,
+      "rx_sensitivity_dbm": -137.0,
+      "cable_loss_db": 0.0,
+      "is_hub": false
+    },
+    {
+      "id": "114eedb6-a793-4941-8d08-2b0478f47abf",
+      "name": "Botão ICC Sul",
+      "lat": -15.76591092048512,
+      "lon": -47.86971992266324,
+      "height_m": 1039.931640249285,
+      "antenna_id": "1a51f2de-8aa9-4f73-b5c0-6512d204067e",
+      "tx_power_dbm": 14.0,
+      "rx_sensitivity_dbm": -137.0,
+      "cable_loss_db": 0.0,
+      "is_hub": false
+    },
+    {
+      "id": "3c859daa-6333-4668-9562-ca7baf7194a6",
+      "name": "Botão ICC Norte",
+      "lat": -15.76298853031727,
+      "lon": -47.87187806988097,
+      "height_m": 1038.798361313413,
+      "antenna_id": "1a51f2de-8aa9-4f73-b5c0-6512d204067e",
+      "tx_power_dbm": 14.0,
+      "rx_sensitivity_dbm": -137.0,
+      "cable_loss_db": 0.0,
+      "is_hub": false
+    },
+    {
+      "id": "ba8aa0df-9d39-40f9-846a-1f573f961231",
+      "name": "Botão do CO",
+      "lat": -15.76448213579672,
+      "lon": -47.8598793136273,
+      "height_m": 1022.504171087457,
+      "antenna_id": "1a51f2de-8aa9-4f73-b5c0-6512d204067e",
+      "tx_power_dbm": 14.0,
+      "rx_sensitivity_dbm": -137.0,
+      "cable_loss_db": 0.0,
+      "is_hub": false
+    },
+    {
+      "id": "c4af52c8-fd70-4f41-9995-22157e33b140",
+      "name": "Botão SG",
+      "lat": -15.76679349641666,
+      "lon": -47.87124591627169,
+      "height_m": 1046.761186877331,
+      "antenna_id": "1a51f2de-8aa9-4f73-b5c0-6512d204067e",
+      "tx_power_dbm": 14.0,
+      "rx_sensitivity_dbm": -137.0,
+      "cable_loss_db": 0.0,
+      "is_hub": false
+    }
+  ],
+  "links": [],
+  "polygons": [
+    {
+      "name": "Campus UnB",
+      "outer_ring": [
+        [
+          -47.87085162374608,
+          -15.77680091573182,
+          0
+        ],
+        [
+          -47.86390995118125,
+          -15.7712229884785,
+          0
+        ],
+        [
+          -47.85942261534346,
+          -15.76423571738823,
+          0
+        ],
+        [
+          -47.86700579508069,
+          -15.75694323622343,
+          0
+        ],
+        [
+          -47.87602062304371,
+          -15.75746556587607,
+          0
+        ],
+        [
+          -47.87085162374608,
+          -15.77680091573182,
+          0
+        ]
+      ]
+    }
+  ],
+  "candidates": [],
+  "results": {
+    "distance_m": 930.4,
+    "azimuth_deg": 145.88,
+    "elevation_deg": -0.9237,
+    "fspl_db": 91.04,
+    "rx_power_dbm": -72.74,
+    "link_margin_db": 27.26,
+    "feasibility": "verde"
+  },
+  "topology_result": null,
+  "site_selection_result": null,
+  "metadata": {}
+}
