@@ -31,6 +31,20 @@ BASE_PARABOLICA = {
     "geometry": {"diameter_m": 0.6, "focal_length_m": 0.22},
 }
 
+PARABOLICA_LOSSY = {
+    "type": "parabolica",
+    "frequency_hz": 2_400_000_000.0,
+    "geometry": {
+        "diameter_m": 0.6,
+        "focal_length_m": 0.22,
+        "efficiency": 0.55,
+        "blockage_pct": 15,
+        "surface_rms_mm": 2.0,
+        "feed_loss_db": 0.5,
+        "radome_loss_db": 0.2,
+    },
+}
+
 
 def test_preview_dipolo_returns_200():
     r = client.post("/api/v1/sandbox/preview", json=BASE_DIPOLO)
@@ -78,6 +92,23 @@ def test_preview_parabolica_high_gain():
     r = client.post("/api/v1/sandbox/preview", json=BASE_PARABOLICA)
     d = r.json()
     assert d["gain_dbi"] > 10.0
+
+
+def test_preview_parabolica_returns_aperture_analysis():
+    r = client.post("/api/v1/sandbox/preview", json=BASE_PARABOLICA)
+    d = r.json()
+    extra = d["extra"]
+    assert extra["beamwidth_deg"] > 0
+    assert extra["f_d_ratio"] > 0
+    assert extra["far_field_m"] > 0
+    assert extra["effective_area_m2"] > 0
+
+
+def test_preview_parabolica_losses_reduce_gain():
+    base = client.post("/api/v1/sandbox/preview", json=BASE_PARABOLICA).json()
+    lossy = client.post("/api/v1/sandbox/preview", json=PARABOLICA_LOSSY).json()
+    assert lossy["gain_dbi"] < base["gain_dbi"]
+    assert lossy["extra"]["passive_loss_db"] > 0
 
 
 def test_preview_unknown_type_returns_fixture():

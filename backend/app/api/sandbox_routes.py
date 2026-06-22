@@ -40,6 +40,7 @@ class PreviewResult(BaseModel):
     solver_used: str = "rapido"
     is_fixture: bool = False
     warning: Optional[str] = None
+    extra: dict[str, Any] = Field(default_factory=dict)
 
 
 # ── Request model (partial — name is optional for preview) ────────────────────
@@ -178,21 +179,19 @@ def _solve_helicoidal(req: SandboxPreviewRequest) -> PreviewResult:
 
 
 def _solve_parabolica(req: SandboxPreviewRequest) -> PreviewResult:
-    lam = C / req.frequency_hz
-    D = req.geometry.get("diameter_m", 0.6)
-    eta = 0.55
-
-    gain_lin = max(1.0, eta * (math.pi * D / lam) ** 2)
-    gain_dbi = round(10 * math.log10(gain_lin), 2)
-    beamwidth = 70 * lam / D
+    sr = _aperture.solve(req)
+    beamwidth = sr.extra.get("beamwidth_deg", 10.0)
 
     return PreviewResult(
-        gain_dbi=gain_dbi,
-        impedance_ohm=50.0,
-        swr=1.0,
-        efficiency_pct=round(eta * 100, 1),
-        radiation_pattern=f"direcional (feixe {beamwidth:.1f}°)",
+        gain_dbi=sr.gain_dbi,
+        impedance_ohm=sr.impedance_ohm,
+        swr=sr.swr,
+        efficiency_pct=sr.efficiency_pct,
+        radiation_pattern=sr.radiation_pattern,
         pattern_data=_directional_pattern(beamwidth),
+        solver_used=sr.solver_used,
+        warning=sr.warning,
+        extra=sr.extra,
     )
 
 
@@ -206,6 +205,7 @@ def _solve_pcb_compact(req: SandboxPreviewRequest) -> PreviewResult:
         radiation_pattern=sr.radiation_pattern,
         pattern_data=_omni_pattern(),
         solver_used=sr.solver_used,
+        extra=sr.extra,
     )
 
 
@@ -220,6 +220,7 @@ def _solve_colinear(req: SandboxPreviewRequest) -> PreviewResult:
         radiation_pattern=sr.radiation_pattern,
         pattern_data=_directional_pattern(hpbw),
         solver_used=sr.solver_used,
+        extra=sr.extra,
     )
 
 
@@ -321,4 +322,5 @@ def _preview_advanced(req: SandboxPreviewRequest) -> PreviewResult:
         pattern_data=pattern_data,
         solver_used=sr.solver_used,
         warning=sr.warning,
+        extra=sr.extra,
     )
