@@ -491,6 +491,8 @@
             <option value="monopolo">Monopolo</option>
             <option value="helicoidal">Helicoidal</option>
             <option value="parabolica">Parabólica</option>
+            <option value="pcb_compact">PCB Compact</option>
+            <option value="commercial_omni_6dbi">Omni 6 dBi (comercial)</option>
           </select>
         </div>
 
@@ -509,6 +511,47 @@
         <div class="form-section-title">Geometria</div>
         <div id="geometry-fields"></div>
         <div id="extra-analysis"></div>
+
+        <details id="physical-fields-details" style="margin-top:0.85rem;">
+          <summary style="font-size:0.63rem;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:#4a5568;cursor:pointer;padding:0.2rem 0;user-select:none;">
+            ▶ Campos Físicos (auto-preenchido pelo tipo)
+          </summary>
+          <div style="margin-top:0.5rem;">
+            <div class="form-row">
+              <label for="phys-gmax-dbi">Ganho máximo (dBi)</label>
+              <input type="number" id="phys-gmax-dbi" step="0.01" />
+            </div>
+            <div class="form-row">
+              <label for="phys-hpbw-deg">HPBW (°)</label>
+              <input type="number" id="phys-hpbw-deg" step="0.1" min="0" />
+            </div>
+            <div class="form-row">
+              <label for="phys-polarization">Polarização</label>
+              <input type="text" id="phys-polarization" />
+            </div>
+            <div class="form-row">
+              <label for="phys-is-directional">Direcional</label>
+              <select id="phys-is-directional">
+                <option value="">— não definido —</option>
+                <option value="true">Sim</option>
+                <option value="false">Não</option>
+              </select>
+            </div>
+            <div class="form-row">
+              <label for="phys-pattern-model">Modelo de padrão</label>
+              <input type="text" id="phys-pattern-model" />
+            </div>
+            <div class="form-row">
+              <label for="phys-practicality">Praticidade (0–10)</label>
+              <input type="number" id="phys-practicality" step="0.5" min="0" max="10" />
+            </div>
+            <div class="form-row">
+              <label for="phys-mds">Multi-direção (0–10)</label>
+              <input type="number" id="phys-mds" step="0.5" min="0" max="10" />
+            </div>
+            <div class="field-hint" style="margin-top:0.3rem;">Sugeridos pelo preset. Edite ou limpe conforme necessário.</div>
+          </div>
+        </details>
       </div>
 
       <div class="visual-col">
@@ -679,6 +722,27 @@
           <text x="0" y="95" text-anchor="middle" fill="#4a5568" font-size="9">D=${D.toFixed(2)} m  f=${f.toFixed(2)} m  η=${Math.round(eta*100)}%</text>
         </svg>`;
       },
+      pcb_compact(geo, freqMhz) {
+        const lam = 300 / freqMhz;
+        return `<svg viewBox="-110 -110 220 220" xmlns="http://www.w3.org/2000/svg">
+          <rect x="-65" y="-45" width="130" height="90" rx="6" fill="none" stroke="#68d391" stroke-width="2"/>
+          <polyline points="-18,-45 -18,-85 28,-85" fill="none" stroke="#90cdf4" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="-18" cy="-45" r="4" fill="#4f6ef7"/>
+          <rect x="-24" y="-18" width="48" height="36" rx="4" fill="#1a2744" stroke="#4a5568" stroke-width="1"/>
+          <text x="0" y="6" text-anchor="middle" fill="#4a5568" font-size="8">SoC</text>
+          <text x="0" y="95" text-anchor="middle" fill="#4a5568" font-size="9">PCB integrado · λ/4 = ${(lam/4*100).toFixed(1)} cm</text>
+        </svg>`;
+      },
+      commercial_omni_6dbi(geo, freqMhz) {
+        const segs = [-65, -32, 0, 32];
+        const dividers = segs.map(y => `<ellipse cx="0" cy="${y}" rx="20" ry="5" fill="none" stroke="#90cdf4" stroke-width="1" opacity="0.5"/>`).join('');
+        return `<svg viewBox="-110 -110 220 220" xmlns="http://www.w3.org/2000/svg">
+          <line x1="0" y1="-85" x2="0" y2="80" stroke="#90cdf4" stroke-width="4.5" stroke-linecap="round"/>
+          ${dividers}
+          <circle cx="0" cy="80" r="5" fill="#4f6ef7"/>
+          <text x="0" y="98" text-anchor="middle" fill="#4a5568" font-size="9">Colinear 6 dBi · HPBW 35°</text>
+        </svg>`;
+      },
     };
 
     // ── 3D simplified pattern SVGs — branco/ciano sobre azul profundo ──────────
@@ -747,6 +811,33 @@
           <text x="0" y="115" text-anchor="middle" fill="rgba(255,255,255,0.65)" font-size="10" font-family="system-ui">Parabólica — ${gain} dBi · pencil beam</text>
         </svg>`;
       },
+      pcb_compact(result) {
+        const gain = result?.gain_dbi ?? 1.5;
+        return `<svg viewBox="-140 -130 280 270" xmlns="http://www.w3.org/2000/svg">
+          <rect x="-140" y="-130" width="280" height="270" fill="#06101f"/>
+          <defs>
+            <radialGradient id="lg5" cx="50%" cy="50%"><stop offset="0%" stop-color="#00e5ff" stop-opacity="0.7"/><stop offset="100%" stop-color="#00e5ff" stop-opacity="0.02"/></radialGradient>
+          </defs>
+          <ellipse cx="-55" cy="0" rx="45" ry="24" fill="url(#lg5)" stroke="#00e5ff" stroke-width="1.5" opacity="0.85"/>
+          <ellipse cx="55" cy="0" rx="45" ry="24" fill="url(#lg5)" stroke="#00e5ff" stroke-width="1.5" opacity="0.85"/>
+          <ellipse cx="0" cy="0" rx="100" ry="18" fill="none" stroke="#00e5ff" stroke-width="0.5" opacity="0.18"/>
+          <text x="0" y="115" text-anchor="middle" fill="rgba(255,255,255,0.65)" font-size="10" font-family="system-ui">PCB Compact — ${gain} dBi · quasi-omni</text>
+        </svg>`;
+      },
+      commercial_omni_6dbi(result) {
+        const gain = result?.gain_dbi ?? 6.0;
+        return `<svg viewBox="-140 -130 280 270" xmlns="http://www.w3.org/2000/svg">
+          <rect x="-140" y="-130" width="280" height="270" fill="#06101f"/>
+          <defs>
+            <radialGradient id="lg6" cx="50%" cy="50%"><stop offset="0%" stop-color="#00e5ff" stop-opacity="0.8"/><stop offset="100%" stop-color="#00e5ff" stop-opacity="0.03"/></radialGradient>
+          </defs>
+          <ellipse cx="-68" cy="0" rx="58" ry="16" fill="url(#lg6)" stroke="#00e5ff" stroke-width="1.5" opacity="0.9"/>
+          <ellipse cx="68" cy="0" rx="58" ry="16" fill="url(#lg6)" stroke="#00e5ff" stroke-width="1.5" opacity="0.9"/>
+          <ellipse cx="0" cy="0" rx="126" ry="10" fill="none" stroke="#00e5ff" stroke-width="0.5" opacity="0.15"/>
+          <line x1="0" y1="-90" x2="0" y2="90" stroke="rgba(255,255,255,0.3)" stroke-width="0.75" stroke-dasharray="3 3"/>
+          <text x="0" y="115" text-anchor="middle" fill="rgba(255,255,255,0.65)" font-size="10" font-family="system-ui">Omni 6 dBi — ${gain} dBi · colinear</text>
+        </svg>`;
+      },
     };
 
     // ── Geometry field configs ─────────────────────────────────────────────────
@@ -775,7 +866,47 @@
         { id: "feed_loss_db",    label: "Perda no alimentador (dB)",      default: () => "0.2",  step: "0.1",  min: "0" },
         { id: "radome_loss_db",  label: "Perda radome/acoplamento (dB)",  default: () => "0",    step: "0.1",  min: "0" },
       ],
+      pcb_compact: [],
+      commercial_omni_6dbi: [],
     };
+
+    // ── Physical field presets (mirrors backend/app/domain/antenna_presets.py) ─
+    const PHYSICAL_PRESETS = {
+      dipolo:               { gmax_dbi: 2.15, hpbw_deg: 78,  polarization: "linear vertical",      is_directional: false, pattern_model: "dipole",        practicality_score: 8,  multi_direction_score: 9 },
+      monopolo:             { gmax_dbi: 5.15, hpbw_deg: 55,  polarization: "linear vertical",      is_directional: false, pattern_model: "monopole",      practicality_score: 7,  multi_direction_score: 8 },
+      helicoidal:           { gmax_dbi: 11,   hpbw_deg: 55,  polarization: "circular/elliptical",  is_directional: true,  pattern_model: "helical",       practicality_score: 5,  multi_direction_score: 3 },
+      parabolica:           { gmax_dbi: 20,   hpbw_deg: 18,  polarization: "feed-dependent",       is_directional: true,  pattern_model: "parabolic",     practicality_score: 2,  multi_direction_score: 1 },
+      pcb_compact:          { gmax_dbi: 1,    hpbw_deg: 120, polarization: "linear",               is_directional: false, pattern_model: "pcb",           practicality_score: 10, multi_direction_score: 7 },
+      commercial_omni_6dbi: { gmax_dbi: 6,    hpbw_deg: 35,  polarization: "linear vertical",      is_directional: false, pattern_model: "omni_colinear", practicality_score: 9,  multi_direction_score: 8 },
+    };
+
+    function fillPhysicalFields(type) {
+      const p = PHYSICAL_PRESETS[type] || {};
+      const setVal = (id, v) => { const el = document.getElementById(id); if (el) el.value = v ?? ""; };
+      setVal("phys-gmax-dbi",      p.gmax_dbi         ?? "");
+      setVal("phys-hpbw-deg",      p.hpbw_deg         ?? "");
+      setVal("phys-polarization",  p.polarization     ?? "");
+      setVal("phys-pattern-model", p.pattern_model    ?? "");
+      setVal("phys-practicality",  p.practicality_score  ?? "");
+      setVal("phys-mds",           p.multi_direction_score ?? "");
+      const dirSel = document.getElementById("phys-is-directional");
+      if (dirSel) dirSel.value = p.is_directional != null ? String(p.is_directional) : "";
+    }
+
+    function getPhysicalFields() {
+      const numOrNull = (id) => { const v = parseFloat(document.getElementById(id)?.value); return isNaN(v) ? null : v; };
+      const strOrNull = (id) => document.getElementById(id)?.value.trim() || null;
+      const dirVal = document.getElementById("phys-is-directional")?.value;
+      return {
+        gmax_dbi:             numOrNull("phys-gmax-dbi"),
+        hpbw_deg:             numOrNull("phys-hpbw-deg"),
+        polarization:         strOrNull("phys-polarization"),
+        is_directional:       dirVal === "true" ? true : dirVal === "false" ? false : null,
+        pattern_model:        strOrNull("phys-pattern-model"),
+        practicality_score:   numOrNull("phys-practicality"),
+        multi_direction_score: numOrNull("phys-mds"),
+      };
+    }
 
     // ── DOM refs ───────────────────────────────────────────────────────────────
     const selType        = document.getElementById("sel-type");
@@ -860,6 +991,10 @@
       const freq = getFreqMhz();
       const fields = GEO_FIELDS[type] || [];
       geoDiv.innerHTML = "";
+      if (fields.length === 0) {
+        geoDiv.innerHTML = `<div class="field-note">Sem parâmetros geométricos configuráveis para este tipo.</div>`;
+        return;
+      }
       fields.forEach(f => {
         const row = document.createElement("div");
         row.className = "form-row";
@@ -1239,6 +1374,7 @@
           extra: lastResult.extra || {},
         },
         metadata: {},
+        ...getPhysicalFields(),
       };
       try {
         const saved = await api.createAntenna(spec);
@@ -1346,6 +1482,7 @@
     selType.addEventListener("change", () => {
       rebuildGeoFields();
       updateVisual();
+      fillPhysicalFields(selType.value);
       lastResult = null;
       lastPatternData = null;
       btnSave.disabled = true;
@@ -1360,6 +1497,7 @@
     // ── Init ───────────────────────────────────────────────────────────────────
     rebuildGeoFields();
     updateVisual();
+    fillPhysicalFields(selType.value);
     // Render analytic patterns after layout settles
     requestAnimationFrame(() => updatePatternPanels(selType.value, null));
   </script>

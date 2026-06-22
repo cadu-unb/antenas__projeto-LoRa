@@ -84,12 +84,13 @@
             <th>Tipo</th>
             <th>Frequência</th>
             <th>Solver</th>
+            <th>Física</th>
             <th>Resultados</th>
             <th></th>
           </tr>
         </thead>
         <tbody id="antenna-list">
-          <tr><td colspan="6" class="empty">Carregando…</td></tr>
+          <tr><td colspan="7" class="empty">Carregando…</td></tr>
         </tbody>
       </table>
     </div>
@@ -142,6 +143,15 @@
       return hz + " Hz";
     }
 
+    function physicalBadges(spec) {
+      const parts = [];
+      if (spec.hpbw_deg != null) parts.push(`HPBW ${spec.hpbw_deg}°`);
+      if (spec.polarization)    parts.push(spec.polarization);
+      if (spec.is_directional)  parts.push("direcional");
+      if (!parts.length) return `<span style="color:#4a5568;font-size:0.75rem;">—</span>`;
+      return parts.map(t => `<span class="badge" style="margin-right:0.25rem;font-size:0.7rem;">${t}</span>`).join("");
+    }
+
     function renderRow(spec) {
       const tr = document.createElement("tr");
       tr.innerHTML = `
@@ -149,6 +159,7 @@
         <td><span class="badge">${spec.type}</span></td>
         <td>${freqLabel(spec.frequency_hz)}</td>
         <td>${spec.solver}</td>
+        <td>${physicalBadges(spec)}</td>
         <td>${spec.results ? "✓" : "—"}</td>
         <td>
           <button class="btn-outline btn-sm" data-export="${spec.id}">Export</button>
@@ -163,7 +174,7 @@
         const list = await api.listAntennas();
         tbody.innerHTML = "";
         if (list.length === 0) {
-          tbody.innerHTML = `<tr><td colspan="6" class="empty">Nenhuma antena salva ainda.</td></tr>`;
+          tbody.innerHTML = `<tr><td colspan="7" class="empty">Nenhuma antena salva ainda.</td></tr>`;
           return;
         }
         list.forEach(spec => tbody.appendChild(renderRow(spec)));
