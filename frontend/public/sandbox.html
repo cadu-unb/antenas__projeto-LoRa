@@ -192,26 +192,6 @@
       color: #4a5568;
       margin-top: 0.15rem;
     }
-<<<<<<< HEAD
-    button:hover { opacity: 0.85; }
-    button:disabled { opacity: 0.4; cursor: not-allowed; }
-    .btn-primary { background: #4f6ef7; color: #fff; flex: 1; }
-    .btn-save { background: #38a169; color: #fff; flex: 1; }
-
-    .solver-badge {
-      display: inline-block; padding: 0.1rem 0.5rem; border-radius: 4px;
-      background: #1a1d27; border: 1px solid #4f6ef7;
-      color: #a0aec0; font-size: 0.7rem;
-    }
-    .solver-badge.disabled { border-color: #2d3748; color: #4a5568; cursor: not-allowed; }
-
-    /* Panel 3 — Results */
-    .metric-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 0.75rem;
-      flex: 1;
-    }
     .metric {
       background: #1a1d27;
       border-radius: 8px;
@@ -229,44 +209,9 @@
       gap: 0.75rem;
       margin-top: 0.25rem;
     }
+    #extra-analysis { margin-top: 0.75rem; }
 
-    .pattern-label {
-      background: #1a1d27; border-radius: 6px; padding: 0.5rem 0.75rem;
-      font-size: 0.8rem; color: #a0aec0; margin-top: 0.5rem;
-    }
-    .warning-box {
-      background: #744210; border: 1px solid #d69e2e; border-radius: 6px;
-      padding: 0.5rem 0.75rem; font-size: 0.75rem; color: #fefcbf;
-      margin-top: 0.5rem; display: none;
-    }
-    .warning-box.visible { display: block; }
 
-    #status-msg {
-      font-size: 0.75rem; margin-top: 0.5rem; min-height: 1.2em;
-    }
-    .msg-ok { color: #68d391; }
-    .msg-err { color: #fc8181; }
-
-    /* Panel 4 — Radiation */
-    #canvas-polar {
-      width: 100%;
-      flex: 1;
-      min-height: 0;
-      max-width: 100%;
-    }
-    #canvas-wrapper {
-      flex: 1;
-      min-height: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .canvas-placeholder {
-      color: #4a5568; font-size: 0.875rem; text-align: center;
-    }
-
-=======
->>>>>>> cdc79b72f70482de53e6c6d32aa113fecf2d3d84
     .input-error { border-color: #e53e3e !important; }
     .field-error { color: #fc8181; font-size: 0.7rem; margin-top: 0.2rem; }
     .field-note { color: #4a5568; font-size: 0.68rem; margin-top: 0.18rem; }
@@ -519,6 +464,7 @@
 
         <div class="form-section-title">Geometria</div>
         <div id="geometry-fields"></div>
+        <div id="extra-analysis"></div>
       </div>
 
       <div class="visual-col">
@@ -761,19 +707,13 @@
         { id: "wire_diameter_mm", label: "Diâmetro do fio (mm)",   default: () => "1.0", step: "0.1",   min: "0.1", hint: "Parâmetro construtivo" },
       ],
       parabolica: [
-<<<<<<< HEAD
-        { id: "diameter_m", label: "Diâmetro do refletor (m)", default: () => "0.60", step: "0.01", min: "0.05" },
-        { id: "focal_length_m", label: "Distância focal (m)", default: () => "0.22", step: "0.01", min: "0.01", note: "Define f/D, profundidade e abertura do prato." },
-        { id: "efficiency", label: "Eficiência de abertura (0–1)", default: () => "0.55", step: "0.01", min: "0.01", max: "0.95" },
-        { id: "blockage_pct", label: "Bloqueio central (%)", default: () => "0", step: "1", min: "0", max: "80" },
-        { id: "surface_rms_mm", label: "RMS da superfície (mm)", default: () => "0", step: "0.1", min: "0" },
-        { id: "feed_loss_db", label: "Perda no alimentador (dB)", default: () => "0.2", step: "0.1", min: "0" },
-        { id: "radome_loss_db", label: "Perda radome/acoplamento (dB)", default: () => "0", step: "0.1", min: "0" },
-=======
-        { id: "diameter_m",     label: "Diâmetro do refletor (m)", default: () => "0.60", step: "0.01" },
-        { id: "focal_length_m", label: "Distância focal (m)",      default: () => "0.22", step: "0.01", hint: "Apenas visual" },
-        { id: "efficiency",     label: "Eficiência de abertura (0–1)", default: () => "0.55", step: "0.01", min: "0.1", max: "1.0", hint: "Usado no cálculo (η típico: 0.5–0.7)" },
->>>>>>> cdc79b72f70482de53e6c6d32aa113fecf2d3d84
+        { id: "diameter_m",      label: "Diâmetro do refletor (m)",       default: () => "0.60", step: "0.01", min: "0.05" },
+        { id: "focal_length_m",  label: "Distância focal (m)",            default: () => "0.22", step: "0.01", min: "0.01", hint: "Define f/D, profundidade e abertura do prato." },
+        { id: "efficiency",      label: "Eficiência de abertura (0–1)",   default: () => "0.55", step: "0.01", min: "0.01", max: "0.95", hint: "η típico: 0.5–0.7" },
+        { id: "blockage_pct",    label: "Bloqueio central (%)",           default: () => "0",    step: "1",    min: "0",    max: "80" },
+        { id: "surface_rms_mm",  label: "RMS da superfície (mm)",         default: () => "0",    step: "0.1",  min: "0" },
+        { id: "feed_loss_db",    label: "Perda no alimentador (dB)",      default: () => "0.2",  step: "0.1",  min: "0" },
+        { id: "radome_loss_db",  label: "Perda radome/acoplamento (dB)",  default: () => "0",    step: "0.1",  min: "0" },
       ],
     };
 
@@ -815,6 +755,7 @@
     const mPattern   = document.getElementById("m-pattern");
     const solverBadge  = document.getElementById("solver-badge");
     const warningBadge = document.getElementById("warning-badge");
+    const metricsDiv   = document.getElementById("extra-analysis");
 
     // ── Tab switching ──────────────────────────────────────────────────────────
     stabConfig.addEventListener("click", () => {
@@ -862,14 +803,9 @@
         row.className = "form-row";
         const maxAttr = f.max ? `max="${f.max}"` : "";
         row.innerHTML = `<label for="geo-${f.id}">${f.label}</label>
-<<<<<<< HEAD
-          <input type="number" id="geo-${f.id}" value="${f.default(freq)}" step="${f.step || "any"}" min="${f.min || "0"}" ${f.max ? `max="${f.max}"` : ""} />
-          ${f.note ? `<div class="field-note">${f.note}</div>` : ""}`;
-=======
           <input type="number" id="geo-${f.id}" value="${f.default(freq)}"
             step="${f.step || "any"}" min="${f.min || "0"}" ${maxAttr} />
           ${f.hint ? `<div class="field-hint">${f.hint}</div>` : ""}`;
->>>>>>> cdc79b72f70482de53e6c6d32aa113fecf2d3d84
         geoDiv.appendChild(row);
         document.getElementById("geo-" + f.id).addEventListener("input", updateVisual);
       });
@@ -995,7 +931,7 @@
       solverBadge.style.display = "inline-block";
 
       const extraAnalysis = renderExtraAnalysis(r);
-      if (extraAnalysis) metricsDiv.insertAdjacentHTML("beforeend", extraAnalysis);
+      metricsDiv.innerHTML = extraAnalysis || "";
 
       if (r.warning) {
         warningBadge.textContent = "⚠ " + r.warning;
