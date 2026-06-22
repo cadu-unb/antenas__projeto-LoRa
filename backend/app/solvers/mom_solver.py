@@ -106,15 +106,16 @@ class MoMSolver(BaseSolver):
                 return self._analytic_fallback(spec)
 
             ctx.fr_card(0, 1, freq_hz / 1e6, 0.0)
-            ctx.rp_card(0, 37, 73, 0, 5, 0, 0, 5.0, 5.0, 0.0, 0.0, 0.0, 0.0)
+            ctx.rp_card(0, 37, 73, 0, 0, 0, 0, 0.0, 0.0, 5.0, 5.0, 0.0, 0.0)
 
             ipt = ctx.get_input_parameters(0)
-            z = complex(ipt.get_impedance()[0])
-            z_in = z.real if z.real > 0 else 50.0
+            imp = ipt.get_impedance()
+            imp_val = imp.flat[0] if hasattr(imp, "flat") else imp
+            z_in = float(imp_val.real) if float(imp_val.real) > 0 else 50.0
 
             rp = ctx.get_radiation_pattern(0)
             gains = rp.get_gain()
-            gain_dbi = float(max(gains)) if len(gains) > 0 else 2.15
+            gain_dbi = float(gains.max()) if hasattr(gains, "max") and gains.size > 0 else 2.15
 
             return SolverResult(
                 gain_dbi=round(gain_dbi, 2),

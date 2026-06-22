@@ -1,0 +1,26 @@
+{
+  "schema_version": "1.0",
+  "id": "6bdd3afc-5656-49a5-8d1f-358a703e69f9",
+  "name": "Dipolo Base - Simulado",
+  "type": "dipolo",
+  "frequency_hz": 915000000.0,
+  "units": {
+    "frequency": "Hz",
+    "gain": "dBi",
+    "impedance": "Ohm"
+  },
+  "geometry": {
+    "length_m": 0.1639,
+    "diameter_mm": 1.5
+  },
+  "material": {},
+  "solver": "rapido",
+  "results": {
+    "gain_dbi": 2.21,
+    "impedance_ohm": 97.4,
+    "swr": 1.95,
+    "efficiency_pct": 98,
+    "radiation_pattern": "omnidirecional"
+  },
+  "metadata": {}
+}
