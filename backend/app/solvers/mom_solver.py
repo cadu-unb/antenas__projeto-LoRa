@@ -92,12 +92,14 @@ class MoMSolver(BaseSolver):
             if antenna_type == "dipolo":
                 length = geometry.get("length_m", lam / 2)
                 half = length / 2
-                geo.wire(1, 21, 0.0, 0.0, -half, 0.0, 0.0, half, lam / 200, 1.0, 1.0)
+                radius = geometry.get("diameter_mm", 1.5) / 2000
+                geo.wire(1, 21, 0.0, 0.0, -half, 0.0, 0.0, half, radius, 1.0, 1.0)
                 ctx.geometry_complete(0)
                 ctx.ex_card(0, 1, 11, 0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0)
             elif antenna_type == "monopolo":
                 height = geometry.get("height_m", lam / 4)
-                geo.wire(1, 11, 0.0, 0.0, 0.0, 0.0, 0.0, height, lam / 200, 1.0, 1.0)
+                radius = geometry.get("diameter_mm", 1.5) / 2000
+                geo.wire(1, 11, 0.0, 0.0, 0.0, 0.0, 0.0, height, radius, 1.0, 1.0)
                 ctx.geometry_complete(1)
                 ctx.ex_card(0, 1, 1, 0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0)
             else:
