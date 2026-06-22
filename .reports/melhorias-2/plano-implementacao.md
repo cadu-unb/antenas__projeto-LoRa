@@ -98,10 +98,11 @@ Tarefas:
    - `practicality_score`
    - `multi_direction_score`
    - `notes`
-2. Manter defaults retrocompatíveis para JSONs antigos.
-3. Aceitar specs antigas sem esses campos.
-4. Atualizar exemplos de criação de antena com os novos campos.
-5. Validar ranges mínimos sem ser rígido demais:
+2. Bumpar `schema_version` para `"2.0"` em specs que contiverem ao menos um dos novos campos; manter `"1.0"` em specs antigas não modificadas. O backfill da Fase 8 usa essa distinção.
+3. Manter defaults retrocompatíveis para JSONs antigos.
+4. Aceitar specs antigas sem esses campos.
+5. Atualizar exemplos de criação de antena com os novos campos.
+6. Validar ranges mínimos sem ser rígido demais:
    - scores entre `0` e `10`, se preenchidos;
    - `hpbw_deg > 0`, se preenchido;
    - `gmax_dbi` numérico, se preenchido.
@@ -138,11 +139,13 @@ Tarefas:
 | `helicoidal` | `11` | `55` | `circular/elliptical` | `true` | `helical` | `5` | `3` |
 | `parabolica` | `20` | `18` | `feed-dependent` | `true` | `parabolic` | `2` | `1` |
 | `pcb_compact` | `1` | `120` | `linear` | `false` | `pcb` | `10` | `7` |
-| `commercial_omni_6dbi` | `6` | `35` | `linear vertical` | `false` | `commercial_omni_6dbi` | `9` | `8` |
+| `commercial_omni_6dbi` | `6` | `35` | `linear vertical` | `false` | `omni_colinear` | `9` | `8` |
 
 2. Usar presets para preencher campos ausentes em specs antigas.
 3. Evitar duplicar valores em `sandbox_routes.py`, solvers e comparison.
 4. Expor helper como `apply_antenna_defaults(spec)`.
+
+Nota — `pattern_model` dos presets segue convenção curta (`dipole`, `monopole`, `helical`, `parabolic`, `pcb`, `omni_colinear`), separada do `type` Python. Permite ao solver identificar modelo angular sem depender do nome comercial.
 
 Critérios de aceite:
 
@@ -182,14 +185,16 @@ Tarefas:
    - colinear: hoje `20°`;
    - parabólica: hoje `70lambda/D`;
    - helicoidal: hoje não usa HPBW explícito.
-4. Corrigir a divergência documentada:
-   - MATLAB externo usa `Commercial_Omni_6dBi.HPBW_deg=35`;
-   - Python usa `20°`; decidir e documentar uma regra.
+4. Corrigir divergências documentadas:
 
-Decisão técnica sugerida:
+   **`commercial_omni_6dbi` HPBW:**
+   - MATLAB externo usa `35°`; Python usa `20°` no `ColinearSolver`.
+   - Decisão: usar `hpbw_deg=35` do preset/spec; manter `20°` só como fallback interno legado.
 
-- Para `commercial_omni_6dbi`, usar `hpbw_deg=35` quando vier do preset ou da spec.
-- Manter `20°` apenas como fallback interno legado.
+   **`pcb_compact` Gmax:**
+   - MATLAB externo usa `Gmax_dBi=1` (valor nominal fixo).
+   - Python usa ganho dependente de frequência: `0 dBi (<800 MHz)`, `1.5 dBi (800–1000 MHz)`, `2.0 dBi (>1000 MHz)`.
+   - Decisão recomendada: o solver continua com ganho por faixa (mais preciso para link budget); o preset guarda `gmax_dbi=1` como referência nominal para comparação com MATLAB. A Fase 4 deve fazer `_effective_gain()` ignorar `gmax_dbi` do preset para `pcb_compact` e manter o cálculo por faixa, a não ser que o usuário forneça `gmax_dbi` explícito na spec.
 
 Critérios de aceite:
 
@@ -220,7 +225,7 @@ Tarefas:
    - lineares incompatíveis: penalidade pequena configurável;
    - iguais/desconhecidas: `0 dB`.
 3. Somar perda automática com `NodeSpec.polarization_loss_db`.
-4. Retornar a perda total em `LinkResult.extra_loss_db` ou novo campo específico.
+4. Retornar a perda total em campo novo `LinkResult.polarization_loss_db` (float, default `0.0`). Não somar em `extra_loss_db` para manter rastreabilidade separada. API e serialização devem expor esse campo.
 
 Critérios de aceite:
 
@@ -233,6 +238,8 @@ Validação:
 - `uv run pytest tests/test_link_budget.py tests/test_comparison.py`
 
 ## Fase 6 — Ranking com Scores de Antena
+
+Depende de: Fase 3 (campos `is_directional`, `multi_direction_score` e `practicality_score` disponíveis via preset/spec).
 
 Prioridade: média.
 
@@ -294,7 +301,11 @@ Critérios de aceite:
 Validação:
 
 - Testes de API existentes.
-- Teste manual do sandbox e biblioteca.
+- Teste manual mínimo descrito:
+  1. Criar `commercial_omni_6dbi` no sandbox → verificar que `hpbw_deg=35` e `polarization="linear vertical"` aparecem pré-preenchidos.
+  2. Salvar e reabrir da biblioteca → campos persistidos.
+  3. Exportar como JSON → campos presentes.
+  4. Importar JSON antigo (sem novos campos) → carrega sem erro.
 
 ## Fase 8 — Compatibilidade e Migração Leve
 
@@ -313,7 +324,7 @@ Tarefas:
 3. O script deve:
    - ler specs antigas;
    - aplicar presets por `type`;
-   - preservar `metadata` e `results`;
+   - preservar `metadata`, `results` e `geometry` (sem sobrescrever parâmetros geométricos definidos pelo usuário);
    - escrever somente com flag explícita.
 4. Documentar que cenários antigos seguem válidos.
 
@@ -342,7 +353,8 @@ Casos mínimos a cobrir:
 | Caso | Resultado esperado |
 |---|---|
 | Antena antiga sem campos novos | Carrega e calcula |
-| `pcb_compact` em 915 MHz | Ganho compatível com regra atual ou preset decidido |
+| `pcb_compact` em 915 MHz | Ganho = `1.5 dBi` (cálculo por faixa, não sobrescrito pelo preset `gmax_dbi=1`) |
+| `pcb_compact` com `gmax_dbi=1` explícito na spec | Ganho override = `1.0 dBi` usado no link budget |
 | `commercial_omni_6dbi` com `hpbw_deg=35` | Padrão angular usa esse HPBW |
 | Helicoidal apontada | Margem maior |
 | Helicoidal desalinhada | Margem menor |
