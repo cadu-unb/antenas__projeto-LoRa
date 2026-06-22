@@ -1,0 +1,1062 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Topologia — Antenas LoRa</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: system-ui, sans-serif;
+      background: #0f1117;
+      color: #e2e8f0;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* ── Header ─────────────────────────────────────────────────────────────── */
+    header {
+      background: #1a1d27;
+      border-bottom: 1px solid #2d3748;
+      padding: 0.65rem 2rem;
+      display: flex;
+      align-items: center;
+      gap: 2rem;
+      flex-shrink: 0;
+    }
+    header h1 { font-size: 1.05rem; font-weight: 600; }
+    nav a { color: #a0aec0; text-decoration: none; font-size: 0.875rem; }
+    nav a:hover { color: #e2e8f0; }
+    nav a.active { color: #4f6ef7; }
+
+    /* ── App layout ──────────────────────────────────────────────────────────── */
+    .app-layout {
+      flex: 1;
+      display: flex;
+      overflow: hidden;
+      min-height: 0;
+    }
+
+    /* ── Left panel ──────────────────────────────────────────────────────────── */
+    .left-panel {
+      width: 340px;
+      flex-shrink: 0;
+      border-right: 1px solid #2d3748;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      background: #13161f;
+    }
+    .left-panel-scroll {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1rem;
+    }
+    .left-footer {
+      padding: 0.75rem 1rem;
+      border-top: 1px solid #2d3748;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      background: #13161f;
+    }
+
+    .panel-section-title {
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #4a5568;
+      margin-bottom: 0.6rem;
+    }
+
+    /* ── Node cards ──────────────────────────────────────────────────────────── */
+    .node-card {
+      background: #1a1d27;
+      border: 1px solid #2d3748;
+      border-radius: 8px;
+      margin-bottom: 0.6rem;
+      overflow: hidden;
+      transition: border-color 0.15s;
+    }
+    .node-card.is-hub { border-color: #ecc94b; }
+    .node-card-header {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.6rem 0.75rem;
+      cursor: pointer;
+      user-select: none;
+    }
+    .node-card-header:hover { background: #232637; }
+    .hub-radio {
+      appearance: none;
+      width: 16px;
+      height: 16px;
+      border: 2px solid #4a5568;
+      border-radius: 50%;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: border-color 0.15s;
+      position: relative;
+    }
+    .hub-radio:checked { border-color: #ecc94b; background: #ecc94b; }
+    .hub-radio:checked::after {
+      content: "";
+      position: absolute;
+      inset: 3px;
+      background: #1a1d27;
+      border-radius: 50%;
+    }
+    .node-name-input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      color: #e2e8f0;
+      font-size: 0.85rem;
+      font-weight: 600;
+      min-width: 0;
+    }
+    .node-name-input:focus { outline: none; color: #90cdf4; }
+    .hub-badge {
+      font-size: 0.6rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: #ecc94b;
+      background: #3d3100;
+      border: 1px solid #ecc94b44;
+      border-radius: 4px;
+      padding: 0.1rem 0.35rem;
+      display: none;
+    }
+    .node-card.is-hub .hub-badge { display: inline-block; }
+    .btn-remove-node {
+      background: transparent;
+      border: none;
+      color: #4a5568;
+      cursor: pointer;
+      font-size: 1rem;
+      padding: 0.1rem 0.3rem;
+      border-radius: 4px;
+      line-height: 1;
+    }
+    .btn-remove-node:hover { color: #fc8181; background: #2d1a1a; }
+    .chevron {
+      color: #4a5568;
+      font-size: 0.7rem;
+      transition: transform 0.2s;
+      margin-left: auto;
+    }
+    .node-card.expanded .chevron { transform: rotate(90deg); }
+
+    .node-card-body {
+      display: none;
+      padding: 0.75rem;
+      border-top: 1px solid #2d3748;
+    }
+    .node-card.expanded .node-card-body { display: block; }
+
+    .form-row { margin-bottom: 0.55rem; }
+    .form-row label { display: block; font-size: 0.72rem; color: #718096; margin-bottom: 0.18rem; }
+    .form-row input, .form-row select {
+      width: 100%;
+      background: #0f1117;
+      border: 1px solid #2d3748;
+      border-radius: 5px;
+      color: #e2e8f0;
+      padding: 0.35rem 0.55rem;
+      font-size: 0.82rem;
+    }
+    .form-row input:focus, .form-row select:focus { outline: none; border-color: #4f6ef7; }
+    .form-inline { display: grid; grid-template-columns: 1fr 1fr; gap: 0.4rem; }
+
+    .node-coords-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.4rem;
+      margin-bottom: 0.55rem;
+    }
+    .node-coords-row label { font-size: 0.72rem; color: #718096; margin-bottom: 0.18rem; display: block; }
+    .node-coords-row input {
+      width: 100%;
+      background: #0f1117;
+      border: 1px solid #2d3748;
+      border-radius: 5px;
+      color: #e2e8f0;
+      padding: 0.35rem 0.55rem;
+      font-size: 0.82rem;
+    }
+
+    .section-divider {
+      border: none;
+      border-top: 1px solid #2d3748;
+      margin: 0.6rem 0;
+    }
+
+    details.node-adv summary {
+      font-size: 0.72rem;
+      color: #4a5568;
+      cursor: pointer;
+      margin-bottom: 0.4rem;
+    }
+    details.node-adv summary:hover { color: #718096; }
+    details.node-adv[open] summary { color: #718096; }
+
+    /* ── Global settings ──────────────────────────────────────────────────────── */
+    .global-settings {
+      background: #1a1d27;
+      border: 1px solid #2d3748;
+      border-radius: 8px;
+      padding: 0.75rem;
+      margin-bottom: 0.75rem;
+    }
+    .global-row { display: flex; gap: 0.4rem; align-items: flex-end; }
+    .global-row .form-row { flex: 1; margin-bottom: 0; }
+    .btn-apply-small {
+      background: #2d3748;
+      border: none;
+      border-radius: 5px;
+      color: #a0aec0;
+      font-size: 0.75rem;
+      padding: 0.35rem 0.6rem;
+      cursor: pointer;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .btn-apply-small:hover { background: #374151; color: #e2e8f0; }
+
+    /* ── Buttons ──────────────────────────────────────────────────────────────── */
+    button { cursor: pointer; border: none; border-radius: 6px; padding: 0.45rem 0.9rem; font-size: 0.8rem; font-weight: 600; transition: opacity 0.15s; }
+    button:hover { opacity: 0.85; }
+    button:disabled { opacity: 0.35; cursor: not-allowed; }
+    .btn-primary { background: #4f6ef7; color: #fff; }
+    .btn-secondary { background: #2d3748; color: #e2e8f0; }
+    .btn-outline { background: transparent; border: 1px solid #4a5568; color: #a0aec0; }
+    .btn-add-node {
+      width: 100%;
+      background: transparent;
+      border: 1px dashed #2d3748;
+      color: #4a5568;
+      border-radius: 8px;
+      padding: 0.5rem;
+      font-size: 0.8rem;
+      transition: all 0.15s;
+      margin-bottom: 0.75rem;
+    }
+    .btn-add-node:hover { border-color: #4f6ef7; color: #4f6ef7; background: #1a1d27; }
+    .btn-calculate {
+      width: 100%;
+      background: #4f6ef7;
+      color: #fff;
+      font-size: 0.9rem;
+      padding: 0.6rem;
+    }
+
+    /* ── Right area ──────────────────────────────────────────────────────────── */
+    .right-area {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      min-width: 0;
+    }
+    #map {
+      flex-shrink: 0;
+      height: 40%;
+      min-height: 200px;
+      background: #1a1d27;
+      border-bottom: 1px solid #2d3748;
+    }
+    .results-area {
+      flex: 1;
+      overflow-y: auto;
+      background: #0f1117;
+    }
+
+    /* ── Results table ───────────────────────────────────────────────────────── */
+    .results-header {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 0.75rem 1.25rem;
+      background: #13161f;
+      border-bottom: 1px solid #2d3748;
+      flex-wrap: wrap;
+    }
+    .results-title {
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: #4a5568;
+    }
+    .semaphore-inline {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.3rem 0.75rem;
+      border-radius: 6px;
+      font-size: 0.82rem;
+      font-weight: 700;
+    }
+    .sem-verde  { background: #1c4532; border: 1px solid #68d391; color: #68d391; }
+    .sem-amarelo { background: #744210; border: 1px solid #f6e05e; color: #f6e05e; }
+    .sem-vermelho { background: #742a2a; border: 1px solid #fc8181; color: #fc8181; }
+
+    .stat-pill {
+      font-size: 0.75rem;
+      color: #718096;
+      padding: 0.2rem 0.6rem;
+      background: #1a1d27;
+      border-radius: 4px;
+      border: 1px solid #2d3748;
+    }
+    .stat-pill strong { color: #90cdf4; }
+
+    .links-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .links-table th {
+      background: #13161f;
+      color: #718096;
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      padding: 0.5rem 1rem;
+      text-align: left;
+      border-bottom: 1px solid #2d3748;
+      white-space: nowrap;
+    }
+    .links-table th.center { text-align: center; }
+    .links-table tbody tr.link-row {
+      cursor: pointer;
+      transition: background 0.1s;
+      border-bottom: 1px solid #1a1d27;
+    }
+    .links-table tbody tr.link-row:hover { background: #1a1d27; }
+    .links-table tbody tr.link-row.expanded { background: #1a2035; }
+    .links-table td {
+      padding: 0.55rem 1rem;
+      font-size: 0.82rem;
+      vertical-align: middle;
+    }
+    .links-table td.center { text-align: center; }
+
+    .link-names { font-weight: 600; color: #e2e8f0; }
+    .link-hub-name { color: #ecc94b; }
+    .link-node-name { color: #90cdf4; }
+
+    .margin-val { font-weight: 700; font-family: monospace; }
+    .margin-verde  { color: #68d391; }
+    .margin-amarelo { color: #f6e05e; }
+    .margin-vermelho { color: #fc8181; }
+
+    .feasibility-dot { font-size: 1.1rem; }
+
+    .expand-icon { font-size: 0.7rem; color: #4a5568; }
+    tr.link-row.expanded .expand-icon { color: #4f6ef7; }
+
+    /* Budget detail row */
+    tr.budget-detail-row td {
+      padding: 0;
+      background: #0d1020;
+      border-bottom: 1px solid #2d3748;
+    }
+    .budget-detail {
+      padding: 1rem 1.25rem;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem 2rem;
+    }
+    .budget-col-title {
+      font-size: 0.63rem;
+      font-weight: 700;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      color: #4a5568;
+      margin-bottom: 0.5rem;
+    }
+    .budget-table-inner {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.78rem;
+    }
+    .budget-table-inner td {
+      padding: 0.22rem 0.4rem;
+      border-bottom: 1px solid #1a1d27;
+      color: #a0aec0;
+    }
+    .budget-table-inner td:last-child { text-align: right; font-family: monospace; color: #90cdf4; }
+    .budget-table-inner tr.total-row td { font-weight: 700; color: #e2e8f0; border-top: 2px solid #2d3748; }
+
+    /* ── Empty state ──────────────────────────────────────────────────────────── */
+    .empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      min-height: 200px;
+      color: #4a5568;
+      gap: 0.5rem;
+      padding: 2rem;
+      text-align: center;
+    }
+    .empty-icon { font-size: 2.5rem; opacity: 0.4; }
+    .empty-text { font-size: 0.85rem; }
+    .empty-hint { font-size: 0.75rem; color: #2d3748; }
+
+    /* ── Error / status ───────────────────────────────────────────────────────── */
+    #error-banner {
+      display: none;
+      background: #742a2a;
+      border: 1px solid #fc8181;
+      color: #fed7d7;
+      border-radius: 6px;
+      padding: 0.6rem 1rem;
+      font-size: 0.8rem;
+      margin: 0.75rem;
+    }
+    #error-banner.visible { display: block; }
+
+    /* ── Leaflet overrides ───────────────────────────────────────────────────── */
+    .leaflet-container { background: #2d3748 !important; }
+    .leaflet-popup-content-wrapper { background: #1a1d27; color: #e2e8f0; border: 1px solid #4a5568; border-radius: 8px; }
+    .leaflet-popup-tip { background: #1a1d27; }
+    .leaflet-popup-content { margin: 0.6rem 0.9rem; font-size: 0.82rem; }
+    .leaflet-control-zoom a { background: #1a1d27; color: #e2e8f0; border-color: #2d3748; }
+    .leaflet-control-zoom a:hover { background: #2d3748; }
+    .leaflet-control-attribution { background: rgba(10,12,20,0.7) !important; color: #4a5568 !important; }
+
+    /* ── Responsive ──────────────────────────────────────────────────────────── */
+    @media (max-width: 768px) {
+      .left-panel { width: 100%; height: 50vh; border-right: none; border-bottom: 1px solid #2d3748; }
+      .app-layout { flex-direction: column; }
+      .budget-detail { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Antenas LoRa</h1>
+    <nav>
+      <a href="/">Início</a> &nbsp;·&nbsp;
+      <a href="/library.html">Biblioteca</a> &nbsp;·&nbsp;
+      <a href="/sandbox.html">Sandbox</a> &nbsp;·&nbsp;
+      <a href="/link-planner.html">Link Planner</a> &nbsp;·&nbsp;
+      <a href="/topology.html" class="active">Topologia</a>
+    </nav>
+  </header>
+
+  <div class="app-layout">
+    <!-- ── Left panel ── -->
+    <aside class="left-panel">
+      <div class="left-panel-scroll">
+
+        <div class="panel-section-title">Nós da rede</div>
+        <div id="node-list"></div>
+        <button class="btn-add-node" id="btn-add-node">+ Adicionar nó</button>
+
+        <!-- Global settings -->
+        <div class="global-settings">
+          <div class="panel-section-title" style="margin-bottom:0.5rem;">Configurações globais</div>
+          <div class="form-inline" style="margin-bottom:0.55rem;">
+            <div class="form-row" style="margin-bottom:0;">
+              <label>Frequência (MHz)</label>
+              <input type="number" id="global-freq" value="915" min="1" max="10000" step="1" />
+            </div>
+            <div class="form-row" style="margin-bottom:0;">
+              <label>Modelo</label>
+              <select id="global-model">
+                <option value="fspl">FSPL</option>
+                <option value="okumura_hata">Okumura-Hata</option>
+              </select>
+            </div>
+          </div>
+          <div class="global-row">
+            <div class="form-row">
+              <label>Antena padrão (todos)</label>
+              <select id="global-antenna">
+                <option value="">— sem antena —</option>
+              </select>
+            </div>
+            <button class="btn-apply-small" id="btn-apply-antenna">Aplicar</button>
+          </div>
+          <div class="global-row" style="margin-top:0.4rem;">
+            <div class="form-row">
+              <label>Módulo LoRa (todos)</label>
+              <select id="global-module">
+                <option value="">— manual —</option>
+              </select>
+            </div>
+            <button class="btn-apply-small" id="btn-apply-module">Aplicar</button>
+          </div>
+        </div>
+
+      </div><!-- /scroll -->
+
+      <div class="left-footer">
+        <div id="error-banner"></div>
+        <button class="btn-calculate" id="btn-calculate">Calcular todos os enlaces</button>
+        <div id="calc-status" style="font-size:0.73rem;color:#718096;text-align:center;min-height:1em;"></div>
+      </div>
+    </aside>
+
+    <!-- ── Right area ── -->
+    <div class="right-area">
+      <div id="map"></div>
+      <div class="results-area" id="results-area">
+        <div class="empty-state" id="empty-state">
+          <div class="empty-icon">🗂️</div>
+          <div class="empty-text">Adicione nós e clique em <strong>Calcular</strong></div>
+          <div class="empty-hint">Marque ★ no nó que será o hub/gateway. O sistema gera automaticamente todos os enlaces hub↔nó.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script type="module">
+    import { api } from "/js/api-client.js";
+
+    // ── State ──────────────────────────────────────────────────────────────────
+    let nodes = [];       // [{id, name, lat, lon, height_m, antenna_id, tx_power_dbm, rx_sensitivity_dbm, cable_loss_db, is_hub}]
+    let antennaOptions = [];
+    let moduleOptions  = [];
+    let nodeCounter    = 0;
+    let map, mapLayers = [];
+
+    // ── Map init ───────────────────────────────────────────────────────────────
+    map = L.map("map", { zoomControl: true, attributionControl: true }).setView([-15.7655, -47.8724], 12);
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      attribution: "© OpenStreetMap",
+      maxZoom: 19,
+    }).addTo(map);
+
+    // ── Load library data ──────────────────────────────────────────────────────
+    async function loadLibrary() {
+      try {
+        const [ants, mods] = await Promise.all([
+          api.listAntennas(),
+          fetch("/api/v1/modules").then(r => r.json()).catch(() => []),
+        ]);
+        antennaOptions = (ants || []).map(a => ({ id: a.id, label: `${a.name} (${a.type}, ${a.gain_dbi} dBi)` }));
+        moduleOptions  = (mods || []).map(m => ({ id: m.id, label: `${m.name} — ${m.tx_power_dbm}dBm / ${m.rx_sensitivity_dbm}dBm`, tx: m.tx_power_dbm, rx: m.rx_sensitivity_dbm }));
+      } catch (_) {}
+
+      // Populate global selects
+      const gAnt = document.getElementById("global-antenna");
+      antennaOptions.forEach(a => { const o = document.createElement("option"); o.value = a.id; o.textContent = a.label; gAnt.appendChild(o); });
+
+      const gMod = document.getElementById("global-module");
+      moduleOptions.forEach(m => { const o = document.createElement("option"); o.value = m.id; o.textContent = m.label; gMod.appendChild(o); });
+
+      // Update any existing node cards
+      document.querySelectorAll(".node-antenna-select").forEach(sel => populateAntennaSelect(sel));
+      document.querySelectorAll(".node-module-select").forEach(sel => populateModuleSelect(sel));
+    }
+
+    function populateAntennaSelect(sel) {
+      const cur = sel.value;
+      sel.innerHTML = `<option value="">— sem antena —</option>`;
+      antennaOptions.forEach(a => { const o = document.createElement("option"); o.value = a.id; o.textContent = a.label; sel.appendChild(o); });
+      if (cur) sel.value = cur;
+    }
+
+    function populateModuleSelect(sel) {
+      const cur = sel.value;
+      sel.innerHTML = `<option value="">— manual —</option>`;
+      moduleOptions.forEach(m => { const o = document.createElement("option"); o.value = m.id; o.textContent = m.label; sel.appendChild(o); });
+      if (cur) sel.value = cur;
+    }
+
+    // ── Node management ────────────────────────────────────────────────────────
+    function genId() { return `node_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`; }
+
+    function addNode(defaults = {}) {
+      nodeCounter++;
+      const isFirst = nodes.length === 0;
+      const node = {
+        id: genId(),
+        name: defaults.name ?? `Nó ${nodeCounter}`,
+        lat: defaults.lat ?? -15.7655173,
+        lon: defaults.lon ?? -47.8723601,
+        height_m: defaults.height_m ?? 10,
+        antenna_id: defaults.antenna_id ?? null,
+        tx_power_dbm: defaults.tx_power_dbm ?? 14,
+        rx_sensitivity_dbm: defaults.rx_sensitivity_dbm ?? -137,
+        cable_loss_db: defaults.cable_loss_db ?? 0,
+        is_hub: defaults.is_hub ?? isFirst,
+      };
+      nodes.push(node);
+      renderNodeList();
+      updateMap();
+      return node;
+    }
+
+    function removeNode(id) {
+      nodes = nodes.filter(n => n.id !== id);
+      // If removed hub, make first node hub
+      if (nodes.length > 0 && !nodes.some(n => n.is_hub)) {
+        nodes[0].is_hub = true;
+      }
+      renderNodeList();
+      updateMap();
+    }
+
+    function setHub(id) {
+      nodes.forEach(n => { n.is_hub = n.id === id; });
+      renderNodeList();
+      updateMap();
+    }
+
+    function updateNodeField(id, field, value) {
+      const n = nodes.find(n => n.id === id);
+      if (!n) return;
+      if (field === "tx_power_dbm" || field === "rx_sensitivity_dbm" || field === "cable_loss_db" || field === "height_m" || field === "lat" || field === "lon") {
+        n[field] = parseFloat(value) || 0;
+      } else {
+        n[field] = value;
+      }
+      if (field === "lat" || field === "lon") updateMap();
+    }
+
+    function onModuleChange(nodeId, moduleId) {
+      const mod = moduleOptions.find(m => m.id === moduleId);
+      if (!mod) return;
+      const n = nodes.find(n => n.id === nodeId);
+      if (!n) return;
+      n.tx_power_dbm = mod.tx;
+      n.rx_sensitivity_dbm = mod.rx;
+      // Update inputs in card
+      const card = document.querySelector(`[data-node-id="${nodeId}"]`);
+      if (card) {
+        const txIn = card.querySelector(".node-txpower");
+        const rxIn = card.querySelector(".node-rxsens");
+        if (txIn) txIn.value = mod.tx;
+        if (rxIn) rxIn.value = mod.rx;
+      }
+    }
+
+    function renderNodeList() {
+      const list = document.getElementById("node-list");
+      const hub = nodes.find(n => n.is_hub);
+      list.innerHTML = "";
+      nodes.forEach(n => {
+        const card = document.createElement("div");
+        card.className = `node-card${n.is_hub ? " is-hub" : ""}${n._expanded ? " expanded" : ""}`;
+        card.dataset.nodeId = n.id;
+        card.innerHTML = `
+          <div class="node-card-header" data-toggle="${n.id}">
+            <input type="radio" class="hub-radio" name="hub-select" ${n.is_hub ? "checked" : ""} data-node-id="${n.id}" title="Marcar como hub" />
+            <input type="text" class="node-name-input" value="${escHtml(n.name)}" placeholder="Nome do nó" data-node-id="${n.id}" data-field="name" />
+            <span class="hub-badge">Hub</span>
+            <button class="btn-remove-node" data-remove-id="${n.id}" title="Remover nó">✕</button>
+            <span class="chevron">▶</span>
+          </div>
+          <div class="node-card-body">
+            <div class="node-coords-row">
+              <div><label>Latitude</label><input type="number" value="${n.lat}" step="0.000001" data-node-id="${n.id}" data-field="lat" /></div>
+              <div><label>Longitude</label><input type="number" value="${n.lon}" step="0.000001" data-node-id="${n.id}" data-field="lon" /></div>
+            </div>
+            <div class="form-row">
+              <label>Altura sobre solo (m)</label>
+              <input type="number" value="${n.height_m}" min="0" step="0.5" data-node-id="${n.id}" data-field="height_m" />
+            </div>
+            <details class="node-adv">
+              <summary>Rádio e antena ▾</summary>
+              <div style="padding-top:0.4rem;">
+                <div class="form-row">
+                  <label>Módulo LoRa</label>
+                  <select class="node-module-select" data-node-id="${n.id}">
+                    <option value="">— manual —</option>
+                  </select>
+                </div>
+                <div class="form-row">
+                  <label>Antena da biblioteca</label>
+                  <select class="node-antenna-select" data-node-id="${n.id}">
+                    <option value="">— sem antena (0 dBi) —</option>
+                  </select>
+                </div>
+                <div class="form-inline">
+                  <div class="form-row" style="margin-bottom:0;">
+                    <label>Potência Tx (dBm)</label>
+                    <input type="number" class="node-txpower" value="${n.tx_power_dbm}" step="0.5" data-node-id="${n.id}" data-field="tx_power_dbm" />
+                  </div>
+                  <div class="form-row" style="margin-bottom:0;">
+                    <label>Sensibilidade Rx (dBm)</label>
+                    <input type="number" class="node-rxsens" value="${n.rx_sensitivity_dbm}" step="0.5" data-node-id="${n.id}" data-field="rx_sensitivity_dbm" />
+                  </div>
+                </div>
+                <div class="form-row" style="margin-top:0.4rem;">
+                  <label>Perda de cabo (dB)</label>
+                  <input type="number" value="${n.cable_loss_db}" min="0" step="0.1" data-node-id="${n.id}" data-field="cable_loss_db" />
+                </div>
+              </div>
+            </details>
+          </div>
+        `;
+        list.appendChild(card);
+
+        // Populate selects
+        const antSel = card.querySelector(".node-antenna-select");
+        populateAntennaSelect(antSel);
+        if (n.antenna_id) antSel.value = n.antenna_id;
+
+        const modSel = card.querySelector(".node-module-select");
+        populateModuleSelect(modSel);
+      });
+
+      // ── Bind events ──
+      list.querySelectorAll(".hub-radio").forEach(radio => {
+        radio.addEventListener("change", e => {
+          e.stopPropagation();
+          if (radio.checked) setHub(radio.dataset.nodeId);
+        });
+        radio.addEventListener("click", e => e.stopPropagation());
+      });
+
+      list.querySelectorAll(".node-name-input").forEach(inp => {
+        inp.addEventListener("click", e => e.stopPropagation());
+        inp.addEventListener("input", e => {
+          updateNodeField(inp.dataset.nodeId, "name", inp.value);
+          const card = inp.closest(".node-card");
+          // Update hub badge visibility handled by is-hub class already
+        });
+      });
+
+      list.querySelectorAll("[data-remove-id]").forEach(btn => {
+        btn.addEventListener("click", e => {
+          e.stopPropagation();
+          removeNode(btn.dataset.removeId);
+        });
+      });
+
+      list.querySelectorAll("[data-toggle]").forEach(header => {
+        header.addEventListener("click", () => {
+          const card = header.closest(".node-card");
+          const nId = header.dataset.toggle;
+          const n = nodes.find(n => n.id === nId);
+          if (n) n._expanded = !n._expanded;
+          card.classList.toggle("expanded");
+        });
+      });
+
+      list.querySelectorAll("input[data-field], select[data-field]").forEach(el => {
+        el.addEventListener("input", () => updateNodeField(el.dataset.nodeId, el.dataset.field, el.value));
+      });
+
+      list.querySelectorAll(".node-antenna-select").forEach(sel => {
+        sel.addEventListener("change", () => updateNodeField(sel.dataset.nodeId, "antenna_id", sel.value || null));
+      });
+
+      list.querySelectorAll(".node-module-select").forEach(sel => {
+        sel.addEventListener("change", () => onModuleChange(sel.dataset.nodeId, sel.value));
+      });
+    }
+
+    // ── Map update ─────────────────────────────────────────────────────────────
+    function updateMap(hopResults = null) {
+      mapLayers.forEach(l => map.removeLayer(l));
+      mapLayers = [];
+
+      const hub = nodes.find(n => n.is_hub);
+      const validNodes = nodes.filter(n => isValidLatLon(n.lat, n.lon));
+      if (validNodes.length === 0) return;
+
+      // Draw lines hub↔each node (colored by result if available)
+      if (hub && isValidLatLon(hub.lat, hub.lon)) {
+        validNodes.filter(n => !n.is_hub).forEach(n => {
+          let color = "#4a5568";
+          if (hopResults) {
+            const h = hopResults.find(h => (h.node_a_name === hub.name && h.node_b_name === n.name) || (h.node_b_name === hub.name && h.node_a_name === n.name));
+            if (h) color = h.feasibility === "verde" ? "#68d391" : h.feasibility === "amarelo" ? "#f6e05e" : "#fc8181";
+          }
+          const line = L.polyline([[hub.lat, hub.lon], [n.lat, n.lon]], {
+            color,
+            weight: hopResults ? 2.5 : 1.5,
+            opacity: hopResults ? 0.85 : 0.4,
+            dashArray: hopResults ? null : "5,5",
+          });
+          line.addTo(map);
+          mapLayers.push(line);
+        });
+      }
+
+      // Draw markers
+      validNodes.forEach(n => {
+        const isHubNode = n.is_hub;
+        const color = isHubNode ? "#ecc94b" : "#4f6ef7";
+        const icon = L.divIcon({
+          className: "",
+          html: `<div style="
+            background:${color};
+            width:${isHubNode ? 16 : 12}px;
+            height:${isHubNode ? 16 : 12}px;
+            border-radius:50%;
+            border:2px solid ${isHubNode ? "#fef3c7" : "#c3dafe"};
+            box-shadow:0 0 ${isHubNode ? 6 : 4}px ${color}88;
+          "></div>`,
+          iconSize: [isHubNode ? 16 : 12, isHubNode ? 16 : 12],
+          iconAnchor: [isHubNode ? 8 : 6, isHubNode ? 8 : 6],
+        });
+        const marker = L.marker([n.lat, n.lon], { icon });
+        marker.bindPopup(`<strong>${escHtml(n.name)}</strong><br>${isHubNode ? "⭐ Hub/Gateway" : "Nó folha"}<br><small>${n.lat.toFixed(5)}, ${n.lon.toFixed(5)}</small>`);
+        marker.addTo(map);
+        mapLayers.push(marker);
+      });
+
+      // Fit bounds
+      if (validNodes.length === 1) {
+        map.setView([validNodes[0].lat, validNodes[0].lon], 14);
+      } else if (validNodes.length > 1) {
+        map.fitBounds(L.latLngBounds(validNodes.map(n => [n.lat, n.lon])).pad(0.2));
+      }
+    }
+
+    function isValidLatLon(lat, lon) {
+      return !isNaN(lat) && !isNaN(lon) && Math.abs(lat) <= 90 && Math.abs(lon) <= 180;
+    }
+
+    // ── Global antenna/module apply ────────────────────────────────────────────
+    document.getElementById("btn-apply-antenna").addEventListener("click", () => {
+      const val = document.getElementById("global-antenna").value;
+      nodes.forEach(n => { n.antenna_id = val || null; });
+      renderNodeList();
+    });
+
+    document.getElementById("btn-apply-module").addEventListener("click", () => {
+      const val = document.getElementById("global-module").value;
+      const mod = moduleOptions.find(m => m.id === val);
+      if (!mod) return;
+      nodes.forEach(n => { n.tx_power_dbm = mod.tx; n.rx_sensitivity_dbm = mod.rx; });
+      renderNodeList();
+    });
+
+    // ── Add node button ────────────────────────────────────────────────────────
+    document.getElementById("btn-add-node").addEventListener("click", () => addNode());
+
+    // ── Calculate ──────────────────────────────────────────────────────────────
+    document.getElementById("btn-calculate").addEventListener("click", calculate);
+
+    async function calculate() {
+      clearError();
+      const hub = nodes.find(n => n.is_hub);
+      const leaves = nodes.filter(n => !n.is_hub);
+
+      if (!hub) { showError("Selecione um nó como hub (clique no círculo ◉)."); return; }
+      if (leaves.length === 0) { showError("Adicione pelo menos 1 nó folha além do hub."); return; }
+      if (!nodes.every(n => isValidLatLon(n.lat, n.lon))) { showError("Verifique as coordenadas — algum nó tem lat/lon inválido."); return; }
+
+      const btn = document.getElementById("btn-calculate");
+      const status = document.getElementById("calc-status");
+      btn.disabled = true;
+      btn.textContent = "Calculando…";
+      status.textContent = "";
+
+      try {
+        const freq = parseFloat(document.getElementById("global-freq").value) || 915;
+        const model = document.getElementById("global-model").value || "fspl";
+
+        // Build NodeSpec objects with stable IDs
+        const toNodeSpec = n => ({
+          id: n.id,
+          name: n.name,
+          lat: n.lat,
+          lon: n.lon,
+          height_m: n.height_m,
+          antenna_id: n.antenna_id || null,
+          tx_power_dbm: n.tx_power_dbm,
+          rx_sensitivity_dbm: n.rx_sensitivity_dbm,
+          cable_loss_db: n.cable_loss_db,
+          is_hub: n.is_hub,
+        });
+
+        // Links: hub↔each leaf (bidirectional = one edge per pair)
+        const links = leaves.map(leaf => ({
+          node_a_id: hub.id,
+          node_b_id: leaf.id,
+        }));
+
+        const scenario = {
+          name: `Topologia Estrela — ${hub.name}`,
+          node_a: toNodeSpec(hub),
+          node_b: toNodeSpec(leaves[0]),
+          frequency_hz: freq * 1e6,
+          propagation_model: model,
+          topology_type: "STAR",
+          extra_nodes: leaves.slice(1).map(toNodeSpec),
+          links,
+        };
+
+        status.textContent = "Criando cenário…";
+        const created = await api.createScenario(scenario);
+        status.textContent = "Calculando enlaces…";
+
+        const resp = await fetch(`/api/v1/scenarios/${created.id}/calculate_links`, { method: "POST" });
+        if (!resp.ok) {
+          const err = await resp.json().catch(() => ({}));
+          throw new Error(err.detail ?? `HTTP ${resp.status}`);
+        }
+        const data = await resp.json();
+
+        status.textContent = `${data.hops.length} enlace(s) calculados.`;
+        renderResults(data, hub, leaves, freq);
+        updateMap(data.hops);
+
+      } catch (e) {
+        showError("Erro: " + (e.message ?? "erro desconhecido"));
+      } finally {
+        btn.disabled = false;
+        btn.textContent = "Calcular todos os enlaces";
+      }
+    }
+
+    // ── Render results ─────────────────────────────────────────────────────────
+    function renderResults(data, hub, leaves, freq_mhz) {
+      const area = document.getElementById("results-area");
+      const semClass = data.feasibility === "verde" ? "sem-verde" : data.feasibility === "amarelo" ? "sem-amarelo" : "sem-vermelho";
+      const semLabel = data.feasibility === "verde" ? "✓ Rede viável" : data.feasibility === "amarelo" ? "⚠ Margem apertada" : "✗ Rede inviável";
+
+      const viable = data.hops.filter(h => h.feasibility !== "vermelho").length;
+      const total = data.hops.length;
+
+      let html = `
+        <div class="results-header">
+          <span class="results-title">Resultados</span>
+          <span class="semaphore-inline ${semClass}">${semLabel} — gargalo ${data.bottleneck_margin_db > 0 ? "+" : ""}${data.bottleneck_margin_db} dB</span>
+          <span class="stat-pill"><strong>${viable}</strong>/${total} viáveis</span>
+          <span class="stat-pill"><strong>${freq_mhz}</strong> MHz</span>
+          <span class="stat-pill">Hub: <strong>${escHtml(hub.name)}</strong></span>
+        </div>
+        <table class="links-table">
+          <thead>
+            <tr>
+              <th></th>
+              <th>Enlace</th>
+              <th class="center">Dist (km)</th>
+              <th class="center">FSPL (dB)</th>
+              <th class="center">Rx (dBm)</th>
+              <th class="center">Margem (dB)</th>
+              <th class="center">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+      `;
+
+      data.hops.forEach((h, idx) => {
+        const cls = h.feasibility === "verde" ? "margin-verde" : h.feasibility === "amarelo" ? "margin-amarelo" : "margin-vermelho";
+        const dot = h.feasibility === "verde" ? "🟢" : h.feasibility === "amarelo" ? "🟡" : "🔴";
+        const marginStr = (h.link_margin_db > 0 ? "+" : "") + h.link_margin_db;
+        const distKm = (h.distance_m / 1000).toFixed(2);
+
+        // Find the leaf node for budget detail
+        const leaf = leaves.find(l => l.name === h.node_b_name) || leaves.find(l => l.name === h.node_a_name);
+
+        html += `
+          <tr class="link-row" data-hop-idx="${idx}">
+            <td style="padding-left:1rem;"><span class="expand-icon">▶</span></td>
+            <td>
+              <span class="link-names">
+                <span class="link-hub-name">${escHtml(h.node_a_name)}</span>
+                <span style="color:#4a5568;"> ↔ </span>
+                <span class="link-node-name">${escHtml(h.node_b_name)}</span>
+              </span>
+            </td>
+            <td class="center">${distKm}</td>
+            <td class="center">${h.fspl_db}</td>
+            <td class="center" style="font-family:monospace;">${h.rx_power_dbm}</td>
+            <td class="center"><span class="margin-val ${cls}">${marginStr}</span></td>
+            <td class="center"><span class="feasibility-dot">${dot}</span></td>
+          </tr>
+          <tr class="budget-detail-row" id="budget-${idx}" style="display:none;">
+            <td colspan="7">
+              ${buildBudgetDetail(h, hub, leaf)}
+            </td>
+          </tr>
+        `;
+      });
+
+      html += `</tbody></table>`;
+      area.innerHTML = html;
+
+      // Bind expand/collapse
+      area.querySelectorAll(".link-row").forEach(row => {
+        row.addEventListener("click", () => {
+          const idx = row.dataset.hopIdx;
+          const detail = document.getElementById(`budget-${idx}`);
+          const isOpen = row.classList.toggle("expanded");
+          row.querySelector(".expand-icon").textContent = isOpen ? "▼" : "▶";
+          detail.style.display = isOpen ? "table-row" : "none";
+        });
+      });
+    }
+
+    function buildBudgetDetail(h, hub, leaf) {
+      const gainHubLabel  = hub?.antenna_id ? (antennaOptions.find(a => a.id === hub.antenna_id)?.label ?? "biblioteca") : "0 dBi";
+      const gainLeafLabel = leaf?.antenna_id ? (antennaOptions.find(a => a.id === leaf.antenna_id)?.label ?? "biblioteca") : "0 dBi";
+      const txPower   = hub?.tx_power_dbm ?? 14;
+      const cable     = hub?.cable_loss_db ?? 0;
+      const cableRx   = leaf?.cable_loss_db ?? 0;
+      const rxSens    = leaf?.rx_sensitivity_dbm ?? -137;
+      const pire      = txPower - cable;
+
+      return `
+        <div class="budget-detail">
+          <div>
+            <div class="budget-col-title">TX → ${escHtml(h.node_a_name)}</div>
+            <table class="budget-table-inner">
+              <tr><td>Potência TX</td><td>+${txPower} dBm</td></tr>
+              <tr><td>Ganho ant. TX</td><td>${gainHubLabel}</td></tr>
+              <tr><td>Perda de cabo TX</td><td>-${cable} dB</td></tr>
+              <tr class="total-row"><td>PIRE</td><td>= ${pire.toFixed(1)} dBm</td></tr>
+            </table>
+          </div>
+          <div>
+            <div class="budget-col-title">Propagação + RX → ${escHtml(h.node_b_name)}</div>
+            <table class="budget-table-inner">
+              <tr><td>Propagação (FSPL)</td><td>-${h.fspl_db} dB</td></tr>
+              <tr><td>Ganho ant. RX</td><td>${gainLeafLabel}</td></tr>
+              <tr><td>Perda de cabo RX</td><td>-${cableRx} dB</td></tr>
+              <tr class="total-row"><td>Potência Rx estimada</td><td>= ${h.rx_power_dbm} dBm</td></tr>
+              <tr><td>Sensibilidade Rx</td><td>${rxSens.toFixed(1)} dBm</td></tr>
+              <tr class="total-row"><td>Margem de enlace</td><td>= ${h.link_margin_db > 0 ? "+" : ""}${h.link_margin_db} dB</td></tr>
+            </table>
+          </div>
+        </div>
+      `;
+    }
+
+    // ── Helpers ────────────────────────────────────────────────────────────────
+    function escHtml(s) {
+      return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+    }
+
+    function showError(msg) {
+      const el = document.getElementById("error-banner");
+      el.textContent = msg;
+      el.classList.add("visible");
+    }
+
+    function clearError() {
+      document.getElementById("error-banner").classList.remove("visible");
+    }
+
+    // ── Init ───────────────────────────────────────────────────────────────────
+    await loadLibrary();
+
+    // Seed with hub + 2 example leaf nodes
+    addNode({ name: "Gateway", lat: -15.7655173, lon: -47.8723601, height_m: 15, is_hub: true });
+    addNode({ name: "Nó 1",    lat: -15.7730000, lon: -47.8800000, height_m: 5 });
+    addNode({ name: "Nó 2",    lat: -15.7600000, lon: -47.8600000, height_m: 5 });
+
+  </script>
+</body>
+</html>
