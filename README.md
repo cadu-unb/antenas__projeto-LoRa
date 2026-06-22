@@ -73,3 +73,65 @@ sudo systemctl start docker
 docker compose build 2>&1 | tail -100 && docker compose up -d
 docker compose build --no-cache 2>&1 && docker compose up -d --force-recreate
 ```
+
+## Como Publicar e Rodar a Imagem Docker do Projeto Antenas LoRa
+
+Siga os passos abaixo para gerar a imagem do backend do projeto, publicá-la no Docker Hub e rodá-la em qualquer máquina.
+
+---
+
+### Passo 1: Criar uma conta no Docker Hub
+
+Se ainda não tiver, acesse [hub.docker.com](https://hub.docker.com/) e crie uma conta gratuita. O usuário configurado para este exemplo é `cadu0`.
+
+### Passo 2: Fazer login pelo Terminal
+
+No terminal da sua máquina, conecte-se à sua conta do Docker Hub:
+
+```bash
+docker login
+```
+
+Insira o seu usuário (`cadu0`) e a sua senha, ou um Access Token gerado no site do Docker Hub.
+
+### Passo 3: Criar a Imagem (Build) com a Tag Correta
+
+Navegue até a pasta do projeto onde está o `Dockerfile` e rode:
+
+```bash
+docker build -t cadu0/antenas__projeto-lora-backend:v3 .
+```
+
+Atenção: o ponto `.` no final indica o contexto atual e é obrigatório. A tag `v3` identifica a versão da imagem.
+
+Se você já buildou a imagem antes via Docker Compose, pode apenas renomeá-la localmente:
+
+```bash
+docker tag antenas__projeto-lora-backend cadu0/antenas__projeto-lora-backend:v3
+```
+
+### Passo 4: Enviar a Imagem (Push) para o Docker Hub
+
+Agora, envie a imagem gerada para a nuvem:
+
+```bash
+docker push cadu0/antenas__projeto-lora-backend:v3
+```
+
+Isso pode levar alguns minutos dependendo do tamanho do projeto e da sua conexão de internet.
+
+### Como rodar em qualquer outra máquina
+
+Com a imagem publicada, você não precisa clonar o GitHub nem configurar o ambiente do zero em uma nova máquina. Basta que o novo computador tenha o Docker instalado e execute:
+
+```bash
+docker run -d -p 8000:8000 cadu0/antenas__projeto-lora-backend:v3
+```
+
+Depois, acesse:
+
+```text
+http://localhost:8000
+```
+
+Nota: este projeto está configurado para servir a aplicação na porta `8000`. Se você alterar a porta no Dockerfile ou no servidor, ajuste o trecho `-p 8000:8000` conforme necessário.
