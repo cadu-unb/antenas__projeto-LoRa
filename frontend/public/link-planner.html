@@ -459,6 +459,7 @@
       <button class="btn-primary" id="btn-calculate">Calcular Link Budget</button>
       <button class="btn-secondary" id="btn-import-kml" title="Importar arquivo KML">Importar KML</button>
       <input type="file" id="kml-file-input" accept=".kml" style="display:none" />
+      <button class="btn-outline" id="btn-open-topology" title="Abrir nós no visualizador de topologia estrela">↗ Ver Topologia</button>
     </div>
 
     <!-- Leaflet map -->
@@ -1050,7 +1051,7 @@
         const filterModDiv = document.getElementById("filter-modules");
         if (filterModDiv) {
           filterModDiv.innerHTML = loraModules.map(m => `
-            <label><input type="checkbox" class="filter-module-cb" value="${m.name}" checked> ${m.name}</label>
+            <label><input type="checkbox" class="filter-module-cb" value="${m.id}" checked> ${m.name}</label>
           `).join("");
         }
       } catch {}
@@ -1432,6 +1433,61 @@
       document.getElementById("results-section").style.display = "none";
       topo.style.display = "block";
     }
+
+    // ── Open in Topology ──────────────────────────────────────────────────────
+    document.getElementById("btn-open-topology").addEventListener("click", () => {
+      const g = id => document.getElementById(id);
+      const fv = (id, def = 0) => parseFloat(g(id)?.value) || def;
+      const allExtra = [...manualExtraNodes, ...kmlExtraNodes];
+      const isStarLike = currentTopology === "STAR" || currentTopology === "MULTI_STAR";
+      const aIsHub = g("a-is-hub")?.checked || (isStarLike && !g("b-is-hub")?.checked);
+
+      const topoNodes = [];
+      if (nodeEnabled.a) {
+        topoNodes.push({
+          name: g("a-name").value || "Nó A",
+          lat: parseFloat(g("a-lat").value),
+          lon: parseFloat(g("a-lon").value),
+          height_m: fv("a-height"),
+          antenna_id: g("a-antenna").value || null,
+          tx_power_dbm: fv("a-txpower", 14),
+          rx_sensitivity_dbm: -137,
+          cable_loss_db: fv("a-cable"),
+          is_hub: aIsHub,
+        });
+      }
+      if (nodeEnabled.b) {
+        topoNodes.push({
+          name: g("b-name").value || "Nó B",
+          lat: parseFloat(g("b-lat").value),
+          lon: parseFloat(g("b-lon").value),
+          height_m: fv("b-height"),
+          antenna_id: g("b-antenna").value || null,
+          tx_power_dbm: 14,
+          rx_sensitivity_dbm: fv("b-rxsens", -137),
+          cable_loss_db: fv("b-cable"),
+          is_hub: g("b-is-hub")?.checked ?? false,
+        });
+      }
+      allExtra.forEach(n => {
+        topoNodes.push({
+          name: n.name,
+          lat: n.lat,
+          lon: n.lon,
+          height_m: n.height_m ?? 10,
+          antenna_id: n.antenna_id ?? null,
+          tx_power_dbm: n.tx_power_dbm ?? 14,
+          rx_sensitivity_dbm: n.rx_sensitivity_dbm ?? -137,
+          cable_loss_db: n.cable_loss_db ?? 0,
+          is_hub: n.is_hub ?? false,
+        });
+      });
+      if (topoNodes.length > 0 && !topoNodes.some(n => n.is_hub)) {
+        topoNodes[0].is_hub = true;
+      }
+      localStorage.setItem("lp_topology_import", JSON.stringify(topoNodes));
+      window.location.href = "/topology.html";
+    });
 
     // ── KML import ─────────────────────────────────────────────────────────────
     btnImportKml.addEventListener("click", () => kmlFileInput.click());

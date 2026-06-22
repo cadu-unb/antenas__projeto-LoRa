@@ -64,6 +64,6 @@ Funcionalidades fora do escopo deste projeto:
 ```bash
 
 # hard copile
-docker compose build 2>&1 | tail -10 && docker compose up -d
-
+docker compose build 2>&1 | tail -100 && docker compose up -d
+docker compose build --no-cache 2>&1 | tail -100 && docker compose up -d --force-recreate
 ```

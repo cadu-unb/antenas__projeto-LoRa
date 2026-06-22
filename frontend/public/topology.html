@@ -1052,10 +1052,28 @@
     // ── Init ───────────────────────────────────────────────────────────────────
     await loadLibrary();
 
-    // Seed with hub + 2 example leaf nodes
-    addNode({ name: "Gateway", lat: -15.7655173, lon: -47.8723601, height_m: 15, is_hub: true });
-    addNode({ name: "Nó 1",    lat: -15.7730000, lon: -47.8800000, height_m: 5 });
-    addNode({ name: "Nó 2",    lat: -15.7600000, lon: -47.8600000, height_m: 5 });
+    function seedDefault() {
+      addNode({ name: "Gateway", lat: -15.7655173, lon: -47.8723601, height_m: 15, is_hub: true });
+      addNode({ name: "Nó 1",    lat: -15.7730000, lon: -47.8800000, height_m: 5 });
+      addNode({ name: "Nó 2",    lat: -15.7600000, lon: -47.8600000, height_m: 5 });
+    }
+
+    const lpImport = localStorage.getItem("lp_topology_import");
+    if (lpImport) {
+      localStorage.removeItem("lp_topology_import");
+      try {
+        const imported = JSON.parse(lpImport);
+        if (Array.isArray(imported) && imported.length > 0) {
+          imported.forEach(n => addNode(n));
+        } else {
+          seedDefault();
+        }
+      } catch (_) {
+        seedDefault();
+      }
+    } else {
+      seedDefault();
+    }
 
   </script>
 </body>

@@ -74,6 +74,7 @@
     #tab-pattern {
       display: none;
       flex: 1;
+      flex-direction: column;
       min-height: 0;
     }
     .main-area.show-pattern #tab-config { display: none; }
@@ -107,15 +108,47 @@
       max-height: 100%;
     }
 
-    /* Tab: Pattern */
-    .pattern-tab-inner {
+    /* Tab: Pattern — 3 painéis */
+    .pattern-panels {
       flex: 1;
       display: flex;
+      gap: 1px;
+      background: #1a2744;
+      min-height: 0;
+      overflow: hidden;
+    }
+    .pattern-panel {
+      flex: 1;
+      background: #06101f;
+      display: flex;
       flex-direction: column;
+      min-height: 0;
+      overflow: hidden;
+    }
+    .panel-title {
+      flex-shrink: 0;
+      font-size: 0.62rem;
+      font-weight: 700;
+      letter-spacing: 0.09em;
+      text-transform: uppercase;
+      color: #ffffff;
+      text-align: center;
+      padding: 0.35rem 0.5rem;
+      background: #0a1833;
+      border-bottom: 1px solid #1a2744;
+    }
+    .canvas-wrap {
+      flex: 1;
+      min-height: 0;
+      display: flex;
       align-items: center;
       justify-content: center;
-      padding: 1.5rem;
-      gap: 1rem;
+      padding: 0.35rem;
+    }
+    .canvas-wrap canvas {
+      max-width: 100%;
+      max-height: 100%;
+      display: block;
     }
     #pattern-3d-wrapper {
       flex: 1;
@@ -123,30 +156,41 @@
       display: flex;
       align-items: center;
       justify-content: center;
+      padding: 0.35rem;
       width: 100%;
     }
     #pattern-3d-wrapper svg {
-      max-height: 100%;
       max-width: 100%;
+      max-height: 100%;
     }
-    .pattern-tab-placeholder {
-      color: #4a5568;
-      font-size: 0.9rem;
-      text-align: center;
+    .pattern-footer {
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.4rem 1rem;
+      background: #080f1e;
+      border-top: 1px solid #1a2744;
+      gap: 1rem;
+    }
+    .pattern-note {
+      font-size: 0.68rem;
+      color: rgba(255,255,255,0.4);
     }
     .btn-open-eplane {
-      background: #2d3748;
+      background: #0d1b3e;
       border: 1px solid #4f6ef7;
       color: #90cdf4;
-      padding: 0.5rem 1.25rem;
+      padding: 0.3rem 0.9rem;
       border-radius: 6px;
-      font-size: 0.8rem;
+      font-size: 0.75rem;
       font-weight: 600;
       cursor: pointer;
       flex-shrink: 0;
+      white-space: nowrap;
     }
-    .btn-open-eplane:hover { background: #374151; }
-    .btn-open-eplane:disabled { opacity: 0.4; cursor: not-allowed; }
+    .btn-open-eplane:hover { background: #1a2744; }
+    .btn-open-eplane:disabled { opacity: 0.35; cursor: not-allowed; }
 
     /* ── Form styles ─────────────────────────────────────────────────────────── */
     .col-title {
@@ -474,11 +518,23 @@
 
     <!-- Tab 2: Padrão de Irradiação -->
     <div id="tab-pattern">
-      <div class="pattern-tab-inner">
-        <div id="pattern-3d-wrapper">
-          <div class="pattern-tab-placeholder">Calcule ou simule para ver o padrão.</div>
+      <div class="pattern-panels">
+        <div class="pattern-panel">
+          <div class="panel-title">Plano E — Vertical</div>
+          <div class="canvas-wrap"><canvas id="canvas-eplane"></canvas></div>
         </div>
-        <button class="btn-open-eplane" id="btn-open-eplane" disabled>📊 Ver Padrão Plano E</button>
+        <div class="pattern-panel">
+          <div class="panel-title">Plano H — Horizontal</div>
+          <div class="canvas-wrap"><canvas id="canvas-hplane"></canvas></div>
+        </div>
+        <div class="pattern-panel">
+          <div class="panel-title">3D Simplificado</div>
+          <div id="pattern-3d-wrapper"></div>
+        </div>
+      </div>
+      <div class="pattern-footer">
+        <span class="pattern-note" id="pattern-note">Padrão analítico — pressione ▶ Padrão (MoM) para simular</span>
+        <button class="btn-open-eplane" id="btn-open-eplane" disabled>📊 Plano E Detalhado</button>
       </div>
     </div>
   </div>
@@ -625,35 +681,37 @@
       },
     };
 
-    // ── 3D simplified pattern SVGs ─────────────────────────────────────────────
+    // ── 3D simplified pattern SVGs — branco/ciano sobre azul profundo ──────────
     const Pattern3D = {
       dipolo(result) {
         const gain = result?.gain_dbi ?? 2.15;
         return `<svg viewBox="-140 -130 280 270" xmlns="http://www.w3.org/2000/svg">
+          <rect x="-140" y="-130" width="280" height="270" fill="#06101f"/>
           <defs>
-            <radialGradient id="lg1" cx="50%" cy="50%"><stop offset="0%" stop-color="#4f6ef7" stop-opacity="0.9"/><stop offset="100%" stop-color="#4f6ef7" stop-opacity="0.05"/></radialGradient>
+            <radialGradient id="lg1" cx="50%" cy="50%"><stop offset="0%" stop-color="#00e5ff" stop-opacity="0.8"/><stop offset="100%" stop-color="#00e5ff" stop-opacity="0.04"/></radialGradient>
           </defs>
-          <line x1="0" y1="-110" x2="0" y2="110" stroke="#2d3748" stroke-width="1" stroke-dasharray="4 3"/>
-          <text x="6" y="-95" fill="#4a5568" font-size="9" font-family="system-ui">Z (null)</text>
-          <ellipse cx="-60" cy="0" rx="52" ry="28" fill="url(#lg1)" stroke="#4f6ef7" stroke-width="1.5" opacity="0.9"/>
-          <ellipse cx="60" cy="0" rx="52" ry="28" fill="url(#lg1)" stroke="#4f6ef7" stroke-width="1.5" opacity="0.9"/>
-          <ellipse cx="0" cy="0" rx="112" ry="22" fill="none" stroke="#4f6ef7" stroke-width="0.5" opacity="0.25"/>
-          <text x="0" y="120" text-anchor="middle" fill="#718096" font-size="10" font-family="system-ui">Dipolo — ganho máx ${gain} dBi · omnidirecional</text>
+          <line x1="0" y1="-110" x2="0" y2="110" stroke="rgba(255,255,255,0.2)" stroke-width="1" stroke-dasharray="4 3"/>
+          <text x="5" y="-92" fill="rgba(255,255,255,0.45)" font-size="9" font-family="system-ui">Z (nulo)</text>
+          <ellipse cx="-60" cy="0" rx="52" ry="28" fill="url(#lg1)" stroke="#00e5ff" stroke-width="1.5" opacity="0.9"/>
+          <ellipse cx="60" cy="0" rx="52" ry="28" fill="url(#lg1)" stroke="#00e5ff" stroke-width="1.5" opacity="0.9"/>
+          <ellipse cx="0" cy="0" rx="112" ry="22" fill="none" stroke="#00e5ff" stroke-width="0.5" opacity="0.2"/>
+          <text x="0" y="115" text-anchor="middle" fill="rgba(255,255,255,0.65)" font-size="10" font-family="system-ui">Dipolo — ${gain} dBi · omnidirecional</text>
         </svg>`;
       },
       monopolo(result) {
         const gain = result?.gain_dbi ?? 5.15;
         return `<svg viewBox="-140 -130 280 270" xmlns="http://www.w3.org/2000/svg">
+          <rect x="-140" y="-130" width="280" height="270" fill="#06101f"/>
           <defs>
-            <radialGradient id="lg2" cx="50%" cy="50%"><stop offset="0%" stop-color="#68d391" stop-opacity="0.85"/><stop offset="100%" stop-color="#4f6ef7" stop-opacity="0.05"/></radialGradient>
+            <radialGradient id="lg2" cx="50%" cy="50%"><stop offset="0%" stop-color="#00e5ff" stop-opacity="0.75"/><stop offset="100%" stop-color="#00e5ff" stop-opacity="0.04"/></radialGradient>
           </defs>
-          <line x1="-130" y1="55" x2="130" y2="55" stroke="#68d391" stroke-width="2"/>
-          <ellipse cx="0" cy="55" rx="128" ry="14" fill="none" stroke="#68d391" stroke-width="0.5" opacity="0.3"/>
-          <ellipse cx="-62" cy="15" rx="48" ry="24" fill="url(#lg2)" stroke="#68d391" stroke-width="1.5" opacity="0.9" clip-path="url(#above)"/>
-          <ellipse cx="62" cy="15" rx="48" ry="24" fill="url(#lg2)" stroke="#68d391" stroke-width="1.5" opacity="0.9"/>
-          <line x1="0" y1="55" x2="0" y2="-50" stroke="#90cdf4" stroke-width="3" stroke-linecap="round"/>
-          <circle cx="0" cy="55" r="4" fill="#4f6ef7"/>
-          <text x="0" y="120" text-anchor="middle" fill="#718096" font-size="10" font-family="system-ui">Monopolo — ganho máx ${gain} dBi · hemisférico</text>
+          <line x1="-130" y1="55" x2="130" y2="55" stroke="rgba(255,255,255,0.35)" stroke-width="2"/>
+          <ellipse cx="0" cy="55" rx="128" ry="14" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="0.75"/>
+          <ellipse cx="-62" cy="15" rx="48" ry="24" fill="url(#lg2)" stroke="#00e5ff" stroke-width="1.5" opacity="0.9"/>
+          <ellipse cx="62" cy="15" rx="48" ry="24" fill="url(#lg2)" stroke="#00e5ff" stroke-width="1.5" opacity="0.9"/>
+          <line x1="0" y1="55" x2="0" y2="-50" stroke="#ffffff" stroke-width="3" stroke-linecap="round"/>
+          <circle cx="0" cy="55" r="4" fill="#00e5ff"/>
+          <text x="0" y="115" text-anchor="middle" fill="rgba(255,255,255,0.65)" font-size="10" font-family="system-ui">Monopolo — ${gain} dBi · hemisférico</text>
         </svg>`;
       },
       helicoidal(result) {
@@ -661,14 +719,15 @@
         const isAxial = result?.radiation_pattern?.includes('axial') ?? true;
         if (isAxial) {
           return `<svg viewBox="-140 -130 280 270" xmlns="http://www.w3.org/2000/svg">
+            <rect x="-140" y="-130" width="280" height="270" fill="#06101f"/>
             <defs>
-              <linearGradient id="lg3" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#f6e05e" stop-opacity="0.9"/><stop offset="100%" stop-color="#f6e05e" stop-opacity="0.05"/></linearGradient>
+              <linearGradient id="lg3" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#fff59d" stop-opacity="0.85"/><stop offset="100%" stop-color="#fff59d" stop-opacity="0.03"/></linearGradient>
             </defs>
-            <path d="M 0 0 C -40 -35 -110 -20 -115 0 C -110 20 -40 35 0 0 Z" fill="url(#lg3)" stroke="#f6e05e" stroke-width="1.5" opacity="0.9"/>
-            <path d="M 0 0 C 15 -6 25 0 15 0 C 25 0 15 6 0 0 Z" fill="#4f6ef7" stroke="#4f6ef7" stroke-width="1" opacity="0.55"/>
-            <text x="-58" y="-75" fill="#4a5568" font-size="9" font-family="system-ui">feixe principal</text>
-            <line x1="-115" y1="0" x2="0" y2="0" stroke="#4a5568" stroke-width="0.5" stroke-dasharray="3 3" opacity="0.5"/>
-            <text x="0" y="120" text-anchor="middle" fill="#718096" font-size="10" font-family="system-ui">Helicoidal axial — ganho máx ${gain} dBi · direcional</text>
+            <path d="M 0 0 C -40 -35 -110 -20 -115 0 C -110 20 -40 35 0 0 Z" fill="url(#lg3)" stroke="#fff59d" stroke-width="1.5" opacity="0.9"/>
+            <path d="M 0 0 C 15 -6 22 0 15 0 C 22 0 15 6 0 0 Z" fill="#00e5ff" stroke="#00e5ff" stroke-width="1" opacity="0.6"/>
+            <text x="-55" y="-72" fill="rgba(255,255,255,0.4)" font-size="9" font-family="system-ui">feixe principal</text>
+            <line x1="-115" y1="0" x2="0" y2="0" stroke="rgba(255,255,255,0.2)" stroke-width="0.75" stroke-dasharray="3 3"/>
+            <text x="0" y="115" text-anchor="middle" fill="rgba(255,255,255,0.65)" font-size="10" font-family="system-ui">Helicoidal axial — ${gain} dBi · direcional</text>
           </svg>`;
         }
         return Pattern3D.dipolo(result);
@@ -676,15 +735,16 @@
       parabolica(result) {
         const gain = result?.gain_dbi ?? 20;
         return `<svg viewBox="-140 -130 280 270" xmlns="http://www.w3.org/2000/svg">
+          <rect x="-140" y="-130" width="280" height="270" fill="#06101f"/>
           <defs>
-            <linearGradient id="lg4" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#90cdf4" stop-opacity="1"/><stop offset="85%" stop-color="#4f6ef7" stop-opacity="0.2"/><stop offset="100%" stop-color="#4f6ef7" stop-opacity="0"/></linearGradient>
+            <linearGradient id="lg4" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#00e5ff" stop-opacity="0.95"/><stop offset="80%" stop-color="#00e5ff" stop-opacity="0.15"/><stop offset="100%" stop-color="#00e5ff" stop-opacity="0"/></linearGradient>
           </defs>
-          <path d="M 0 0 L -110 -12 L -120 0 L -110 12 Z" fill="url(#lg4)" stroke="#90cdf4" stroke-width="1.5" opacity="0.9"/>
-          <path d="M -15 0 L -85 -32 L -95 -26 L -45 0 Z" fill="#4f6ef7" stroke="none" opacity="0.25"/>
-          <path d="M -15 0 L -85 32 L -95 26 L -45 0 Z" fill="#4f6ef7" stroke="none" opacity="0.25"/>
-          <path d="M 0 -65 Q 65 0 0 65" fill="none" stroke="#90cdf4" stroke-width="3"/>
-          <line x1="0" y1="-65" x2="0" y2="65" stroke="#90cdf4" stroke-width="1.5"/>
-          <text x="0" y="120" text-anchor="middle" fill="#718096" font-size="10" font-family="system-ui">Parabólica — ganho máx ${gain} dBi · pencil beam</text>
+          <path d="M 0 0 L -110 -12 L -120 0 L -110 12 Z" fill="url(#lg4)" stroke="#00e5ff" stroke-width="1.5" opacity="0.95"/>
+          <path d="M -15 0 L -85 -32 L -95 -26 L -45 0 Z" fill="rgba(255,255,255,0.08)" stroke="none"/>
+          <path d="M -15 0 L -85 32 L -95 26 L -45 0 Z" fill="rgba(255,255,255,0.08)" stroke="none"/>
+          <path d="M 0 -65 Q 65 0 0 65" fill="none" stroke="#ffffff" stroke-width="3"/>
+          <line x1="0" y1="-65" x2="0" y2="65" stroke="rgba(255,255,255,0.5)" stroke-width="1.5"/>
+          <text x="0" y="115" text-anchor="middle" fill="rgba(255,255,255,0.65)" font-size="10" font-family="system-ui">Parabólica — ${gain} dBi · pencil beam</text>
         </svg>`;
       },
     };
@@ -767,6 +827,8 @@
       mainArea.classList.add("show-pattern");
       stabPattern.classList.add("active");
       stabConfig.classList.remove("active");
+      // Re-render after layout so canvas clientWidth is correct
+      requestAnimationFrame(() => updatePatternPanels(selType.value, lastResult));
     });
 
     // ── E-plane modal ──────────────────────────────────────────────────────────
@@ -817,6 +879,141 @@
       const geo  = getGeoValues();
       const renderer = SVGs[type];
       svgWrapper.innerHTML = renderer ? renderer(geo, freq) : `<div style="color:#4a5568">Sem visual</div>`;
+    }
+
+    // ── Analytic pattern generation ────────────────────────────────────────────
+    function generateAnalyticPattern(type, plane) {
+      const geo = getGeoValues();
+      const pts = [];
+      for (let deg = 0; deg < 360; deg++) {
+        const th = (deg * Math.PI) / 180;
+        let g = 0;
+        if (type === 'dipolo') {
+          g = plane === 'E' ? Math.sin(th) ** 2 : 1.0;
+        } else if (type === 'monopolo') {
+          if (plane === 'E') {
+            g = (deg > 0 && deg < 180) ? Math.sin(th) ** 2 : 0;
+          } else {
+            g = 1.0;
+          }
+        } else if (type === 'helicoidal') {
+          const turns = Math.max(1, geo.turns || 10);
+          const n = Math.max(2, Math.round(turns * 0.4));
+          if (plane === 'E') {
+            const tn = deg <= 180 ? th : (2 * Math.PI - th);
+            g = Math.max(0, Math.cos(tn / 2)) ** (2 * n);
+          } else {
+            g = 0.85 + 0.15 * Math.cos(2 * th);
+          }
+        } else if (type === 'parabolica') {
+          const D = Math.max(0.1, geo.diameter_m || 0.6);
+          const lam = 300 / getFreqMhz();
+          const hpbwRad = 1.02 * lam / D;
+          const sigma = hpbwRad / (2 * Math.sqrt(2 * Math.log(2)));
+          const tn = deg <= 180 ? th : (2 * Math.PI - th);
+          g = Math.exp(-(tn ** 2) / (2 * sigma ** 2));
+        }
+        pts.push({ angle_deg: deg, gain_linear: Math.max(0, g) });
+      }
+      return pts;
+    }
+
+    // ── Polar canvas renderer — branco/ciano sobre azul profundo ──────────────
+    function drawPolarCanvas(canvas, pts) {
+      const W = canvas.width, H = canvas.height;
+      if (W === 0 || H === 0) return;
+      const cx = W / 2, cy = H / 2;
+      const R = Math.min(W, H) * 0.36;
+      const ctx = canvas.getContext('2d');
+      const fsSmall = Math.round(W * 0.047);
+
+      ctx.fillStyle = '#06101f';
+      ctx.fillRect(0, 0, W, H);
+
+      // dB rings
+      [
+        { r: 1.000, db: '0 dB',   aw: 0.40, dash: [] },
+        { r: 0.708, db: '-3 dB',  aw: 0.22, dash: [3, 4] },
+        { r: 0.316, db: '-10 dB', aw: 0.16, dash: [3, 4] },
+        { r: 0.100, db: '-20 dB', aw: 0.12, dash: [2, 5] },
+      ].forEach(({ r, db, aw, dash }) => {
+        ctx.beginPath();
+        ctx.arc(cx, cy, R * r, 0, 2 * Math.PI);
+        ctx.strokeStyle = `rgba(255,255,255,${aw})`;
+        ctx.lineWidth = r === 1 ? 1.5 : 0.75;
+        ctx.setLineDash(dash);
+        ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.fillStyle = `rgba(255,255,255,${aw + 0.25})`;
+        ctx.font = `${Math.round(W * 0.038)}px system-ui`;
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(db, cx + R * r + 3, cy - 3);
+      });
+
+      // Spokes + labels every 30°
+      for (let a = 0; a < 360; a += 30) {
+        const rad = (a - 90) * Math.PI / 180;
+        ctx.beginPath();
+        ctx.moveTo(cx, cy);
+        ctx.lineTo(cx + R * Math.cos(rad), cy + R * Math.sin(rad));
+        ctx.strokeStyle = 'rgba(255,255,255,0.13)';
+        ctx.lineWidth = 0.75;
+        ctx.stroke();
+        const lx = cx + (R + 15) * Math.cos(rad);
+        const ly = cy + (R + 15) * Math.sin(rad);
+        ctx.fillStyle = 'rgba(255,255,255,0.75)';
+        ctx.font = `${fsSmall}px system-ui`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(a + '°', lx, ly);
+      }
+
+      if (!pts || pts.length === 0) return;
+      const maxG = Math.max(...pts.map(p => p.gain_linear), 1e-9);
+
+      ctx.beginPath();
+      pts.forEach((p, i) => {
+        const rad = (p.angle_deg - 90) * Math.PI / 180;
+        const r = (p.gain_linear / maxG) * R;
+        const x = cx + r * Math.cos(rad);
+        const y = cy + r * Math.sin(rad);
+        i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+      });
+      ctx.closePath();
+      ctx.strokeStyle = '#00e5ff';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+      ctx.fillStyle = 'rgba(0,229,255,0.12)';
+      ctx.fill();
+    }
+
+    // ── Update all 3 pattern panels ────────────────────────────────────────────
+    function updatePatternPanels(type, result) {
+      const ePts = result?.pattern_data ?? generateAnalyticPattern(type, 'E');
+      const hPts = generateAnalyticPattern(type, 'H');
+
+      const CE = document.getElementById('canvas-eplane');
+      const CH = document.getElementById('canvas-hplane');
+      [CE, CH].forEach(c => {
+        const wrap = c.parentElement;
+        const size = Math.min(wrap.clientWidth || 280, wrap.clientHeight || 280, 360) - 10;
+        c.width  = Math.max(60, size);
+        c.height = Math.max(60, size);
+      });
+
+      drawPolarCanvas(CE, ePts);
+      drawPolarCanvas(CH, hPts);
+
+      const renderer = Pattern3D[type] ?? Pattern3D.dipolo;
+      pattern3dWrap.innerHTML = renderer(result);
+
+      const noteEl = document.getElementById('pattern-note');
+      if (noteEl) {
+        noteEl.textContent = result
+          ? `Padrão simulado — solver: ${result.solver_used ?? 'analítico'}`
+          : 'Padrão analítico (aproximação) — pressione ▶ Padrão (MoM) para simulação real';
+      }
     }
 
     function update3DPattern(type, result) {
@@ -940,8 +1137,8 @@
         warningBadge.style.display = "none";
       }
 
-      // Update 3D pattern view
-      update3DPattern(selType.value, r);
+      // Update all pattern panels
+      updatePatternPanels(selType.value, r);
     }
 
     function renderExtraAnalysis(result) {
@@ -1153,6 +1350,7 @@
       lastPatternData = null;
       btnSave.disabled = true;
       btnOpenEplane.disabled = true;
+      updatePatternPanels(selType.value, null);
     });
     inpFreq.addEventListener("input", () => {
       rebuildGeoFields();
@@ -1162,6 +1360,8 @@
     // ── Init ───────────────────────────────────────────────────────────────────
     rebuildGeoFields();
     updateVisual();
+    // Render analytic patterns after layout settles
+    requestAnimationFrame(() => updatePatternPanels(selType.value, null));
   </script>
 </body>
 </html>
