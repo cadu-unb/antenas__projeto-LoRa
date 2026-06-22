@@ -55,9 +55,13 @@ class MoMSolver(BaseSolver):
     def pattern_g(self, theta_deg: float, phi_deg: float, freq_hz: float, **kwargs) -> float:
         """Padrão de radiação por tipo de antena.
         Helicoidal: endfire (cos²θ). Dipolo/Monopolo: toroidal (sin²θ).
+
+        kwargs:
+            gmax_dbi — override de ganho máximo; usado quando usuário definiu explicitamente.
         """
         antenna_type = kwargs.get("antenna_type", "dipolo")
-        g_max = self.gain_dbi(freq_hz, **kwargs)
+        gmax_override = kwargs.get("gmax_dbi", None)
+        g_max = gmax_override if gmax_override is not None else self.gain_dbi(freq_hz, **kwargs)
 
         if antenna_type == "helicoidal":
             theta_rad = math.radians(abs(theta_deg))

@@ -27,11 +27,21 @@ class ApertureSolver(BaseSolver):
         return round(10 * math.log10(gain_lin), 2)
 
     def pattern_g(self, theta_deg: float, phi_deg: float, freq_hz: float, **kwargs) -> float:
-        """Padrão gaussiano: G(θ) ≈ G_max - 12·(θ/HPBW)². HPBW = 70λ/D."""
-        g_max = self.gain_dbi(freq_hz, **kwargs)
-        lam = C / freq_hz
-        D = kwargs.get("diameter_m", 0.3)
-        hpbw_deg = 70 * lam / D
+        """Padrão gaussiano: G(θ) ≈ G_max - 12·(θ/HPBW)².
+
+        kwargs:
+            gmax_dbi  — override de ganho máximo (default: calculado por abertura).
+            hpbw_deg  — override de HPBW (default: 70λ/D empírico).
+        """
+        gmax_override = kwargs.get("gmax_dbi", None)
+        g_max = gmax_override if gmax_override is not None else self.gain_dbi(freq_hz, **kwargs)
+        hpbw_override = kwargs.get("hpbw_deg", None)
+        if hpbw_override is not None:
+            hpbw_deg = hpbw_override
+        else:
+            lam = C / freq_hz
+            D = kwargs.get("diameter_m", 0.3)
+            hpbw_deg = 70 * lam / D
         attenuation_db = 12 * (theta_deg / hpbw_deg) ** 2
         return g_max - attenuation_db
 

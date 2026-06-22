@@ -21,8 +21,14 @@ class PcbSolver(BaseSolver):
         return 50.0
 
     def pattern_g(self, theta_deg: float, phi_deg: float, freq_hz: float, **kwargs) -> float:
-        """Quasi-omni com penalidade de elevação acima de 30°."""
-        g_max = self.gain_dbi(freq_hz)
+        """Quasi-omni com penalidade de elevação acima de 30°.
+
+        kwargs:
+            gmax_dbi — override de ganho máximo; usado somente quando usuário definiu
+                       explicitamente (não quando veio do preset; checado em _effective_gain).
+        """
+        gmax_override = kwargs.get("gmax_dbi", None)
+        g_max = gmax_override if gmax_override is not None else self.gain_dbi(freq_hz)
         elev_penalty = max(0.0, abs(theta_deg) - 30) * 0.05
         return g_max - elev_penalty
 

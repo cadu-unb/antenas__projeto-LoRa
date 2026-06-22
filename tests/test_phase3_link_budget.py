@@ -1,12 +1,15 @@
 """
 Testes Fase 3: compute_link_full, ganho direcional, perdas extras, modelos de propagação.
+Testes Fase 4: _effective_gain com campos explícitos, presets, exceção PCB.
 """
 import math
+from types import SimpleNamespace
 
 import pytest
 from fastapi.testclient import TestClient
 
-from backend.app.domain.link_budget import compute_link_full, path_loss_db
+from backend.app.domain.link_budget import _effective_gain, compute_link_full, path_loss_db
+from backend.app.domain.geometry import ENUVector
 from backend.app.main import app
 from backend.app.schemas.antenna_spec import AntennaSpec
 from backend.app.schemas.node_spec import NodeSpec
@@ -199,3 +202,95 @@ def test_api_calculate_okumura_hata_different_loss():
     )
     _cleanup(id_fspl)
     _cleanup(id_oh)
+
+
+# ── Fase 4 — _effective_gain com campos explícitos ────────────────────────────
+
+def _enu_east(dist_m: float = 1000.0) -> ENUVector:
+    return ENUVector(dist_m, 0.0, 0.0)
+
+
+def _node_no_az() -> SimpleNamespace:
+    return SimpleNamespace(azimuth_deg=None, tilt_deg=0.0)
+
+
+def _node_az(az: float, tilt: float = 0.0) -> SimpleNamespace:
+    return SimpleNamespace(azimuth_deg=az, tilt_deg=tilt)
+
+
+def test_effective_gain_pcb_915mhz_preset_gmax_ignored():
+    """pcb_compact a 915 MHz sem gmax_dbi explícito → solver retorna 1.5 dBi, não preset 1.0."""
+    ant = AntennaSpec(name="PCB", type="pcb_compact", frequency_hz=915e6)
+    gain = _effective_gain(_node_no_az(), ant, _enu_east())
+    assert gain == pytest.approx(1.5, abs=0.01)
+
+
+def test_effective_gain_pcb_explicit_gmax_used():
+    """pcb_compact com gmax_dbi=1.0 explícito → link budget usa 1.0 dBi."""
+    ant = AntennaSpec(name="PCB", type="pcb_compact", frequency_hz=915e6, gmax_dbi=1.0)
+    gain = _effective_gain(_node_no_az(), ant, _enu_east())
+    assert gain == pytest.approx(1.0, abs=0.01)
+
+
+def test_effective_gain_pcb_explicit_gmax_custom_value():
+    """pcb_compact com gmax_dbi=2.5 explícito → usa 2.5 (override de usuário)."""
+    ant = AntennaSpec(name="PCB", type="pcb_compact", frequency_hz=915e6, gmax_dbi=2.5)
+    gain = _effective_gain(_node_no_az(), ant, _enu_east())
+    assert gain == pytest.approx(2.5, abs=0.01)
+
+
+def test_effective_gain_explicit_gmax_overrides_solver():
+    """Antena dipolo com gmax_dbi=5.0 explícito → usa 5.0, não cálculo do solver."""
+    ant = AntennaSpec(name="D", type="dipolo", frequency_hz=915e6, gmax_dbi=5.0)
+    gain = _effective_gain(_node_no_az(), ant, _enu_east())
+    assert gain == pytest.approx(5.0, abs=0.01)
+
+
+def test_effective_gain_no_explicit_gmax_uses_solver():
+    """Dipolo sem gmax_dbi explícito → solver calcula ~2.15 dBi."""
+    ant = AntennaSpec(name="D", type="dipolo", frequency_hz=915e6)
+    gain = _effective_gain(_node_no_az(), ant, _enu_east())
+    assert 1.8 <= gain <= 2.5
+
+
+def test_effective_gain_colinear_hpbw_from_spec_changes_pattern():
+    """hpbw_deg explícito na spec muda o ganho angular do colinear."""
+    # Node aponta para Leste (az=90), enlace vai para Norte (az=0) → offset 90°
+    node = _node_az(90.0)
+    enu_north = ENUVector(0.0, 1000.0, 0.0)  # azimuth=0° (Norte)
+
+    ant_narrow = AntennaSpec(name="C", type="commercial_omni_6dbi", frequency_hz=915e6, hpbw_deg=10.0)
+    ant_wide = AntennaSpec(name="C", type="commercial_omni_6dbi", frequency_hz=915e6, hpbw_deg=70.0)
+
+    gain_narrow = _effective_gain(node, ant_narrow, enu_north)
+    gain_wide = _effective_gain(node, ant_wide, enu_north)
+    assert gain_wide > gain_narrow
+
+
+def test_effective_gain_colinear_uses_preset_hpbw_35():
+    """commercial_omni_6dbi sem hpbw_deg explícito → preset aplica 35° (não 20° legado)."""
+    # Verifica via comparação: ganho a 17.5° (metade de 35°) deve estar ~3 dB abaixo do pico.
+    from backend.app.solvers.colinear_solver import ColinearSolver
+    solver = ColinearSolver()
+    g_peak = solver.pattern_g(0.0, 0.0, 915e6)
+    g_half = solver.pattern_g(17.5, 0.0, 915e6)
+    # 17.5° é o half-power point de 35° HPBW → diferença ≈ 3 dB
+    assert abs(g_peak - g_half - 3.0) < 0.5
+
+
+def test_effective_gain_aperture_hpbw_override():
+    """Parabólica com hpbw_deg explícito usa esse HPBW no pattern_g."""
+    node = _node_az(0.0)
+    enu_off = ENUVector(1000.0, 0.0, 0.0)  # azimuth=90° → offset 90° do boresight Norte
+
+    ant_narrow = AntennaSpec(name="P", type="parabolica", frequency_hz=2.4e9, hpbw_deg=5.0)
+    ant_wide = AntennaSpec(name="P", type="parabolica", frequency_hz=2.4e9, hpbw_deg=30.0)
+
+    gain_narrow = _effective_gain(node, ant_narrow, enu_off)
+    gain_wide = _effective_gain(node, ant_wide, enu_off)
+    assert gain_wide > gain_narrow
+
+
+def test_effective_gain_none_antenna_returns_zero():
+    """antenna=None retorna 0 dBi."""
+    assert _effective_gain(_node_no_az(), None, _enu_east()) == 0.0

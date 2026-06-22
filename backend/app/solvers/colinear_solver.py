@@ -16,12 +16,15 @@ class ColinearSolver(BaseSolver):
         return 50.0
 
     def pattern_g(self, theta_deg: float, phi_deg: float, freq_hz: float, **kwargs) -> float:
-        """Padrão colinear: gaussiano em elevação, HPBW ~20°.
+        """Padrão colinear: gaussiano em elevação.
 
         theta: ângulo de elevação (0 = horizonte, 90 = zenith).
+        kwargs:
+            gmax_dbi  — override de ganho máximo (default: 6.0 dBi do solver).
+            hpbw_deg  — override de HPBW (default: 35° alinhado ao MATLAB; 20° era legado).
         """
-        g_max = self.gain_dbi(freq_hz)
-        hpbw_elev = 20.0
+        g_max = kwargs.get("gmax_dbi", self.gain_dbi(freq_hz))
+        hpbw_elev = kwargs.get("hpbw_deg", 35.0)
         sigma = hpbw_elev / (2 * math.sqrt(2 * math.log(2)))
         g_linear = (10 ** (g_max / 10)) * math.exp(-(theta_deg ** 2) / (2 * sigma ** 2))
         return 10 * math.log10(max(g_linear, 1e-10))

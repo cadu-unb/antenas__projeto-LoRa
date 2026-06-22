@@ -86,7 +86,14 @@ def path_loss_db(
 
 
 def _effective_gain(node: object, antenna: object, enu_to_peer: ENUVector) -> float:
-    """Ganho efetivo em dBi. Usa pattern_g() se azimuth_deg definido no nó."""
+    """Ganho efetivo em dBi.
+
+    Priority: user-explicit spec fields > solver internal constants.
+    Exception — pcb_compact: gmax_dbi from preset is nominal only; solver uses
+    frequency-dependent calc unless user explicitly set gmax_dbi.
+    hpbw_deg from spec/preset is always forwarded to pattern_g (key MATLAB fix:
+    commercial_omni_6dbi uses 35° not 20°).
+    """
     if antenna is None:
         return 0.0
 
@@ -100,8 +107,34 @@ def _effective_gain(node: object, antenna: object, enu_to_peer: ENUVector) -> fl
         results = getattr(antenna, "results", None) or {}
         return float(results.get("gain_dbi", 0.0))
 
+    # Apply canonical defaults; track user-set vs preset-filled fields.
+    # Guard against non-AntennaSpec objects (SimpleNamespace etc.) passed in tests.
+    use_gmax: float | None = None
+    use_hpbw: float | None = None
+    if hasattr(antenna, "model_dump"):
+        from ..domain.antenna_presets import apply_antenna_defaults
+        swd = apply_antenna_defaults(antenna)
+        filled = swd.spec
+        from_preset = swd.from_preset
+
+        filled_gmax = getattr(filled, "gmax_dbi", None)
+        if filled_gmax is not None:
+            # PCB: preset nominal (1 dBi) ≠ solver precision; use solver unless user set it.
+            if ant_type == "pcb_compact" and "gmax_dbi" in from_preset:
+                use_gmax = None
+            else:
+                # For all other types, use gmax only when user set it (not from preset),
+                # so geometry-dependent solvers (helicoidal, parabolica) keep their calc.
+                if "gmax_dbi" not in from_preset:
+                    use_gmax = filled_gmax
+
+        # hpbw_deg: always forward from spec/preset — critical for colinear 35° fix.
+        use_hpbw = getattr(filled, "hpbw_deg", None)
+
     node_az = getattr(node, "azimuth_deg", None)
     if node_az is None:
+        if use_gmax is not None:
+            return use_gmax
         return solver.gain_dbi(freq_hz, antenna_type=ant_type, **geometry)
 
     boresight_az: float = node_az
@@ -116,7 +149,14 @@ def _effective_gain(node: object, antenna: object, enu_to_peer: ENUVector) -> fl
     delta_el = abs(link_el - boresight_el)
 
     theta_off = math.sqrt(delta_az ** 2 + delta_el ** 2)
-    return solver.pattern_g(theta_off, 0.0, freq_hz, antenna_type=ant_type, **geometry)
+
+    pattern_kwargs: dict = {"antenna_type": ant_type, **geometry}
+    if use_gmax is not None:
+        pattern_kwargs["gmax_dbi"] = use_gmax
+    if use_hpbw is not None:
+        pattern_kwargs["hpbw_deg"] = use_hpbw
+
+    return solver.pattern_g(theta_off, 0.0, freq_hz, **pattern_kwargs)
 
 
 def compute_link_full(

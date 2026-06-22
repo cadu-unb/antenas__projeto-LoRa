@@ -262,3 +262,70 @@ def test_minimal_spec_for_each_type(antenna_type):
     assert result.spec.gmax_dbi is not None
     assert result.spec.hpbw_deg is not None
     assert result.spec.is_directional is not None
+
+
+# ── Fase 4 — solver kwargs: gmax_dbi / hpbw_deg ──────────────────────────────
+
+def test_colinear_pattern_hpbw_default_is_35():
+    """ColinearSolver.pattern_g usa HPBW 35° por default (não 20° legado).
+
+    A 17.5° (= 35/2), ganho deve estar ~3 dB abaixo do pico.
+    """
+    solver = ColinearSolver()
+    g_peak = solver.pattern_g(0.0, 0.0, 915e6)
+    g_half = solver.pattern_g(17.5, 0.0, 915e6)
+    assert abs(g_peak - g_half - 3.0) < 0.5
+
+
+def test_colinear_pattern_hpbw_kwarg_changes_gain():
+    """Passar hpbw_deg diferente altera o ganho angular."""
+    solver = ColinearSolver()
+    g_narrow = solver.pattern_g(10.0, 0.0, 915e6, hpbw_deg=10.0)
+    g_wide = solver.pattern_g(10.0, 0.0, 915e6, hpbw_deg=60.0)
+    assert g_wide > g_narrow
+
+
+def test_colinear_pattern_gmax_kwarg_shifts_gain():
+    """gmax_dbi kwarg eleva toda a curva de padrão."""
+    solver = ColinearSolver()
+    g_normal = solver.pattern_g(5.0, 0.0, 915e6)
+    g_boosted = solver.pattern_g(5.0, 0.0, 915e6, gmax_dbi=10.0)
+    assert g_boosted > g_normal
+
+
+def test_aperture_pattern_hpbw_kwarg_overrides_geometric():
+    """hpbw_deg kwarg substitui 70λ/D no ApertureSolver."""
+    from backend.app.solvers.aperture_solver import ApertureSolver
+    solver = ApertureSolver()
+    # 30° off-boresight: large HPBW → less attenuation
+    g_narrow = solver.pattern_g(30.0, 0.0, 2.4e9, diameter_m=0.6, hpbw_deg=5.0)
+    g_wide = solver.pattern_g(30.0, 0.0, 2.4e9, diameter_m=0.6, hpbw_deg=40.0)
+    assert g_wide > g_narrow
+
+
+def test_aperture_pattern_gmax_kwarg():
+    """gmax_dbi kwarg sobrescreve cálculo de abertura no pattern."""
+    from backend.app.solvers.aperture_solver import ApertureSolver
+    solver = ApertureSolver()
+    g_default = solver.pattern_g(0.0, 0.0, 2.4e9, diameter_m=0.6)
+    g_override = solver.pattern_g(0.0, 0.0, 2.4e9, diameter_m=0.6, gmax_dbi=25.0)
+    assert g_override == pytest.approx(25.0, abs=0.01)
+
+
+def test_pcb_pattern_gmax_kwarg():
+    """gmax_dbi kwarg usado no PcbSolver.pattern_g."""
+    solver = PcbSolver()
+    g_default = solver.pattern_g(0.0, 0.0, 915e6)
+    g_override = solver.pattern_g(0.0, 0.0, 915e6, gmax_dbi=1.0)
+    assert g_override == pytest.approx(1.0, abs=0.01)
+    assert g_default == pytest.approx(1.5, abs=0.01)  # solver calc at 915 MHz
+
+
+def test_mom_pattern_gmax_kwarg_dipolo():
+    """gmax_dbi kwarg usado no MoMSolver.pattern_g para dipolo."""
+    from backend.app.solvers.mom_solver import MoMSolver
+    solver = MoMSolver()
+    # theta=90° → sin(90°)=1 → max for toroidal; gmax override should be used
+    g_override = solver.pattern_g(90.0, 0.0, 915e6, antenna_type="dipolo", gmax_dbi=5.0)
+    g_default = solver.pattern_g(90.0, 0.0, 915e6, antenna_type="dipolo")
+    assert g_override > g_default
