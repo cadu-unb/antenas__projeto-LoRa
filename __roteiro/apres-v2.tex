@@ -10,6 +10,7 @@
 \usepackage{booktabs}
 \usepackage{array}
 \usepackage{multicol}
+\usepackage{url}
 
 \usetheme{Madrid}
 
@@ -62,7 +63,11 @@
 % =========================
 \title[Antenas LoRa/LoRaWAN]{Projeto de Antenas para Sistema de Segurança com LoRa/LoRaWAN}
 \subtitle{Botões de segurança no Campus Darcy Ribeiro da UnB}
-\author{Projeto de antenas para botões de segurança}
+\author[Carlos Eduardo, Diogo e Jo\~ao Victor]{
+  Carlos Eduardo da Silva Papa -- 232013390 \\[0.2em]
+  Diogo Godinho Schwartz -- 221006861 \\[0.2em]
+  Jo\~ao Victor Vieira Faria -- 251031598
+}
 \institute{Universidade de Brasília}
 \date{Junho de 2026}
 
@@ -960,18 +965,215 @@ Gateway precisa de cobertura. Nó de alarme precisa de confiabilidade, baixo cus
 \end{frame}
 
 % 40
+\begin{frame}{Implicações para implantação no campus}
+\small
+\begin{columns}[T,onlytextwidth]
+\column{0.48\textwidth}
+\begin{block}{Antes do piloto}
+\begin{itemize}
+  \item Medir ruído e ocupação espectral em 915 MHz.
+  \item Validar altura de instalação e obstruções.
+  \item Conferir $S_{11}$ e casamento das antenas reais.
+  \item Definir proteção mecânica e elétrica.
+\end{itemize}
+\end{block}
+\column{0.48\textwidth}
+\begin{block}{Durante o piloto}
+\begin{itemize}
+  \item Registrar RSSI/SNR por ponto.
+  \item Comparar margem simulada e campo.
+  \item Testar mensagens de alarme e supervisão.
+  \item Ajustar potência e espalhamento LoRa conforme consumo e confiabilidade.
+\end{itemize}
+\end{block}
+\end{columns}
+\end{frame}
+
+% ============================================================
+% PARTE 3 — PLATAFORMA COMPUTACIONAL WEB
+% ============================================================
+
+% 41
+\begin{frame}{Plataforma Web: visão geral}
+\small
+\begin{columns}[T,onlytextwidth]
+\column{0.54\textwidth}
+\begin{block}{Três módulos principais}
+\begin{enumerate}
+  \item \textbf{Sandbox} — criar e pré-visualizar antenas por tipo; simulação rápida com ganho, impedância, SWR e diagrama de radiação.
+  \item \textbf{Biblioteca} — salvar, importar e exportar antenas como JSON; campos físicos persistidos.
+  \item \textbf{Link Planner} — montar cenários com nós geográficos; calcular distância 3D, FSPL e margem de enlace com semáforo de viabilidade.
+\end{enumerate}
+\end{block}
+\column{0.42\textwidth}
+\begin{block}{Tecnologia}
+\begin{itemize}
+  \item Backend: \textbf{FastAPI} + \textbf{Pydantic}.
+  \item Frontend: \textbf{HTML/CSS/JS} puro.
+  \item Dados: arquivos \textbf{JSON} auditáveis.
+  \item Deploy: \textbf{Docker} (imagem pública no Hub).
+\end{itemize}
+\end{block}
+\end{columns}
+\end{frame}
+
+% 42
+\begin{frame}{Sandbox — criação e visualização de antenas}
+\begin{columns}[T,onlytextwidth]
+\column{0.50\textwidth}
+\centering
+\includegraphics[width=\linewidth,height=0.60\textheight,keepaspectratio]{sandbox-visual.png}
+\techcaption{Visualização gráfica da antena selecionada: padrão de radiação simplificado e geometria.}
+\column{0.46\textwidth}
+\centering
+\includegraphics[width=\linewidth,height=0.60\textheight,keepaspectratio]{sandbox-parametros.png}
+\techcaption{Parâmetros configuráveis e resultados: ganho, impedância, SWR, eficiência e campos físicos pré-preenchidos por tipo.}
+\end{columns}
+\end{frame}
+
+% 43
+\begin{frame}{Biblioteca de Antenas}
+\begin{columns}[T,onlytextwidth]
+\column{0.62\textwidth}
+\centering
+\vspace{-1cm}
+\includegraphics[width=\linewidth,height=0.68\textheight,keepaspectratio]{biblioteca-de-antenas.png}
+\techcaption{A biblioteca lista antenas salvas com campos físicos — HPBW, polarização, direcionalidade — e permite exportar o JSON completo de cada especificação.}
+\column{0.34\textwidth}
+\small
+\begin{block}{Fluxo}
+\begin{enumerate}
+  \item Criar antena no Sandbox.
+  \item Salvar na Biblioteca.
+  \item Exportar JSON ou reutilizar no Link Planner.
+  \item Importar especificações de terceiros.
+\end{enumerate}
+\end{block}
+\begin{block}{Schema}
+Antenas v2.0 incluem \texttt{gmax\_dbi}, \texttt{hpbw\_deg}, polarização e scores de praticidade e multidireção.
+\end{block}
+\end{columns}
+\end{frame}
+
+% 44
+\begin{frame}{Link Planner — cálculo de margem de enlace}
+\begin{columns}[T,onlytextwidth]
+\column{0.60\textwidth}
+\centering
+\includegraphics[width=\linewidth,height=0.75\textheight,keepaspectratio]{link-planer.png}
+\column{0.36\textwidth}
+\vspace{-1.2em}
+\small
+\begin{block}{Cálculo}
+\begin{itemize}
+  \item Distância 3D via ENU.
+  \item FSPL em 915 MHz.
+  \item Ganho efetivo direcional.
+  \item Perdas adicionais e fading.
+  \item Perda de polarização automática.
+  \item Margem $M = P_{rx} - S_{rx}$.
+\end{itemize}
+\end{block}
+\begin{block}{O que ver}
+Nós com coordenadas reais, antenas da Biblioteca, semáforo de viabilidade e tabela de margem por enlace.
+\end{block}
+\end{columns}
+\end{frame}
+
+% 45
+\begin{frame}{Topologia do sistema}
+\begin{columns}[T,onlytextwidth]
+\column{0.49\textwidth}
+\centering
+% topologia-segurança.png: nome com caracter especial — compilar com pdflatex UTF-8
+% se der erro, renomear o arquivo para topologia-seguranca.png e ajustar aqui
+\includegraphics[width=\linewidth,height=0.62\textheight,keepaspectratio]{topologia-segurança.png}
+\techcaption{Visão topológica do sistema de segurança: nós de alarme e gateway em estrela.}
+\column{0.47\textwidth}
+\centering
+\includegraphics[width=\linewidth,height=0.62\textheight,keepaspectratio]{topologia-sg11.png}
+\techcaption{Cenário detalhado com o ponto SG-11: enlace individual configurado e margem calculada.}
+\end{columns}
+\end{frame}
+
+% 46
+\begin{frame}{Projeto disponível publicamente}
+\small
+\begin{block}{Imagem Docker — deploy em um comando}
+\url{https://hub.docker.com/repository/docker/cadu0/antenas__projeto-lora/general}
+
+\vspace{0.5em}
+\texttt{docker run -p 8000:8000 cadu0/antenas\_\_projeto-lora}
+\end{block}
+\begin{block}{Código-fonte}
+\url{https://github.com/cadu-unb/antenas__projeto-LoRa.git}
+
+\vspace{0.5em}
+\begin{itemize}
+  \item Backend FastAPI, schemas Pydantic, solvers de antena.
+  \item Frontend HTML/CSS/JS — Sandbox, Biblioteca, Link Planner, Topologia.
+  \item Scripts de backfill e suite de testes (\texttt{uv run pytest}).
+  \item Documentação técnica em \texttt{docs/}.
+\end{itemize}
+\end{block}
+\begin{block}{}
+\centering
+A plataforma está pronta para uso educacional, piloto e extensão por outros grupos da UnB.
+\end{block}
+\end{frame}
+
+% ============================================================
+% CONCLUSÃO E REFERÊNCIAS
+% ============================================================
+
+% 47
 \begin{frame}{Conclusão}
 \small
-\begin{block}{Mensagem principal}
-A escolha de antenas para botões de segurança LoRa/LoRaWAN no Campus Darcy Ribeiro deve ser baseada no papel da antena, na geometria real dos enlaces, no ganho efetivo por direção e na viabilidade de instalação.
-\end{block}
+\begin{columns}[T,onlytextwidth]
+\column{0.48\textwidth}
+\begin{block}{O que o projeto mostrou}
 \begin{itemize}
-  \item A proposta wireless reduz dependência de cabeamento e conexões físicas frágeis.
-  \item A posição do gateway é condicionada pela infraestrutura de segurança existente, não só pela centralidade geométrica.
-  \item Antenas omnidirecionais são mais coerentes para gateway central único.
-  \item Diretivas, inclusive parabólicas pequenas, podem ajudar em enlaces fixos apontados, mas trazem custo mecânico e menor cobertura angular.
-  \item A solução mais robusta combina simulação, teste de campo e escolhas práticas de engenharia.
+  \item Enlace LoRa é tecnicamente viável para emergências no campus — margens acima de 48 dB mesmo no ponto mais distante.
+  \item A antena omnidirecional comercial de 6 dBi liderou o ranking agregado por combinar margem suficiente, cobertura em múltiplos azimutes e instalação simples.
+  \item Antenas diretivas melhoram margem no boresight, mas exigem alinhamento e perdem em robustez para gateway central.
 \end{itemize}
+\end{block}
+\column{0.48\textwidth}
+\begin{block}{Contribuições}
+\begin{itemize}
+  \item Modelagem geométrica com coordenadas reais do Campus Darcy Ribeiro.
+  \item Simulação comparativa de 6 antenas e 3 módulos LoRa em múltiplos cenários.
+  \item Plataforma Web educacional com Sandbox, Biblioteca e Link Planner — disponível publicamente via Docker e GitHub.
+\end{itemize}
+\end{block}
+\end{columns}
+\begin{block}{Próximo passo}
+Validação de campo: medir RSSI/SNR nos pontos reais e comparar com as margens simuladas.
+\end{block}
+\end{frame}
+
+% 48
+\begin{frame}{Referências}
+\small
+\begin{thebibliography}{9}
+
+\bibitem{balanis2005}
+BALANIS, Constantine A.
+\textit{Antenna Theory: Analysis and Design}.
+3.~ed. Hoboken: John Wiley \& Sons, 2005.
+
+\bibitem{lavric2017}
+LAVRIC, Alexandru; POPA, Valentin.
+Internet of Things and LoRa\texttrademark{} Low-Power Wide-Area Networks: A Survey.
+In: \textit{2017 International Symposium on Signals, Circuits and Systems (ISSCS)}.
+IEEE, 2017.
+
+\bibitem{terada}
+TERADA, Marco Antonio Brasil.
+\textit{Material de aula — Antenas e Propagação}.
+Universidade de Brasília, Departamento de Engenharia Elétrica.
+
+\end{thebibliography}
 \end{frame}
 
 \end{document}
