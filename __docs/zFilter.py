@@ -7,6 +7,8 @@ DEFAULT_CONFIG: dict = {
         # ".reports/externo", 
         ".prompt/sistema-antenas",
         ".reports/externo/prompt/return", ".reports/sistema-antenas",
+        ".reports/melhorias-1", ".reports/melhorias-2",
+        ".prompt/melhorias-1", ".prompt/melhorias-2",
         
         ],
     "visible_dirs": [],
