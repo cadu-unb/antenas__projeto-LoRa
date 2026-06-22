@@ -1,0 +1,706 @@
+\documentclass[aspectratio=169]{beamer}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[brazil]{babel}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{tikz}
+\usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{multicol}
+\usepackage{url}
+
+\usetheme{Madrid}
+
+\usepackage{newtxtext}
+\usepackage{newtxmath}
+\usefonttheme{serif}
+\renewcommand{\familydefault}{\rmdefault}
+
+\definecolor{UnBBlue}{RGB}{19,50,105}
+\definecolor{UnBGreen}{RGB}{0,110,50}
+
+\newcommand{\logounb}{logoUnB.png}
+
+\addtobeamertemplate{frametitle}{}{%
+    \begin{tikzpicture}[remember picture,overlay]
+        \node[anchor=north east, xshift=-0.25cm, yshift=-0.15cm]
+            at (current page.north east)
+            {\IfFileExists{\logounb}{\includegraphics[height=0.65cm]{\logounb}}{}};
+    \end{tikzpicture}
+}
+
+\setbeamercolor{palette primary}{bg=UnBBlue, fg=white}
+\setbeamercolor{palette secondary}{bg=UnBBlue, fg=white}
+\setbeamercolor{palette tertiary}{bg=UnBBlue, fg=white}
+\setbeamercolor{frametitle}{bg=UnBGreen, fg=white}
+\setbeamercolor{title}{fg=white}
+\setbeamercolor{structure}{fg=UnBBlue}
+\setbeamertemplate{navigation symbols}{}
+
+\graphicspath{{./}}
+
+\newcommand{\SI}[2]{#1\,#2}
+
+% =========================
+% DADOS DA APRESENTACAO
+% =========================
+\title[Antenas LoRa/LoRaWAN]{Projeto de Antenas para Sistema de Segurança com LoRa/LoRaWAN}
+\subtitle{Botões de segurança no Campus Darcy Ribeiro da UnB}
+\author[Carlos Eduardo, Diogo e Jo\~ao Victor]{
+  Carlos Eduardo da Silva Papa -- 232013390%
+  \texorpdfstring{\\[0.2em]}{, }%
+  Diogo Godinho Schwartz -- 221006861%
+  \texorpdfstring{\\[0.2em]}{, }%
+  Jo\~ao Victor Vieira Faria -- 251031598
+}
+\institute[UnB]{Universidade de Brasília}
+\date{Junho de 2026}
+
+\begin{document}
+
+% ============================================================
+% CAPA
+% ============================================================
+\begin{frame}
+  \titlepage
+\end{frame}
+
+% ============================================================
+% ÍNDICE
+% ============================================================
+\begin{frame}{Índice}
+  \tableofcontents
+\end{frame}
+
+% ============================================================
+\section{Contexto e Problema}
+% ============================================================
+
+% --- Slide 1 ---
+\begin{frame}{Motivação: problema e proposta}
+\small
+\begin{columns}[T,onlytextwidth]
+\column{0.48\textwidth}
+\begin{block}{Problema operacional}
+\begin{itemize}
+  \item Botões de segurança no campus acionam a central de vigilância via sistema cabeado.
+  \item O cabeamento externo sofre com baixa manutenção, falhas de continuidade e exposição mecânica.
+  \item Expansão para novos pontos exige obras e custo crescente.
+\end{itemize}
+\end{block}
+\column{0.48\textwidth}
+\begin{block}{Proposta: LoRa/LoRaWAN em \SI{915}{MHz}}
+\begin{itemize}
+  \item Comunicação wireless de longo alcance e baixa taxa.
+  \item Mensagens curtas: evento, identificação e estado do nó.
+  \item Topologia em estrela — nós transmitem para um gateway central.
+  \item Baixo consumo favorece bateria de reserva.
+\end{itemize}
+\end{block}
+\end{columns}
+\vspace{0.4em}
+\begin{block}{Foco do projeto}
+Comparar antenas candidatas para nós de alarme e gateway, usando modelo quantitativo com geometria real do campus.
+\end{block}
+\end{frame}
+
+% --- Slide 2 ---
+\begin{frame}{Campus Darcy Ribeiro: arquitetura e pontos monitorados}
+\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}
+\centering
+\includegraphics[width=\linewidth,height=0.65\textheight,keepaspectratio]{CampusUnBArranjoMapaSatelite.jpg}
+\column{0.40\textwidth}
+\vspace{-0.4em}
+\scriptsize
+\begin{tabular}{lrr}
+\toprule
+Ponto & Lat. & Long. \\
+\midrule
+FACE     & -15.7577 & -47.8708 \\
+BCE      & -15.7613 & -47.8675 \\
+Beijódromo & -15.7638 & -47.8652 \\
+IB       & -15.7660 & -47.8666 \\
+IQ       & -15.7683 & -47.8657 \\
+ICC Sul  & -15.7659 & -47.8697 \\
+ICC Norte & -15.7630 & -47.8719 \\
+CO       & -15.7645 & -47.8599 \\
+SG       & -15.7668 & -47.8712 \\
+\bottomrule
+\end{tabular}
+\vspace{0.5em}
+\small
+\begin{block}{Geometria}
+9 pontos de alarme transmitem para a Central de Vigilância. Azimutes e distâncias são diferentes em cada enlace — isso define a exigência angular da antena do gateway.
+\end{block}
+\end{columns}
+\end{frame}
+
+% --- Slide 3 ---
+\begin{frame}{Posição do gateway: infraestrutura, não só geometria}
+\small
+\begin{columns}[T,onlytextwidth]
+\column{0.46\textwidth}
+\begin{table}
+\centering
+\scriptsize
+\begin{tabular}{lrr}
+\toprule
+Candidato & Dist. média (m) & Dist. máx. (m) \\
+\midrule
+IB              & 545.6 & 1031.5 \\
+ICC Sul         & 565.6 & 1066.6 \\
+Beijódromo      & 578.8 & 907.1  \\
+BCE             & 617.8 & 886.6  \\
+\textbf{Central Vigilância} & \textbf{1010.0} & \textbf{1689.7} \\
+\bottomrule
+\end{tabular}
+\end{table}
+\vspace{0.3em}
+{\scriptsize A Central não é a melhor por métrica geométrica, mas é coerente por integração operacional.}
+\column{0.50\textwidth}
+\begin{block}{Critério de engenharia}
+\begin{itemize}
+  \item A simulação rankeia candidatos por distância média e máxima.
+  \item A escolha real aproveita a infraestrutura de vigilância já instalada.
+  \item Reduz custo, tempo de implantação e integração operacional.
+\end{itemize}
+\end{block}
+\begin{block}{Consequência para antenas}
+Gateway central deve receber de vários azimutes; cobertura angular vale tanto quanto ganho máximo.
+\end{block}
+\end{columns}
+\end{frame}
+
+% ============================================================
+\section{Antenas Candidatas}
+% ============================================================
+
+% --- Slide 4 ---
+\begin{frame}{Por que comparar antenas? Parâmetros relevantes}
+\small
+\begin{columns}[T,onlytextwidth]
+\column{0.46\textwidth}
+\begin{block}{Armadilha comum}
+Escolher pelo maior ganho de catálogo ignora a direção real do enlace, os nulos do padrão e o papel da antena no sistema.
+\end{block}
+\begin{block}{Pergunta correta}
+Qual antena entrega margem suficiente, instalação viável e cobertura angular adequada?
+\end{block}
+\column{0.50\textwidth}
+\begin{table}
+\scriptsize
+\begin{tabular}{p{0.30\linewidth}p{0.62\linewidth}}
+\toprule
+Parâmetro & Papel no projeto \\
+\midrule
+Ganho efetivo & Ganho na direção do enlace; diferente do ganho máximo. \\
+Diretividade & Define cobertura angular útil. \\
+Polarização & Nós e gateway devem ser compatíveis; preferência vertical. \\
+Largura de feixe & Tolerância a apontamento e azimute de cobertura. \\
+$S_{11}$ & Casamento de impedância na faixa de \SI{915}{MHz}. \\
+\bottomrule
+\end{tabular}
+\end{table}
+\end{columns}
+\end{frame}
+
+% --- Slide 5 ---
+\begin{frame}{Antenas omnidirecionais verticais}
+\begin{columns}[T,onlytextwidth]
+\column{0.28\textwidth}
+\centering
+\includegraphics[width=0.85\linewidth,height=0.45\textheight,keepaspectratio]{DipoleHalfWave.jpg}\\[0.2em]
+{\scriptsize \textbf{Dipolo meia onda}\\$\approx2.15$ dBi}
+\column{0.28\textwidth}
+\centering
+\includegraphics[width=0.85\linewidth,height=0.45\textheight,keepaspectratio]{MonopoleGroundPlane.jpg}\\[0.2em]
+{\scriptsize \textbf{Monopolo plano de terra}\\$\approx5.15$ dBi ideal}
+\column{0.36\textwidth}
+\centering
+\includegraphics[width=0.85\linewidth,height=0.45\textheight,keepaspectratio]{ComercialOmni6dBi.jpg}\\[0.2em]
+{\scriptsize \textbf{Comercial omni 6 dBi}\\Pronta para LoRa}
+\end{columns}
+\vspace{0.4em}
+\small
+\begin{block}{Característica comum}
+Cobertura omnidirecional no plano horizontal — ideais para gateway central único que recebe de múltiplos azimutes. Nulos ficam ao longo do eixo da antena (elevações extremas, irrelevantes no campus plano).
+\end{block}
+\end{frame}
+
+% --- Slide 6 ---
+\begin{frame}{Antenas diretivas: helicoidal e parabólica}
+\begin{columns}[T,onlytextwidth]
+\column{0.46\textwidth}
+\centering
+\includegraphics[width=0.80\linewidth,height=0.48\textheight,keepaspectratio]{Helicoidal.jpg}
+\small
+\begin{block}{Helicoidal axial}
+\begin{itemize}
+  \item Diretiva; máximo no boresight.
+  \item Exige alinhamento estável para o gateway.
+  \item Útil para enlace fixo e apontado.
+\end{itemize}
+\end{block}
+\column{0.46\textwidth}
+\centering
+\includegraphics[width=0.80\linewidth,height=0.48\textheight,keepaspectratio]{Parabolica14dBi.jpg}
+\small
+\begin{block}{Parabólica ($D \leq \SI{60}{cm}$)}
+\begin{itemize}
+  \item Maior ganho no boresight; queda rápida fora do eixo.
+  \item Exige suporte mecânico e alinhamento.
+  \item Limite de 60 cm por viabilidade em campus.
+\end{itemize}
+\end{block}
+\end{columns}
+\end{frame}
+
+% --- Slide 7 ---
+\begin{frame}{Antena PCB compacta e parabólicas de campo}
+\small
+\begin{columns}[T,onlytextwidth]
+\column{0.42\textwidth}
+\centering
+\includegraphics[width=0.82\linewidth,height=0.40\textheight,keepaspectratio]{PCBcompacta.jpg}
+\begin{block}{PCB compacta}
+\begin{itemize}
+  \item Menor custo e volume.
+  \item Padrão dependente do layout da placa.
+  \item Candidata quando integração domina.
+\end{itemize}
+\end{block}
+\column{0.54\textwidth}
+\begin{table}
+\centering
+\scriptsize
+\begin{tabular}{rrrrr}
+\toprule
+$D$ (cm) & $G_{\max}$ (dBi) & HPBW \\
+\midrule
+30 & 7.99  & 85.3$^\circ$ \\
+40 & 10.49 & 61.2$^\circ$ \\
+50 & 12.42 & 48.0$^\circ$ \\
+60 & 14.01 & 39.7$^\circ$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+\vspace{0.2em}
+{\scriptsize Ganho cresce com $D$; largura de feixe diminui — a tolerância angular e a viabilidade mecânica pioram conforme $D$ aumenta. Fonte: WebPRAC PRAC.}
+\begin{block}{Leitura}
+Parabólica de 60 cm oferece $\approx14$ dBi mas requer projeto mecânico junto com projeto eletromagnético.
+\end{block}
+\end{columns}
+\end{frame}
+
+% --- Slide 8 ---
+\begin{frame}{Trade-off: ganho máximo vs.\ abertura de feixe}
+\begin{columns}[T,onlytextwidth]
+\column{0.54\textwidth}
+\centering
+\includegraphics[width=\linewidth,height=0.62\textheight,keepaspectratio]{ComparacaoLarguraDeFeixe.jpg}
+\column{0.42\textwidth}
+\small
+\begin{block}{Impacto no campus}
+\begin{itemize}
+  \item Gateway central precisa cobrir $\sim\!360^\circ$ de azimutes — omni é natural.
+  \item Nó fixo pode apontar para a central — diretiva ganha margem.
+  \item Erro de apontamento vira perda de margem.
+\end{itemize}
+\end{block}
+\begin{block}{Tabelas WebPRAC}
+\begin{itemize}
+  \item Ganho co-polar por ângulo em \SI{915}{MHz}.
+  \item Interpolado para cada enlace real.
+  \item $G_{\text{parabólica}}(\alpha)$, não $G_{\max}$ constante.
+\end{itemize}
+\end{block}
+\end{columns}
+\end{frame}
+
+% ============================================================
+\section{Modelo de Enlace}
+% ============================================================
+
+% --- Slide 9 ---
+\begin{frame}{Modelo de enlace: equações fundamentais}
+\small
+\begin{block}{Potência recebida}
+\[
+P_{rx,\mathrm{dBm}} =
+P_{tx,\mathrm{dBm}} + G_{tx,\mathrm{dBi}} + G_{rx,\mathrm{dBi}}
+- FSPL_{\mathrm{dB}} - L_{\mathrm{adicionais}}
+\]
+\end{block}
+\begin{block}{Perda em espaço livre (FSPL)}
+\[
+FSPL_{\mathrm{dB}} = 32{,}44 + 20\log_{10}(f_{\mathrm{MHz}}) + 20\log_{10}(d_{\mathrm{km}})
+\]
+\end{block}
+\begin{block}{Margem de enlace}
+\[
+M_{\mathrm{dB}} = P_{rx,\mathrm{dBm}} - S_{rx,\mathrm{dBm}}
+\quad\Rightarrow\quad
+\begin{cases}
+M \geq 10\,\mathrm{dB} & \text{confortável}\\
+0 \leq M < 10\,\mathrm{dB} & \text{crítico}\\
+M < 0\,\mathrm{dB} & \text{falha}
+\end{cases}
+\]
+\end{block}
+\begin{block}{Nota}
+$G_{tx}$ e $G_{rx}$ são ganhos \emph{efetivos} na direção do enlace — não o ganho máximo de catálogo.
+\end{block}
+\end{frame}
+
+% --- Slide 10 ---
+\begin{frame}{Geometria dos enlaces e ganho efetivo direcional}
+\small
+\begin{columns}[T,onlytextwidth]
+\column{0.48\textwidth}
+\begin{block}{Do mapa ao cálculo}
+\begin{itemize}
+  \item Coordenadas geográficas convertidas para sistema ENU (East-North-Up).
+  \item Gateway como origem.
+  \item Por enlace: distância 3D, azimute e ângulo de elevação.
+  \item Para diretivas: ângulo fora do boresight $\Rightarrow$ $G_{\text{efetivo}} = G(\alpha)$.
+\end{itemize}
+\end{block}
+\column{0.48\textwidth}
+\begin{table}
+\scriptsize
+\begin{tabular}{lrrr}
+\toprule
+Ponto & Dist. 3D (m) & Azimute & Elev. \\
+\midrule
+FACE      & 1689.7 & 167.8$^\circ$ & -0.04$^\circ$ \\
+BCE       & 1251.3 & 180.3$^\circ$ &  0.62$^\circ$ \\
+IQ        &  509.1 & 202.1$^\circ$ & -0.55$^\circ$ \\
+CO        & 1212.8 & 222.4$^\circ$ &  0.50$^\circ$ \\
+SG        &  755.1 & 148.0$^\circ$ & -1.04$^\circ$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+\vspace{0.3em}
+{\scriptsize Elevações pequenas: enlaces quase horizontais favorecem antenas verticais com máximo próximo ao horizonte.}
+\end{columns}
+\end{frame}
+
+% --- Slide 11 ---
+\begin{frame}{Módulos LoRa e cálculo de FSPL}
+\small
+\begin{columns}[T,onlytextwidth]
+\column{0.50\textwidth}
+\begin{table}
+\scriptsize
+\begin{tabular}{p{0.34\linewidth}p{0.22\linewidth}p{0.26\linewidth}}
+\toprule
+Módulo & $P_{tx}$ (dBm) & $S_{rx}$ (dBm) \\
+\midrule
+RFM95W 915 MHz & até 20 & -139 / -136 / -118 \\
+LRO2 ASR6601   & até 22 & -138 \\
+E220-900T22D   & 10 a 22 & -137 \\
+\bottomrule
+\end{tabular}
+\end{table}
+\begin{block}{Papel do módulo}
+Define potência e sensibilidade. A antena define como essa potência é distribuída no espaço.
+\end{block}
+\column{0.46\textwidth}
+\begin{table}
+\scriptsize
+\begin{tabular}{lrr}
+\toprule
+Ponto & Dist. (m) & FSPL (dB) \\
+\midrule
+FACE      & 1689.7 & 96.23 \\
+BCE       & 1251.3 & 93.62 \\
+Beijódromo & 1004.5 & 91.71 \\
+IB        &  733.4 & 88.98 \\
+IQ        &  509.1 & 85.81 \\
+ICC Norte & 1159.8 & 92.96 \\
+CO        & 1212.8 & 93.34 \\
+SG        &  755.1 & 89.23 \\
+\bottomrule
+\end{tabular}
+\end{table}
+\end{columns}
+\end{frame}
+
+% --- Slide 12 ---
+\begin{frame}{Cenário de referência: potência recebida e margem}
+\small
+\begin{block}{Configuração}
+RFM95W, $P_{tx}=\SI{20}{dBm}$, dipolo em ambos os lados ($G=2.15$ dBi), perdas adicionais = 19 dB, $S_{rx}=-139$ dBm.
+\end{block}
+\begin{table}
+\centering
+\scriptsize
+\begin{tabular}{lrrrr}
+\toprule
+Ponto & FSPL (dB) & $P_{rx}$ (dBm) & Margem (dB) & Status \\
+\midrule
+FACE      & 96.23 & -90.93 & 48.07 & Confortável \\
+BCE       & 93.62 & -88.32 & 50.68 & Confortável \\
+Beijódromo & 91.71 & -86.41 & 52.59 & Confortável \\
+IB        & 88.98 & -83.68 & 55.32 & Confortável \\
+IQ        & 85.81 & -80.51 & 58.49 & Confortável \\
+ICC Sul   & 89.45 & -84.15 & 54.85 & Confortável \\
+ICC Norte & 92.96 & -87.66 & 51.34 & Confortável \\
+CO        & 93.34 & -88.05 & 50.95 & Confortável \\
+SG        & 89.23 & -83.93 & 55.07 & Confortável \\
+\bottomrule
+\end{tabular}
+\end{table}
+\vspace{0.2em}
+{\scriptsize Todas as margens acima de 48 dB. A decisão entre antenas é dominada por robustez, instalação e cobertura, não apenas por ``fechar enlace''.}
+\end{frame}
+
+% ============================================================
+\section{Resultados e Análise}
+% ============================================================
+
+% --- Slide 13 ---
+\begin{frame}{Cenários simulados}
+\small
+\begin{table}
+\centering
+\begin{tabular}{p{0.10\linewidth}p{0.78\linewidth}}
+\toprule
+Cen. & Objetivo \\
+\midrule
+A & Mesma antena em transmissor e gateway. \\
+B & Gateway omnidirecional vertical; transmissores variando entre antenas. \\
+C & Transmissores diretivos apontados para o gateway; gateway omnidirecional. \\
+D & Transmissores diretivos com erro de apontamento (2°, 5°, 10°). \\
+E & Comparação entre RFM95W, LRO2 ASR6601 e E220-900T22D. \\
+P & Parabólicas de 30, 40, 50 e \SI{60}{cm} com ganho WebPRAC por ângulo. \\
+\bottomrule
+\end{tabular}
+\end{table}
+\begin{block}{Metodologia computacional}
+Para cada combinação: geometria ENU, ganho efetivo direcional, FSPL, potência recebida, margem, status (confortável/crítico/falha) e ranking por score agregado de robustez e praticidade.
+\end{block}
+\end{frame}
+
+% --- Slide 14 ---
+\begin{frame}{Ranking agregado: combinações módulo-antena}
+\small
+\begin{table}
+\centering
+\scriptsize
+\begin{tabular}{p{0.22\linewidth}p{0.22\linewidth}p{0.20\linewidth}rrr}
+\toprule
+Módulo & Antena TX & Antena GW & Margem mín. (dB) & Média (dB) & Score \\
+\midrule
+LRO2 ASR6601   & Comercial omni 6 dBi & Comercial omni 6 dBi & 56.78 & 61.74 & 98.61 \\
+E220-900T22D   & Comercial omni 6 dBi & Comercial omni 6 dBi & 55.78 & 60.74 & 97.36 \\
+LRO2 ASR6601   & Comercial omni 6 dBi & Monopolo             & 55.93 & 60.89 & 95.95 \\
+LRO2 ASR6601   & Helicoidal apontada  & Comercial omni 6 dBi & 58.78 & 63.74 & 94.16 \\
+\bottomrule
+\end{tabular}
+\end{table}
+\begin{block}{Leitura}
+A helicoidal apontada melhora a margem, mas perde praticidade e robustez no score agregado. A antena comercial omni 6 dBi lidera por combinar margem, cobertura angular e instalação simples.
+\end{block}
+\end{frame}
+
+% --- Slide 15 ---
+\begin{frame}{Antenas diretivas: erros de apontamento e parabólica}
+\small
+\begin{columns}[T,onlytextwidth]
+\column{0.44\textwidth}
+\begin{table}
+\scriptsize
+\centering
+\begin{tabular}{rr}
+\toprule
+Erro angular & Queda média de margem \\
+\midrule
+2$^\circ$  & 0.02 dB \\
+5$^\circ$  & 0.11 dB \\
+10$^\circ$ & 0.46 dB \\
+\bottomrule
+\end{tabular}
+\end{table}
+\begin{block}{Risco de campo}
+Suporte, vibração, vento e desalinhamento acumulado podem degradar o ganho efetivo muito além dos valores simulados.
+\end{block}
+\column{0.52\textwidth}
+\begin{block}{Parabólica: boa quando}
+Enlace fixo, ponto a ponto, com suporte e alinhamento aceitáveis. $D=50$ ou $60$ cm viável mecanicamente.
+\end{block}
+\begin{block}{Parabólica: ruim quando}
+Uma antena única recebe vários azimutes; instalação precisa ser simples e replicável; custo mecânico supera melhoria de margem.
+\end{block}
+\begin{block}{Comparação-chave}
+Omni 6 dBi: margem mín. 55.78 dB. Parabólica apontada: mín. 54.76 dB. A diferença de média não elimina o custo de diretividade.
+\end{block}
+\end{columns}
+\end{frame}
+
+% --- Slide 16 ---
+\begin{frame}{Discussão comparativa: omni vs.\ diretivas}
+\small
+\begin{table}
+\centering
+\scriptsize
+\begin{tabular}{p{0.22\linewidth}p{0.34\linewidth}p{0.34\linewidth}}
+\toprule
+Critério & Favorece omni (dipolo/monopolo/comercial) & Favorece diretivas (helicoidal/parabólica) \\
+\midrule
+Cobertura multi-azimute & Gateway central único & Enlace fixo específico \\
+Margem máxima           & Suficiente em todos os enlaces simulados & Maior no boresight \\
+Instalação              & Simples, leve, repetível & Exige apontamento e suporte \\
+Manutenção              & Baixa sensibilidade a desalinhamento & Maior inspeção mecânica \\
+Custo total             & Menor integração mecânica & Pode subir com mastro \\
+Flexibilidade           & Aceita novos pontos em vários azimutes & Depende de nova orientação \\
+\bottomrule
+\end{tabular}
+\end{table}
+\begin{block}{Síntese}
+O projeto não busca a antena de maior ganho absoluto; busca a solução mais coerente com operação, infraestrutura e geometria real do campus.
+\end{block}
+\end{frame}
+
+% --- Slide 17 ---
+\begin{frame}{Recomendação: gateway e nós de alarme}
+\small
+\begin{columns}[T,onlytextwidth]
+\column{0.48\textwidth}
+\begin{block}{Gateway central}
+\begin{itemize}
+  \item Antena comercial omni 6 dBi — referência forte.
+  \item Recebe de vários azimutes sem apontamento.
+  \item Compatível com central de vigilância já instalada.
+  \item Instalação simples; facilita expansão do sistema.
+\end{itemize}
+\end{block}
+\column{0.48\textwidth}
+\begin{block}{Nós de alarme}
+\begin{itemize}
+  \item \textbf{Opção padrão:} omni 6 dBi ou monopolo — boa margem e instalação simples.
+  \item \textbf{Custo-reduzido:} PCB compacta quando integração domina.
+  \item \textbf{Enlace fixo apontado:} helicoidal ou parabólica apenas se suporte e alinhamento forem aceitáveis.
+\end{itemize}
+\end{block}
+\end{columns}
+\vspace{0.3em}
+\begin{block}{Decisão por papel}
+Gateway precisa de cobertura angular. Nó de alarme precisa de confiabilidade, custo baixo e instalação repetível — ganho diretivo só se justifica em pontos críticos com suporte dedicado.
+\end{block}
+\end{frame}
+
+% --- Slide 18 ---
+\begin{frame}{Implicações para implantação no campus}
+\small
+\begin{columns}[T,onlytextwidth]
+\column{0.48\textwidth}
+\begin{block}{Antes do piloto}
+\begin{itemize}
+  \item Medir ruído e ocupação espectral em \SI{915}{MHz}.
+  \item Validar altura de instalação e obstruções reais.
+  \item Conferir $S_{11}$ e casamento das antenas compradas.
+  \item Definir proteção mecânica e elétrica (raios, umidade).
+\end{itemize}
+\end{block}
+\column{0.48\textwidth}
+\begin{block}{Durante o piloto}
+\begin{itemize}
+  \item Registrar RSSI/SNR por ponto e comparar com margens simuladas.
+  \item Testar mensagens de alarme e supervisão ponta a ponta.
+  \item Ajustar fator de espalhamento e potência LoRa conforme RSSI medido.
+  \item Verificar desempenho em horários de pico (ruído humano e RF).
+\end{itemize}
+\end{block}
+\end{columns}
+\end{frame}
+
+% ============================================================
+\section{Plataforma Web}
+% ============================================================
+
+% --- Slide 19 ---
+\begin{frame}{Plataforma Web: Sandbox, Biblioteca e Link Planner}
+\small
+\begin{columns}[T,onlytextwidth]
+\column{0.50\textwidth}
+\centering
+\includegraphics[width=0.88\linewidth,height=0.30\textheight,keepaspectratio]{sandbox-visual.png}
+\vspace{0.2em}
+\includegraphics[width=0.88\linewidth,height=0.30\textheight,keepaspectratio]{biblioteca-de-antenas.png}
+\column{0.46\textwidth}
+\centering
+\includegraphics[width=\linewidth,height=0.30\textheight,keepaspectratio]{link-planer.png}
+\vspace{0.2em}
+\begin{block}{Três módulos}
+\begin{enumerate}
+  \item \textbf{Sandbox} — simular antenas com ganho, SWR, padrão.
+  \item \textbf{Biblioteca} — salvar e exportar specs JSON v2.0.
+  \item \textbf{Link Planner} — calcular FSPL, margem e semáforo de viabilidade com nós reais.
+\end{enumerate}
+\end{block}
+\end{columns}
+\end{frame}
+
+% --- Slide 20 ---
+\begin{frame}{Conclusão e disponibilidade pública}
+\small
+\begin{columns}[T,onlytextwidth]
+\column{0.52\textwidth}
+\begin{block}{O que o projeto mostrou}
+\begin{itemize}
+  \item Enlace LoRa a \SI{915}{MHz} é viável para emergências no campus — margens $\geq48$ dB mesmo em FACE (1689 m).
+  \item Antena comercial omni 6 dBi liderou o ranking: margem suficiente, cobertura multi-azimute e instalação simples.
+  \item Diretivas melhoram margem no boresight, mas exigem alinhamento e penalizam gateway central.
+  \item Plataforma Web permite reproduzir e estender a análise.
+\end{itemize}
+\end{block}
+\column{0.44\textwidth}
+\begin{block}{Disponível publicamente}
+\scriptsize
+Docker Hub (deploy em um comando):
+
+\url{https://hub.docker.com/r/cadu0/antenas__projeto-lora}
+
+\vspace{0.4em}
+Código-fonte:
+
+\url{https://github.com/cadu-unb/antenas__projeto-LoRa.git}
+\end{block}
+\begin{block}{Próximo passo}
+Validação de campo: medir RSSI/SNR nos pontos reais e comparar com as margens simuladas.
+\end{block}
+\end{columns}
+\end{frame}
+
+% ============================================================
+% REFERÊNCIAS
+% ============================================================
+\begin{frame}{Referências}
+\small
+\begin{thebibliography}{9}
+
+\bibitem{balanis2005}
+BALANIS, Constantine A.
+\textit{Antenna Theory: Analysis and Design}.
+3.~ed. Hoboken: John Wiley \& Sons, 2005.
+
+\bibitem{lavric2017}
+LAVRIC, Alexandru; POPA, Valentin.
+Internet of Things and LoRa\texttrademark{} Low-Power Wide-Area Networks: A Survey.
+In: \textit{2017 International Symposium on Signals, Circuits and Systems (ISSCS)}.
+IEEE, 2017.
+
+\bibitem{terada}
+TERADA, Marco Antonio Brasil.
+\textit{Material de aula --- Antenas e Propagação}.
+Universidade de Brasília, Departamento de Engenharia Elétrica.
+
+\end{thebibliography}
+\end{frame}
+
+\end{document}
