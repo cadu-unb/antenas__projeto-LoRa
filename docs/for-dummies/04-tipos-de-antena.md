@@ -71,11 +71,58 @@ Refletor côncavo que concentra a energia em um foco, onde fica o elemento irrad
 
 ---
 
+---
+
+## PCB Compact
+
+Antena integrada diretamente ao PCB do módulo LoRa. Sem componentes externos — menor custo e tamanho.
+
+| Parâmetro | Valor típico |
+|---|---|
+| Ganho | 0–2 dBi (dependente da frequência) |
+| HPBW | ~120° |
+| Polarização | linear |
+| Impedância | 50 Ω |
+| Eficiência | ~85% |
+
+**Ganho por faixa no solver:**
+- < 800 MHz → 0 dBi
+- 800–1000 MHz → 1.5 dBi
+- > 1000 MHz → 2.0 dBi
+
+**Quando usar:** protótipos, nós de campo com espaço restrito, baixo custo. Não requer geometria extra.
+
+**Limitação:** ganho baixo; irregular em elevação. Para links longos ou com obstáculos, ganho insuficiente.
+
+---
+
+## Commercial Omni 6dBi
+
+Antena colinear comercial vertical. Referência prática para gateways LoRa — especialmente o kit E220-900T22D.
+
+| Parâmetro | Valor típico |
+|---|---|
+| Ganho | 6 dBi (fixo nominal) |
+| HPBW elevação | ~35° (feixe mais estreito que dipolo) |
+| Polarização | linear vertical |
+| Impedância | 50 Ω |
+| Eficiência | ~95% |
+
+**Quando usar:** gateway LoRa que precisa de cobertura 360° no azimute com ganho maior que o dipolo simples. Melhor custo-benefício para gateway multi-sensor.
+
+**Limitação:** feixe de elevação estreito (~35°) penaliza nós muito próximos ou em ângulo de elevação alto. Não requer geometria extra.
+
+---
+
 ## Resumo de uso no sistema
 
-| Tipo | Solver Rápido | Solver Padrão/Preciso |
-|---|---|---|
-| Dipolo | Analítico (Balanis Eq. 4-79) | MoM (PyNEC) |
-| Monopolo | Analítico | MoM (PyNEC) |
-| Helicoidal | Analítico (Kraus) | MoM (modo axial PyNEC não suportado → analítico) |
-| Parabólica | Analítico (abertura) | Abertura (G = η(πD/λ)²) |
+O sistema aceita 6 tipos. Todos têm solver analítico rápido disponível.
+
+| Tipo Python | Equivalente MATLAB | Solver Rápido | Solver Padrão/Preciso |
+|---|---|---|---|
+| `dipolo` | `Dipole_HalfWave` | Analítico (Balanis) | MoM (PyNEC) |
+| `monopolo` | `Monopole_GroundPlane` | Analítico | MoM (PyNEC) |
+| `helicoidal` | `Helical_Axial` | Analítico (Kraus) | MoM axial → analítico |
+| `parabolica` | `Parabolic_Dish` | Abertura (G = η(πD/λ)²) | Abertura |
+| `pcb_compact` | `PCB_Compact` | Por faixa de frequência | Por faixa de frequência |
+| `commercial_omni_6dbi` | `Commercial_Omni_6dBi` | Colinear analítico | Colinear analítico |

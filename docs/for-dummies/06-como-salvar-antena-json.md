@@ -11,7 +11,7 @@ Só dois campos são obrigatórios:
 | Campo | O que colocar |
 |---|---|
 | `name` | Nome que você vai ver na biblioteca |
-| `type` | `dipolo`, `monopolo`, `helicoidal` ou `parabolica` |
+| `type` | `dipolo`, `monopolo`, `helicoidal`, `parabolica`, `pcb_compact` ou `commercial_omni_6dbi` |
 | `frequency_hz` | Frequência em Hz (ex: `915000000` para 915 MHz) |
 
 ## Exemplo mínimo

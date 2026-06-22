@@ -7,6 +7,7 @@ from typing import Any, Optional
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
 
+from ..domain.antenna_presets import ANTENNA_PRESETS
 from ..schemas.antenna_spec import AntennaSpec
 from ..solvers.aperture_solver import ApertureSolver
 from ..solvers.colinear_solver import ColinearSolver
@@ -211,7 +212,7 @@ def _solve_pcb_compact(req: SandboxPreviewRequest) -> PreviewResult:
 
 def _solve_colinear(req: SandboxPreviewRequest) -> PreviewResult:
     sr = _colinear.solve(req)
-    hpbw = 20.0
+    hpbw = ANTENNA_PRESETS["commercial_omni_6dbi"]["hpbw_deg"]  # 35° from preset (MATLAB ref)
     return PreviewResult(
         gain_dbi=sr.gain_dbi,
         impedance_ohm=sr.impedance_ohm,

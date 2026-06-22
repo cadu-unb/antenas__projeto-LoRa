@@ -1,6 +1,7 @@
 """
 Testes dos novos solvers: PcbSolver e ColinearSolver.
 Valida: ganho, impedância, padrão de radiação e integração via sandbox API.
+Inclui testes dos presets canônicos (Fase 3).
 """
 import pytest
 from fastapi.testclient import TestClient
@@ -8,6 +9,8 @@ from fastapi.testclient import TestClient
 from backend.app.main import app
 from backend.app.solvers.pcb_solver import PcbSolver
 from backend.app.solvers.colinear_solver import ColinearSolver
+from backend.app.domain.antenna_presets import ANTENNA_PRESETS, apply_antenna_defaults
+from backend.app.schemas.antenna_spec import AntennaSpec
 
 client = TestClient(app)
 
@@ -151,3 +154,111 @@ def test_sandbox_colinear_not_fixture():
         "solver": "rapido",
     })
     assert r.json()["is_fixture"] is False
+
+
+# ── Presets canônicos (Fase 3) ────────────────────────────────────────────────
+
+_EXPECTED_PRESETS = {
+    "dipolo":               {"gmax_dbi": 2.15,  "hpbw_deg": 78.0,  "is_directional": False, "pattern_model": "dipole",           "practicality_score": 8.0,  "multi_direction_score": 9.0},
+    "monopolo":             {"gmax_dbi": 5.15,  "hpbw_deg": 55.0,  "is_directional": False, "pattern_model": "monopole",         "practicality_score": 7.0,  "multi_direction_score": 8.0},
+    "helicoidal":           {"gmax_dbi": 11.0,  "hpbw_deg": 55.0,  "is_directional": True,  "pattern_model": "helical",          "practicality_score": 5.0,  "multi_direction_score": 3.0},
+    "parabolica":           {"gmax_dbi": 20.0,  "hpbw_deg": 18.0,  "is_directional": True,  "pattern_model": "parabolic",        "practicality_score": 2.0,  "multi_direction_score": 1.0},
+    "pcb_compact":          {"gmax_dbi": 1.0,   "hpbw_deg": 120.0, "is_directional": False, "pattern_model": "pcb",              "practicality_score": 10.0, "multi_direction_score": 7.0},
+    "commercial_omni_6dbi": {"gmax_dbi": 6.0,   "hpbw_deg": 35.0,  "is_directional": False, "pattern_model": "omni_colinear",    "practicality_score": 9.0,  "multi_direction_score": 8.0},
+}
+
+
+def test_all_six_types_have_presets():
+    assert set(ANTENNA_PRESETS.keys()) == set(_EXPECTED_PRESETS.keys())
+
+
+@pytest.mark.parametrize("antenna_type,expected", _EXPECTED_PRESETS.items())
+def test_preset_values(antenna_type, expected):
+    preset = ANTENNA_PRESETS[antenna_type]
+    for key, value in expected.items():
+        assert preset[key] == value, f"{antenna_type}.{key}: expected {value}, got {preset[key]}"
+
+
+@pytest.mark.parametrize("antenna_type", list(_EXPECTED_PRESETS.keys()))
+def test_preset_has_all_required_keys(antenna_type):
+    required = {"gmax_dbi", "hpbw_deg", "polarization", "is_directional",
+                "pattern_model", "practicality_score", "multi_direction_score"}
+    assert required <= set(ANTENNA_PRESETS[antenna_type].keys())
+
+
+# ── apply_antenna_defaults ────────────────────────────────────────────────────
+
+def test_minimal_spec_gets_all_preset_fields():
+    spec = AntennaSpec(name="X", type="dipolo", frequency_hz=915e6)
+    result = apply_antenna_defaults(spec)
+    assert result.spec.gmax_dbi == 2.15
+    assert result.spec.hpbw_deg == 78.0
+    assert result.spec.is_directional is False
+    assert result.spec.pattern_model == "dipole"
+
+
+def test_apply_defaults_does_not_mutate_input():
+    spec = AntennaSpec(name="X", type="dipolo", frequency_hz=915e6)
+    apply_antenna_defaults(spec)
+    assert spec.gmax_dbi is None  # original unchanged
+
+
+def test_explicit_user_value_not_overridden():
+    spec = AntennaSpec(name="X", type="dipolo", frequency_hz=915e6, gmax_dbi=3.0)
+    result = apply_antenna_defaults(spec)
+    assert result.spec.gmax_dbi == 3.0
+    assert "gmax_dbi" not in result.from_preset
+
+
+def test_from_preset_tracks_filled_fields():
+    spec = AntennaSpec(name="X", type="dipolo", frequency_hz=915e6)
+    result = apply_antenna_defaults(spec)
+    assert "gmax_dbi" in result.from_preset
+    assert "hpbw_deg" in result.from_preset
+    assert "is_directional" in result.from_preset
+
+
+def test_from_preset_excludes_user_set_fields():
+    spec = AntennaSpec(name="X", type="monopolo", frequency_hz=915e6, hpbw_deg=45.0)
+    result = apply_antenna_defaults(spec)
+    assert "hpbw_deg" not in result.from_preset
+    assert result.spec.hpbw_deg == 45.0
+
+
+def test_unknown_type_returns_spec_unchanged():
+    spec = AntennaSpec(name="X", type="yagi", frequency_hz=915e6)
+    result = apply_antenna_defaults(spec)
+    assert result.spec is spec
+    assert result.from_preset == frozenset()
+
+
+def test_schema_version_bumped_after_apply_defaults():
+    spec = AntennaSpec(name="X", type="dipolo", frequency_hz=915e6)
+    assert spec.schema_version == "1.0"
+    result = apply_antenna_defaults(spec)
+    assert result.spec.schema_version == "2.0"
+
+
+def test_pcb_gmax_from_preset_is_flagged():
+    """pcb_compact gmax_dbi=1 from preset must be distinguishable from user-set.
+    Phase 4 _effective_gain() will skip this override for pcb_compact."""
+    spec = AntennaSpec(name="X", type="pcb_compact", frequency_hz=915e6)
+    result = apply_antenna_defaults(spec)
+    assert result.spec.gmax_dbi == 1.0
+    assert "gmax_dbi" in result.from_preset  # Phase 4 must check this
+
+
+def test_pcb_explicit_gmax_not_from_preset():
+    spec = AntennaSpec(name="X", type="pcb_compact", frequency_hz=915e6, gmax_dbi=1.5)
+    result = apply_antenna_defaults(spec)
+    assert result.spec.gmax_dbi == 1.5
+    assert "gmax_dbi" not in result.from_preset
+
+
+@pytest.mark.parametrize("antenna_type", list(_EXPECTED_PRESETS.keys()))
+def test_minimal_spec_for_each_type(antenna_type):
+    spec = AntennaSpec(name="X", type=antenna_type, frequency_hz=915e6)
+    result = apply_antenna_defaults(spec)
+    assert result.spec.gmax_dbi is not None
+    assert result.spec.hpbw_deg is not None
+    assert result.spec.is_directional is not None

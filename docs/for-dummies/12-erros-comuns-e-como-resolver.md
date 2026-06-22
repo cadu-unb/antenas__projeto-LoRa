@@ -49,7 +49,7 @@ O log parcial ainda está disponível em `backend/data/simulations/{job_id}/log.
 
 **Causa:** O tipo de antena selecionado não tem solver implementado. Um resultado genérico foi retornado.
 
-**Solução:** Use dipolo, monopolo, helicoidal ou parabólica. Outros tipos estão fora do escopo atual.
+**Solução:** Use um dos 6 tipos suportados: `dipolo`, `monopolo`, `helicoidal`, `parabolica`, `pcb_compact`, `commercial_omni_6dbi`.
 
 ---
 

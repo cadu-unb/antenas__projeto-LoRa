@@ -16,7 +16,7 @@ Ambiente para projetar e simular antenas antes de salvar na biblioteca. Modo Rá
 ## Passo a passo
 
 1. Abra `http://localhost:8000/sandbox.html`
-2. Escolha o tipo de antena (dipolo, monopolo, helicoidal, parabólica)
+2. Escolha o tipo de antena: `dipolo`, `monopolo`, `helicoidal`, `parabolica`, `pcb_compact`, `commercial_omni_6dbi`
 3. Ajuste a frequência em MHz
 4. Edite os parâmetros de geometria — o SVG atualiza ao digitar
 5. Clique **Calcular Preview** → resultado aparece nos Painéis 3 e 4
@@ -42,6 +42,18 @@ Ambiente para projetar e simular antenas antes de salvar na biblioteca. Modo Rá
 ### Parabólica
 - `diameter_m` — diâmetro do refletor
 - `focal_length_m` — distância focal (típico: D × 0.367)
+
+### PCB Compact
+- Nenhum parâmetro de geometria obrigatório — o solver usa a frequência para calcular o ganho por faixa automaticamente.
+
+### Commercial Omni 6dBi
+- Nenhum parâmetro de geometria obrigatório — ganho fixo nominal 6 dBi, padrão colinear aplicado pelo solver.
+
+## Ganho direcional e orientação de antena
+
+Para antenas direcionais (`helicoidal`, `parabolica`), o sistema aplica ganho angular real via `pattern_g()` quando o nó tem `azimuth_deg` definido no Link Planner. Sem `azimuth_deg`, o solver usa o ganho máximo (boresight).
+
+O sistema usa coordenadas ENU 3D para calcular geometria de enlace (azimute e elevação reais entre os nós). Perdas extras por enlace (`cable_loss_db`, `extra_loss_db`, `fading_margin_db`, `polarization_loss_db`) ficam em `NodeSpec`, não em `AntennaSpec`.
 
 ## Interpretar os resultados
 

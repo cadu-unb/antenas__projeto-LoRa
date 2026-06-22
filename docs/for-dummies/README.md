@@ -9,7 +9,7 @@ Guias acessíveis para usuários do sistema de antenas LoRa. Sem matemática pes
 | `01-o-que-e-este-sistema.md` | Visão geral: Sandbox, Biblioteca, Link Planner | 1 |
 | `02-como-instalar-e-rodar.md` | Pré-requisitos, Docker, primeira execução | 1 |
 | `03-como-usar-o-sandbox.md` | Criação de antena, parâmetros, diagrama polar | 3 |
-| `04-tipos-de-antena.md` | Dipolo, monopolo, helicoidal, parabólica | 3 |
+| `04-tipos-de-antena.md` | Dipolo, monopolo, helicoidal, parabólica, PCB Compact, Commercial Omni 6dBi | 3 |
 | `05-como-criar-antena-no-sandbox.md` | Passo a passo: criar antena do zero | 3 |
 | `06-como-salvar-antena-json.md` | Salvar, exportar e importar specs de antena | 2 |
 | `07-como-usar-a-biblioteca.md` | Listar, filtrar, duplicar, deletar antenas | 2 |

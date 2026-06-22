@@ -71,25 +71,32 @@ Os arquivos de `.reports/externo/prompt/return/` listam ou implementam estas fea
 
 ## Gaps críticos — funcionalidade ausente
 
-### 1. Ganho direcional G(θ,φ) — não implementado
+### 1. Ganho direcional G(θ,φ) — parcialmente implementado
 
 **MATLAB:** para cada enlace calcula azimute e elevação reais → consulta `antennaPattern(type, theta, phi)` → usa G_tx(θ,φ) e G_rx(θ,φ) efetivos.
 
-**Python:** usa sempre `G_max` da antena. Não existe consulta angular. O sandbox gera um diagrama visual, mas o cálculo de link budget não usa esse padrão — usa o pico.
+**Python:** quando `azimuth_deg` é definido em `NodeSpec`, o link budget aplica ganho direcional real via `pattern_g()` por tipo de antena. O sistema usa coordenadas ENU 3D para calcular azimute e elevação reais do enlace.
 
-**Impacto:** antenas diretivas (helicoidal, parabólica) sempre aparecem com ganho máximo, independente do ângulo real de enlace. Resultado fisicamente incorreto quando o boresight não aponta para o receptor.
+**Gap residual:** a consulta angular é ativada apenas quando o usuário define `azimuth_deg` explicitamente. Sem esse campo, o solver usa `G_max`. Não há cálculo automático de desalinhamento quando o boresight não aponta para o receptor sem anotação do usuário.
 
 ---
 
-### 2. Tipos de antena ausentes
+### 2. Tipos de antena — paridade atingida
 
-**MATLAB:** 6 tipos — Dipole_HalfWave, Monopole_GroundPlane, Helical_Axial, Parabolic_Dish, **PCB_Compact**, **Commercial_Omni_6dBi**.
+**MATLAB:** 6 tipos — Dipole_HalfWave, Monopole_GroundPlane, Helical_Axial, Parabolic_Dish, PCB_Compact, Commercial_Omni_6dBi.
 
-**Python:** 4 tipos — Dipolo, Monopolo, Helicoidal, Parabólica.
+**Python:** 6 tipos implementados no registry de solvers (`backend/app/solvers/__init__.py`):
 
-Faltam:
-- `PCB_Compact` — antena integrada ao PCB, quasi-omni, G ≈ 0–2 dBi com irregularidades angulares
-- `Commercial_Omni_6dBi` — antena colinear comercial 6 dBi, padrão mais estreito em elevação que o dipolo simples; usada como referência prática no kit E220-900T22D
+| Tipo Python | Equivalente MATLAB |
+|---|---|
+| `dipolo` | `Dipole_HalfWave` |
+| `monopolo` | `Monopole_GroundPlane` |
+| `helicoidal` | `Helical_Axial` |
+| `parabolica` | `Parabolic_Dish` |
+| `pcb_compact` | `PCB_Compact` |
+| `commercial_omni_6dbi` | `Commercial_Omni_6dBi` |
+
+Gap residual: campos físicos tabulares (`HPBW_deg`, `Polarization`, `PracticalityScore`, `MultiDirectionScore`) ainda não são campos diretos de `AntennaSpec` — ficam distribuídos em `geometry`, `results` ou `metadata`. Isso será endereçado nas Melhorias 2.
 
 ---
 
@@ -101,11 +108,20 @@ Faltam:
 
 ---
 
-### 4. Perdas adicionais — não parametrizadas
+### 4. Perdas adicionais — implementadas
 
 **MATLAB:** o `linkBudget.m` aceita perdas de cabo TX/RX, perda de polarização, perda extra e margem de fading. No `main_LoRa_AntennaComparison.m`, o exemplo soma 19 dB no total: 0,5 dB cabo TX + 0,5 dB cabo RX + 8 dB perda extra + 10 dB fading.
 
-**Python:** o link budget principal usa FSPL e `cable_loss_db` por nó. Não há campos explícitos para perda adicional por obstrução/clutter, perda de polarização ou margem de fading no `NodeSpec` ou no cálculo de enlace.
+**Python:** `NodeSpec` possui campos explícitos para todas essas perdas:
+
+| Campo `NodeSpec` | Equivalente MATLAB |
+|---|---|
+| `cable_loss_db` | `TxCableLoss_dB` / `RxCableLoss_dB` |
+| `extra_loss_db` | `ExtraLoss_dB` |
+| `fading_margin_db` | `FadingMargin_dB` |
+| `polarization_loss_db` | `PolarizationLoss_dB` |
+
+Gap residual: perda de polarização não é calculada automaticamente com base nos tipos de antena TX/RX — é informada manualmente pelo usuário em `polarization_loss_db`. Cálculo automático está previsto nas Melhorias 2 (Fase 5).
 
 ---
 
@@ -227,12 +243,12 @@ Faltam:
 
 | # | Gap | Severidade | Necessário para |
 |---|-----|-----------|----------------|
-| 1 | G(θ,φ) — ganho direcional real | Alta | Resultados fisicamente corretos para helicoidal/parabólica |
-| 2 | Orientação/apontamento de antena | Alta | Cenários C e D do MATLAB |
+| 1 | G(θ,φ) — ganho direcional automático (sem `azimuth_deg` manual) | Média | Resultados automáticos para helicoidal/parabólica sem anotação do usuário |
+| 2 | ~~Tipos PCB_Compact + Commercial_Omni_6dBi~~ | ~~Média~~ | **Resolvido** — 6 tipos no registry |
 | 3 | Base de módulos LoRa | Alta | Sensibilidades por SF, corrente de TX |
-| 4 | Perdas adicionais por obstrução | Média | Realismo em ambiente de campus |
+| 4 | ~~Perdas adicionais (cabo, fading, polarização)~~ | ~~Média~~ | **Resolvido** — campos em `NodeSpec` |
 | 5 | Comparação de cenários A–E | Média | Análise comparativa módulo × antena |
-| 6 | PCB_Compact + Commercial_Omni_6dBi | Média | Paridade com MATLAB; referência prática do kit |
+| 6 | Orientação/apontamento automático de antena | Alta | Cenários C e D do MATLAB |
 | 7 | Distância 3D com altitude | Média | Precisão e geometria angular |
 | 8 | Seleção automática de gateway (minimax) | Baixa | Alternativa ao site selection atual |
 | 9 | Robustez direcional no ranking | Baixa | Score mais justo para antenas diretivas |

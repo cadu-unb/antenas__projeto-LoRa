@@ -4,12 +4,14 @@ Schema central de antenas. Salvo em `backend/data/antenna_specs/{id}.json`.
 
 ## Campos
 
+### Campos base (v1.0)
+
 | Campo | Tipo | Obrigatório | Descrição |
 |---|---|---|---|
-| `schema_version` | string | não | Versão do schema (default `"1.0"`) |
+| `schema_version` | string | não | `"1.0"` (default) ou `"2.0"` (auto quando campos físicos presentes) |
 | `id` | string (UUID) | não | Gerado automaticamente se omitido |
 | `name` | string | **sim** | Nome legível da antena |
-| `type` | string | **sim** | `dipolo`, `monopolo`, `helicoidal`, `parabolica` |
+| `type` | string | **sim** | `dipolo`, `monopolo`, `helicoidal`, `parabolica`, `pcb_compact`, `commercial_omni_6dbi` |
 | `frequency_hz` | float | **sim** | Frequência central em Hz |
 | `units` | dict | não | Unidades dos campos numéricos |
 | `geometry` | dict | não | Parâmetros geométricos específicos por tipo |
@@ -17,6 +19,23 @@ Schema central de antenas. Salvo em `backend/data/antenna_specs/{id}.json`.
 | `solver` | string | não | `rapido` (default), `padrao`, `preciso`, `experimental` |
 | `results` | dict \| null | não | Resultados de simulação (preenchido pelo solver) |
 | `metadata` | dict | não | Notas, tags, timestamps livres |
+
+### Campos físicos opcionais (v2.0)
+
+Campos alinhados com a referência MATLAB externa. Todos opcionais — specs antigas sem esses campos continuam válidas.
+
+| Campo | Tipo | Validação | Descrição |
+|---|---|---|---|
+| `gmax_dbi` | float \| null | numérico | Ganho máximo nominal (boresight) em dBi |
+| `hpbw_deg` | float \| null | > 0 | Half-Power Beamwidth em graus |
+| `polarization` | string \| null | — | Ex: `"linear vertical"`, `"circular/elliptical"`, `"linear"` |
+| `is_directional` | bool \| null | — | `true` para antenas com boresight definido |
+| `pattern_model` | string \| null | — | Identificador do modelo angular: `dipole`, `monopole`, `helical`, `parabolic`, `pcb`, `omni_colinear` |
+| `practicality_score` | float \| null | 0–10 | Facilidade de instalação/uso (referência MATLAB) |
+| `multi_direction_score` | float \| null | 0–10 | Adequação para cobertura multi-azimute |
+| `notes` | string | — | Observações livres (default `""`) |
+
+**Regra de versionamento:** se ao menos um campo físico for preenchido, `schema_version` é automaticamente promovido para `"2.0"`. Specs antigas sem campos físicos mantêm `"1.0"` e não são regravadas em disco pela leitura.
 
 ---
 
@@ -97,6 +116,95 @@ Schema central de antenas. Salvo em `backend/data/antenna_specs/{id}.json`.
   }
 }
 ```
+
+---
+
+---
+
+## Exemplo — PCB Compact 915 MHz
+
+```json
+{
+  "schema_version": "1.0",
+  "name": "PCB Compact 915 MHz",
+  "type": "pcb_compact",
+  "frequency_hz": 915000000.0,
+  "solver": "rapido",
+  "results": {
+    "gain_dbi": 1.5,
+    "impedance_ohm": 50.0,
+    "efficiency_pct": 85.0,
+    "radiation_pattern": "quasi-omni"
+  }
+}
+```
+
+Nota: `pcb_compact` não exige campos em `geometry`. O solver calcula ganho por faixa de frequência automaticamente.
+
+---
+
+## Exemplo — Commercial Omni 6dBi com campos físicos (v2.0)
+
+```json
+{
+  "schema_version": "2.0",
+  "name": "Omni Colinear 6dBi 915 MHz",
+  "type": "commercial_omni_6dbi",
+  "frequency_hz": 915000000.0,
+  "solver": "rapido",
+  "gmax_dbi": 6.0,
+  "hpbw_deg": 35.0,
+  "polarization": "linear vertical",
+  "is_directional": false,
+  "pattern_model": "omni_colinear",
+  "practicality_score": 9.0,
+  "multi_direction_score": 8.0,
+  "notes": "Kit E220-900T22D reference antenna",
+  "results": {
+    "gain_dbi": 6.0,
+    "impedance_ohm": 50.0,
+    "efficiency_pct": 95.0,
+    "radiation_pattern": "omnidirecional colinear"
+  }
+}
+```
+
+Nota: `commercial_omni_6dbi` não exige campos em `geometry`. `schema_version` promovido para `"2.0"` automaticamente pela presença dos campos físicos.
+
+---
+
+## Equivalência Python ↔ MATLAB externo
+
+| Tipo Python | Equivalente MATLAB | Ganho nominal | Direcional? |
+|---|---|---:|---|
+| `dipolo` | `Dipole_HalfWave` | 2.15 dBi | não |
+| `monopolo` | `Monopole_GroundPlane` | 5.15 dBi | não |
+| `helicoidal` | `Helical_Axial` | ~11 dBi | sim (axial) |
+| `parabolica` | `Parabolic_Dish` | ~20 dBi | sim |
+| `pcb_compact` | `PCB_Compact` | 1–2 dBi | não |
+| `commercial_omni_6dbi` | `Commercial_Omni_6dBi` | 6 dBi | não |
+
+---
+
+## Campos de antena vs. campos de nó/enlace
+
+`AntennaSpec` guarda as propriedades físicas da antena: tipo, geometria, resultados calculados.
+
+Os parâmetros que afetam o cálculo de enlace por nó ficam em `NodeSpec`:
+
+| Campo `NodeSpec` | Efeito |
+|---|---|
+| `antenna_id` | Referencia uma `AntennaSpec` salva |
+| `azimuth_deg` | Quando preenchido, ativa ganho direcional via `pattern_g()` |
+| `tilt_deg` | Elevação/tilt do boresight |
+| `cable_loss_db` | Perda de cabo/conector |
+| `extra_loss_db` | Perda adicional arbitrária |
+| `fading_margin_db` | Margem de fading tratada como perda |
+| `polarization_loss_db` | Perda de polarização |
+
+O sistema usa coordenadas ENU 3D para cálculo de geometria de enlace (azimute e elevação reais). Quando `azimuth_deg` é definido em `NodeSpec`, o solver aplica o padrão angular da antena via `pattern_g()` para antenas direcionais.
+
+O campo `geometry` de `AntennaSpec` continua livre (dict sem schema fixo). Versões futuras do schema adicionarão campos físicos opcionais no topo de `AntennaSpec` (`gmax_dbi`, `hpbw_deg`, `polarization`, `is_directional`, `pattern_model`, `practicality_score`, `multi_direction_score`) sem quebrar specs antigas.
 
 ---
 
