@@ -61,6 +61,10 @@ Funcionalidades fora do escopo deste projeto:
 - `docs/calculos/10-referencias-tecnicas.md` — referências bibliográficas verificáveis
 
 
+## Docker
+
+Chamar o docker (linux):
+```bash
 sudo systemctl start docker
 ```
 
@@ -68,3 +72,4 @@ sudo systemctl start docker
 # hard copile
 docker compose build 2>&1 | tail -100 && docker compose up -d
 docker compose build --no-cache 2>&1 && docker compose up -d --force-recreate
+```
