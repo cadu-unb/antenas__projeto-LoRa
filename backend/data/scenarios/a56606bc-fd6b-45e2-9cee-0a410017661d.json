@@ -1,0 +1,146 @@
+{
+  "id": "a56606bc-fd6b-45e2-9cee-0a410017661d",
+  "name": "Malha teste",
+  "node_a": {
+    "id": "node-a",
+    "name": "Hub 1",
+    "lat": -15.78,
+    "lon": -47.93,
+    "height_m": 30.0,
+    "antenna_id": null,
+    "tx_power_dbm": 20.0,
+    "rx_sensitivity_dbm": -137.0,
+    "cable_loss_db": 0.0,
+    "is_hub": true,
+    "extra_loss_db": 0.0,
+    "fading_margin_db": 0.0,
+    "polarization_loss_db": 0.0,
+    "azimuth_deg": null,
+    "tilt_deg": 0.0,
+    "lora_module_id": null
+  },
+  "node_b": {
+    "id": "node-b",
+    "name": "Hub 2",
+    "lat": -15.84,
+    "lon": -48.05,
+    "height_m": 30.0,
+    "antenna_id": null,
+    "tx_power_dbm": 20.0,
+    "rx_sensitivity_dbm": -137.0,
+    "cable_loss_db": 0.0,
+    "is_hub": true,
+    "extra_loss_db": 0.0,
+    "fading_margin_db": 0.0,
+    "polarization_loss_db": 0.0,
+    "azimuth_deg": null,
+    "tilt_deg": 0.0,
+    "lora_module_id": null
+  },
+  "frequency_hz": 915000000.0,
+  "propagation_model": "fspl",
+  "topology_type": "MULTI_STAR",
+  "extra_nodes": [
+    {
+      "id": "node-c",
+      "name": "Folha C",
+      "lat": -15.81,
+      "lon": -47.99,
+      "height_m": 5.0,
+      "antenna_id": null,
+      "tx_power_dbm": 14.0,
+      "rx_sensitivity_dbm": -137.0,
+      "cable_loss_db": 0.0,
+      "is_hub": false,
+      "extra_loss_db": 0.0,
+      "fading_margin_db": 0.0,
+      "polarization_loss_db": 0.0,
+      "azimuth_deg": null,
+      "tilt_deg": 0.0,
+      "lora_module_id": null
+    },
+    {
+      "id": "node-d",
+      "name": "Folha D",
+      "lat": -15.75,
+      "lon": -47.97,
+      "height_m": 5.0,
+      "antenna_id": null,
+      "tx_power_dbm": 14.0,
+      "rx_sensitivity_dbm": -137.0,
+      "cable_loss_db": 0.0,
+      "is_hub": false,
+      "extra_loss_db": 0.0,
+      "fading_margin_db": 0.0,
+      "polarization_loss_db": 0.0,
+      "azimuth_deg": null,
+      "tilt_deg": 0.0,
+      "lora_module_id": null
+    }
+  ],
+  "links": [
+    {
+      "id": "0f6a1c25-f818-4556-87c3-e1d5c989d686",
+      "node_a_id": "node-a",
+      "node_b_id": "node-b"
+    },
+    {
+      "id": "b08d9221-7830-4efa-ad5d-7b17a1ff0f8e",
+      "node_a_id": "node-a",
+      "node_b_id": "node-c"
+    },
+    {
+      "id": "945ae1e8-6d18-43fe-b439-fbd90ad05ec9",
+      "node_a_id": "node-b",
+      "node_b_id": "node-d"
+    }
+  ],
+  "polygons": [],
+  "candidates": [],
+  "results": null,
+  "topology_result": {
+    "hops": [
+      {
+        "edge_id": "0f6a1c25-f818-4556-87c3-e1d5c989d686",
+        "node_a_id": "node-a",
+        "node_b_id": "node-b",
+        "node_a_name": "Hub 1",
+        "node_b_name": "Hub 2",
+        "distance_m": 14468.6,
+        "fspl_db": 114.88,
+        "rx_power_dbm": -94.88,
+        "link_margin_db": 42.12,
+        "feasibility": "verde"
+      },
+      {
+        "edge_id": "b08d9221-7830-4efa-ad5d-7b17a1ff0f8e",
+        "node_a_id": "node-a",
+        "node_b_id": "node-c",
+        "node_a_name": "Hub 1",
+        "node_b_name": "Folha C",
+        "distance_m": 7234.7,
+        "fspl_db": 108.86,
+        "rx_power_dbm": -88.86,
+        "link_margin_db": 48.14,
+        "feasibility": "verde"
+      },
+      {
+        "edge_id": "945ae1e8-6d18-43fe-b439-fbd90ad05ec9",
+        "node_a_id": "node-b",
+        "node_b_id": "node-d",
+        "node_a_name": "Hub 2",
+        "node_b_name": "Folha D",
+        "distance_m": 13168.9,
+        "fspl_db": 114.06,
+        "rx_power_dbm": -94.06,
+        "link_margin_db": 42.94,
+        "feasibility": "verde"
+      }
+    ],
+    "islands": [],
+    "bottleneck_margin_db": 42.12,
+    "feasibility": "verde"
+  },
+  "site_selection_result": null,
+  "metadata": {}
+}

@@ -1,0 +1,82 @@
+{
+  "id": "c311fc29-4af7-49fa-aa32-7ea882a43d6a",
+  "name": "Cenário KML test",
+  "node_a": {
+    "id": "2b0bac94-cf34-4842-8064-22932eeefccc",
+    "name": "A",
+    "lat": -15.7801,
+    "lon": -47.9292,
+    "height_m": 10.0,
+    "antenna_id": null,
+    "tx_power_dbm": 14.0,
+    "rx_sensitivity_dbm": -137.0,
+    "cable_loss_db": 0.0,
+    "is_hub": false,
+    "extra_loss_db": 0.0,
+    "fading_margin_db": 0.0,
+    "polarization_loss_db": 0.0,
+    "azimuth_deg": null,
+    "tilt_deg": 0.0,
+    "lora_module_id": null
+  },
+  "node_b": {
+    "id": "758381c5-c8b2-4019-85a1-48ae2e8351c5",
+    "name": "B",
+    "lat": -15.83,
+    "lon": -48.05,
+    "height_m": 10.0,
+    "antenna_id": null,
+    "tx_power_dbm": 14.0,
+    "rx_sensitivity_dbm": -137.0,
+    "cable_loss_db": 0.0,
+    "is_hub": false,
+    "extra_loss_db": 0.0,
+    "fading_margin_db": 0.0,
+    "polarization_loss_db": 0.0,
+    "azimuth_deg": null,
+    "tilt_deg": 0.0,
+    "lora_module_id": null
+  },
+  "frequency_hz": 915000000.0,
+  "propagation_model": "fspl",
+  "topology_type": "P2P",
+  "extra_nodes": [],
+  "links": [],
+  "polygons": [
+    {
+      "name": "Área de interesse",
+      "outer_ring": [
+        [
+          -48.0,
+          -15.9,
+          0.0
+        ],
+        [
+          -47.9,
+          -15.9,
+          0.0
+        ],
+        [
+          -47.9,
+          -15.8,
+          0.0
+        ],
+        [
+          -48.0,
+          -15.8,
+          0.0
+        ],
+        [
+          -48.0,
+          -15.9,
+          0.0
+        ]
+      ]
+    }
+  ],
+  "candidates": [],
+  "results": null,
+  "topology_result": null,
+  "site_selection_result": null,
+  "metadata": {}
+}

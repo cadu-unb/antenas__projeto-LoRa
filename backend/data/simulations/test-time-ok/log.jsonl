@@ -1,0 +1,12 @@
+{"ts": 1782137803.449, "event": "START", "max_ram_gb": 25, "max_runtime_min": 30, "timeout_s": 5.0}
+{"ts": 1782137803.45, "event": "DONE", "elapsed_min": 0.0}
+{"ts": 1782138198.713, "event": "START", "max_ram_gb": 25, "max_runtime_min": 30, "timeout_s": 5.0}
+{"ts": 1782138198.713, "event": "DONE", "elapsed_min": 0.0}
+{"ts": 1782138605.967, "event": "START", "max_ram_gb": 25, "max_runtime_min": 30, "timeout_s": 5.0}
+{"ts": 1782138605.967, "event": "DONE", "elapsed_min": 0.0}
+{"ts": 1782139452.44, "event": "START", "max_ram_gb": 25, "max_runtime_min": 30, "timeout_s": 5.0}
+{"ts": 1782139452.442, "event": "DONE", "elapsed_min": 0.0}
+{"ts": 1782139875.098, "event": "START", "max_ram_gb": 25, "max_runtime_min": 30, "timeout_s": 5.0}
+{"ts": 1782139875.098, "event": "DONE", "elapsed_min": 0.0}
+{"ts": 1782140289.561, "event": "START", "max_ram_gb": 25, "max_runtime_min": 30, "timeout_s": 5.0}
+{"ts": 1782140289.561, "event": "DONE", "elapsed_min": 0.0}

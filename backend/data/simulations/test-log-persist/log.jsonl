@@ -1,0 +1,12 @@
+{"ts": 1782137803.453, "event": "START", "max_ram_gb": 25, "max_runtime_min": 30, "timeout_s": 0.1}
+{"ts": 1782137803.564, "event": "FAILED_TIME_LIMIT", "elapsed_min": 0.002, "limit_min": 30}
+{"ts": 1782138198.718, "event": "START", "max_ram_gb": 25, "max_runtime_min": 30, "timeout_s": 0.1}
+{"ts": 1782138198.82, "event": "FAILED_TIME_LIMIT", "elapsed_min": 0.002, "limit_min": 30}
+{"ts": 1782138605.979, "event": "START", "max_ram_gb": 25, "max_runtime_min": 30, "timeout_s": 0.1}
+{"ts": 1782138606.083, "event": "FAILED_TIME_LIMIT", "elapsed_min": 0.002, "limit_min": 30}
+{"ts": 1782139452.447, "event": "START", "max_ram_gb": 25, "max_runtime_min": 30, "timeout_s": 0.1}
+{"ts": 1782139452.561, "event": "FAILED_TIME_LIMIT", "elapsed_min": 0.002, "limit_min": 30}
+{"ts": 1782139875.106, "event": "START", "max_ram_gb": 25, "max_runtime_min": 30, "timeout_s": 0.1}
+{"ts": 1782139875.212, "event": "FAILED_TIME_LIMIT", "elapsed_min": 0.002, "limit_min": 30}
+{"ts": 1782140289.569, "event": "START", "max_ram_gb": 25, "max_runtime_min": 30, "timeout_s": 0.1}
+{"ts": 1782140289.672, "event": "FAILED_TIME_LIMIT", "elapsed_min": 0.002, "limit_min": 30}
