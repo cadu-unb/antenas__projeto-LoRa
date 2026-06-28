@@ -24,6 +24,7 @@ dist/
 filter.py
 tree_focada.txt
 caminhos.txt
+__docs/
 
 # Generated reports/exports
 *.pdf
